@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -7,6 +7,7 @@ import { HealthyRitualCard } from "@/components/HealthyRitualCard";
 import { InviteFriendCard } from "@/components/InviteFriendCard";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { NextActionCard } from "@/components/NextActionCard";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { trackGrowthEvent } from "@/lib/growth-events";
@@ -16,8 +17,9 @@ import { displayInitials } from "@/lib/display-initials";
 import { mealIntentLabel, socialIntentLabel } from "@/lib/intent-labels";
 import { surpriseGrailleEnabled } from "@/lib/feature-modules";
 import { GROWTH_DISCOVER_KICKER } from "@/lib/growth-copy";
+import { MARKETING_TAGLINE_GOLDEN } from "@/lib/marketing-copy";
 import { MARKETING_DISCOVER_PULSE_LINES } from "@/lib/marketing-copy";
-import { UX_ACCUEIL, UX_DISCOVER } from "@/lib/ux-copy";
+import { UX_ACCUEIL, UX_BACK, UX_DISCOVER } from "@/lib/ux-copy";
 
 type Profile = {
   id: string;
@@ -76,8 +78,14 @@ export function DiscoverClient() {
       return;
     }
     const json = (await res.json()) as { profiles?: Profile[] };
-    setProfiles(json.profiles ?? []);
-    if ((json.profiles ?? []).length === 0) {
+    const list = json.profiles ?? [];
+    setProfiles(list);
+    void trackGrowthEvent({
+      event: "discover_viewed",
+      context: "decouvrir",
+      metadata: { profile_count: list.length },
+    });
+    if (list.length === 0) {
       setHint(
         <>
           {UX_DISCOVER.hintEmpty}{" "}
@@ -90,7 +98,7 @@ export function DiscoverClient() {
             </Link>
             {" · "}
             <Link href="/accueil" style={{ fontWeight: 600 }}>
-              {UX_DISCOVER.backAccueil}
+              {UX_BACK.appAccueilShort}
             </Link>
           </span>
         </>,
@@ -122,30 +130,45 @@ export function DiscoverClient() {
       <PtgAppFlow>
         <div className="ptg-page-inner ptg-scene ptg-scene--discover">
         <AppNav current="decouvrir" />
-        <div className="ptg-page-head">
-          <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-            {UX_DISCOVER.title}
-          </h1>
-          <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
-          <MarketingPulseLine lines={MARKETING_DISCOVER_PULSE_LINES} intervalMs={7200} className="ptg-accueil-pulse" />
-          <p className="ptg-type-body" style={{ margin: "0 0 0.45rem", fontSize: "var(--ptg-text-sm)", maxWidth: "none" }}>
-            {UX_DISCOVER.subtitle}
-          </p>
-          <p className="ptg-type-body" style={{ margin: "0 0 0.5rem", maxWidth: "none" }}>
-            {UX_DISCOVER.intro}
-          </p>
-        </div>
-        <p
-          className="ptg-type-body"
-          style={{
-            margin: "0 0 1rem",
-            fontSize: "var(--ptg-text-md-sm)",
-            fontWeight: 600,
-            color: "var(--ptg-emotion-surprise)",
-          }}
-        >
-          {GROWTH_DISCOVER_KICKER}
-        </p>
+        <PtgMenuCard variant="spark" stamp="Autour de toi">
+          <div className="ptg-page-head">
+            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+              {UX_DISCOVER.title}
+            </h1>
+            <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
+            <MarketingPulseLine lines={MARKETING_DISCOVER_PULSE_LINES} intervalMs={7200} className="ptg-accueil-pulse" />
+            <p className="ptg-type-body" style={{ margin: "0 0 0.45rem", fontSize: "var(--ptg-text-sm)", maxWidth: "none" }}>
+              {UX_DISCOVER.subtitle}
+            </p>
+            <p className="ptg-type-body" style={{ margin: "0 0 0.5rem", maxWidth: "none" }}>
+              {UX_DISCOVER.intro}
+            </p>
+            <p
+              className="ptg-type-body"
+              style={{
+                margin: "0 0 0",
+                fontSize: "var(--ptg-text-md-sm)",
+                fontWeight: 700,
+                lineHeight: 1.35,
+                color: "var(--ptg-emotion-surprise)",
+              }}
+            >
+              {GROWTH_DISCOVER_KICKER}
+            </p>
+            <p
+              className="ptg-type-body"
+              style={{
+                margin: "0.5rem 0 0",
+                fontSize: "var(--ptg-text-sm)",
+                fontWeight: 600,
+                lineHeight: 1.4,
+                color: "var(--ptg-accent-deep)",
+              }}
+            >
+              {MARKETING_TAGLINE_GOLDEN}
+            </p>
+          </div>
+        </PtgMenuCard>
         <NextActionCard title={UX_DISCOVER.nextActionTitle} body={UX_DISCOVER.nextActionBody} marginBottom="0.9rem" />
         <HealthyRitualCard title={UX_DISCOVER.ritualTitle} body={UX_DISCOVER.ritualBody} ctaHref="/repas" ctaLabel="Voir mes repas" />
         <InviteFriendCard source="decouvrir" />
@@ -313,7 +336,7 @@ export function DiscoverClient() {
 
         <p style={{ marginTop: "1.5rem" }}>
           <Link href="/accueil" className="ptg-link-back" style={{ marginBottom: 0 }}>
-            ← {UX_DISCOVER.backAccueil}
+            {UX_BACK.appAccueil}
           </Link>
         </p>
         </div>

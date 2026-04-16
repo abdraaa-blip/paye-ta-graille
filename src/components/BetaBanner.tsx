@@ -1,8 +1,9 @@
+import { isPublicBeta } from "@/lib/public-beta";
 import { UX_BETA } from "@/lib/ux-copy";
 
 /** Affiche un bandeau discret si `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` (calibrer les attentes en test). */
 export function BetaBanner() {
-  if (process.env.NEXT_PUBLIC_PTG_PUBLIC_BETA !== "1") {
+  if (!isPublicBeta()) {
     return null;
   }
 

@@ -1,6 +1,6 @@
 /**
  * Fond émotionnel landing : lavis type papier aquarellé (CSS pur).
- * Inspiré d’une DA « cadre gourmand » — ne remplace pas des illustrations raster.
+ * Inspiré d’une DA « cadre gourmand », sans remplacer des illustrations raster.
  */
 export function HeroAtmosphere() {
   return (

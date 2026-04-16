@@ -20,7 +20,7 @@ export async function GET() {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "share_offers_list", 60, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "share_offers_list", 60, 60_000);
   if (limited) return limited;
 
   const trust = await requireModuleTrust(session.user, session.supabase);
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(
+  const limited = await rateLimitForUser(
     session.user.id,
     "share_offers_create",
     12,

@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { AmbientAppEffects } from "@/components/AmbientAppEffects";
 import { BetaBanner } from "@/components/BetaBanner";
 import { SkipLink } from "@/components/SkipLink";
 import { MARKETING_CORE_PROMISE, MARKETING_HERO_PRIMARY, MARKETING_TAGLINE_GOLDEN } from "@/lib/marketing-copy";
+import { isPublicBeta } from "@/lib/public-beta";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
@@ -18,8 +20,6 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-const isPublicBeta = process.env.NEXT_PUBLIC_PTG_PUBLIC_BETA === "1";
-
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
   title: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   description: `${MARKETING_HERO_PRIMARY} ${MARKETING_TAGLINE_GOLDEN} ${MARKETING_CORE_PROMISE} j’invite, 50/50, je me fais inviter.`,
   applicationName: "Paye ta graille",
-  ...(isPublicBeta ? { robots: { index: false, follow: false } } : {}),
+  ...(isPublicBeta() ? { robots: { index: false, follow: false } } : {}),
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -58,6 +58,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${fraunces.variable}`}>
       <body>
+        <AmbientAppEffects />
         <SkipLink />
         <BetaBanner />
         <main id="contenu-principal" tabIndex={-1} aria-label="Contenu principal">

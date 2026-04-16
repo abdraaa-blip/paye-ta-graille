@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Client Supabase avec clé service role — **routes serveur uniquement** (ex. webhook Stripe).
+ * Client Supabase avec clé service role (**routes serveur uniquement**, ex. webhook Stripe).
  * Ne jamais exposer `SUPABASE_SERVICE_ROLE_KEY` au navigateur.
  */
 export function createServiceRoleClient(): SupabaseClient | null {

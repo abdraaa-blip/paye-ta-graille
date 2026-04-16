@@ -41,12 +41,14 @@ for (const [k, v] of Object.entries(fileVars)) {
   }
 }
 
+const placesKeys = ["GOOGLE_PLACES_API_KEY", "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY"];
+const allowMissingPlaces = truthy(env.PTG_PREFLIGHT_ALLOW_MISSING_PLACES);
+
 const required = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "NEXT_PUBLIC_SITE_URL",
-  "GOOGLE_PLACES_API_KEY",
-  "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY",
+  ...(!allowMissingPlaces ? placesKeys : []),
 ];
 
 const modulePayments = truthy(env.NEXT_PUBLIC_PTG_MODULE_PAYMENTS);
@@ -57,8 +59,54 @@ if (modulePayments) {
 const missing = required.filter((k) => !String(env[k] ?? "").trim());
 const warnings = [];
 
-if (!String(env.RESEND_API_KEY ?? "").trim()) {
+if (allowMissingPlaces) {
+  warnings.push(
+    "PTG_PREFLIGHT_ALLOW_MISSING_PLACES actif : clés Google Places / Maps non exigées. Les flux Lieux resteront limités tant que tu ne les ajoutes pas (prod / preview).",
+  );
+}
+
+const resendKey = String(env.RESEND_API_KEY ?? "").trim();
+if (!resendKey) {
   warnings.push("RESEND_API_KEY absent: notifications email non actives.");
+} else if (!String(env.RESEND_FROM_EMAIL ?? "").trim()) {
+  warnings.push(
+    "RESEND_FROM_EMAIL absent : en prod, prévoir un expéditeur domaine vérifié (sinon valeur par défaut limitée onboarding@resend.dev).",
+  );
+}
+if (!String(env.UPSTASH_REDIS_REST_URL ?? "").trim() || !String(env.UPSTASH_REDIS_REST_TOKEN ?? "").trim()) {
+  warnings.push(
+    "UPSTASH_REDIS_REST_URL/TOKEN absents: le rate-limit restera local (moins fiable en multi-instance).",
+  );
+}
+if (truthy(env.PTG_CSP_REPORT_ONLY ?? "1")) {
+  warnings.push("PTG_CSP_REPORT_ONLY actif: la CSP est en mode rapport uniquement (durcissement progressif).");
+}
+
+const growthAdmin = String(env.PTG_GROWTH_ADMIN_USER_IDS ?? "").trim();
+const growthSecret = String(env.PTG_GROWTH_KPI_SECRET ?? "").trim();
+const serviceRole = String(env.SUPABASE_SERVICE_ROLE_KEY ?? "").trim();
+if (resendKey && !serviceRole) {
+  warnings.push(
+    "RESEND_API_KEY présent mais SUPABASE_SERVICE_ROLE_KEY absent : e-mails « repas proposé » (quota RPC, lecture profil) ne partiront pas côté serveur.",
+  );
+}
+if (resendKey && serviceRole && !String(env.CRON_SECRET ?? "").trim()) {
+  warnings.push(
+    "CRON_SECRET absent : les rappels repas automatiques (cron Vercel /api/cron/meal-reminders) resteront désactivés.",
+  );
+}
+if (String(env.CRON_SECRET ?? "").trim() && serviceRole) {
+  warnings.push(
+    "Cron repas actif côté env : appliquer sur Supabase `20260430100000_meals_reminder_columns.sql` + `20260430200000_auto_complete_meals_rpc.sql` (sinon fallback Node pour la clôture auto, plus lent).",
+  );
+}
+if ((growthAdmin || growthSecret) && !serviceRole) {
+  warnings.push(
+    "KPI croissance configuré (PTG_GROWTH_ADMIN_USER_IDS ou PTG_GROWTH_KPI_SECRET) mais SUPABASE_SERVICE_ROLE_KEY absent : /api/growth/kpi et /interne/croissance ne pourront pas lire les agrégats.",
+  );
+}
+if (growthSecret && growthSecret.length < 24) {
+  warnings.push("PTG_GROWTH_KPI_SECRET très court : préfère un secret aléatoire d’au moins 32 caractères.");
 }
 
 const heroIllusOff = isNegativePublicFlag(env.NEXT_PUBLIC_PTG_HERO_ILLUSTRATION);
@@ -113,9 +161,14 @@ console.log(`  ${callbackUrl}`);
 console.log("  https://<preview>.vercel.app/auth/callback");
 
 console.log("\nNext steps:");
+console.log(
+  "0) Appliquer sur Supabase toutes les migrations (db push ou SQL Editor) : KPI funnel, growth_events, user_settings (notifs + compteur e-mail + RPC reserve_meal_email_nudge_slot), meals (reminder_24h / reminder_2h + RPC auto_complete_confirmed_meals), etc.",
+);
 console.log("1) Configure same env vars in Vercel (Preview + Production).");
-console.log("2) Deploy preview, then run: PTG_BASE_URL=<preview_url> npm run smoke:public");
-console.log("3) Promote to production and rerun smoke with production URL.");
+console.log(
+  "2) Déployer une preview, puis : PTG_BASE_URL=<preview_url> npm run test:e2e (smoke HTTP + navigateur) ou npm run smoke:public si serveur déjà lancé.",
+);
+console.log("3) Promote to production et répéter le même contrôle sur l’URL prod.");
 console.log("4) Si fond hero local : npm run optimize:hero puis commit public/hero/*.webp (ou désactive l’illus).");
 if (!heroIllusOff && heroSrc.startsWith("http")) {
   console.log(

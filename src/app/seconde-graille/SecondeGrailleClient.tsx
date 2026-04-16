@@ -6,6 +6,7 @@ import { readApiError } from "@/lib/api/read-api-error";
 import { displayInitials } from "@/lib/display-initials";
 import { trackGrowthEvent } from "@/lib/growth-events";
 import { GROWTH_MICRO_WIN, GROWTH_MODULE_RESCUE } from "@/lib/growth-copy";
+import { UX_BACK } from "@/lib/ux-copy";
 
 type Listing = {
   id: string;
@@ -19,10 +20,16 @@ type Listing = {
   window_end: string | null;
   status: string;
   created_at: string;
+  is_claimed_by_me?: boolean;
+};
+type MyListing = Listing & {
+  claims_count: number;
+  claimers: { user_id: string; display_name: string; photo_url: string | null }[];
 };
 
 export function SecondeGrailleClient() {
   const [listings, setListings] = useState<Listing[] | null>(null);
+  const [myListings, setMyListings] = useState<MyListing[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(true);
   const [description, setDescription] = useState("");
@@ -43,8 +50,9 @@ export function SecondeGrailleClient() {
       setBusy(false);
       return;
     }
-    const j = (await res.json()) as { listings?: Listing[] };
+    const j = (await res.json()) as { listings?: Listing[]; my_listings?: MyListing[] };
     setListings(j.listings ?? []);
+    setMyListings(j.my_listings ?? []);
     setBusy(false);
   }, []);
 
@@ -209,6 +217,7 @@ export function SecondeGrailleClient() {
                   </p>
                   <p className="ptg-type-body" style={{ margin: 0, fontSize: "var(--ptg-text-sm)" }}>
                     {l.publisher_display_name} · {l.price_cents === 0 ? "Gratuit" : `${(l.price_cents / 100).toFixed(2)} €`}
+                    {l.is_claimed_by_me ? " · Contact déverrouillé" : " · Identité masquée publiquement"}
                   </p>
                   {l.window_start && l.window_end && (
                     <p className="ptg-type-body" style={{ margin: "0.35rem 0 0", fontSize: "var(--ptg-text-xs)" }}>
@@ -233,8 +242,46 @@ export function SecondeGrailleClient() {
         </ul>
       )}
 
+      {myListings && myListings.length > 0 && (
+        <>
+          <p style={{ margin: "1rem 0 0.5rem", fontWeight: 700 }}>Mes annonces publiées</p>
+          <ul className="ptg-list-plain" style={{ margin: "0.25rem 0 0.75rem" }}>
+            {myListings.map((l) => (
+              <li key={`my-${l.id}`} className="ptg-surface ptg-surface--static ptg-card">
+                <p className="ptg-type-body" style={{ margin: "0 0 0.35rem", fontSize: "var(--ptg-text-ui-sm)", whiteSpace: "pre-wrap" }}>
+                  {l.description}
+                </p>
+                <p className="ptg-type-body" style={{ margin: 0, fontSize: "var(--ptg-text-sm)" }}>
+                  {l.price_cents === 0 ? "Gratuit" : `${(l.price_cents / 100).toFixed(2)} €`} ·
+                  {` ${l.claims_count} récupération(s) confirmée(s)`}
+                </p>
+                {l.claimers.length > 0 ? (
+                  <ul className="ptg-list-plain ptg-list-plain--tight" style={{ margin: "0.5rem 0 0" }}>
+                    {l.claimers.map((c) => (
+                      <li key={`${l.id}-${c.user_id}`}>
+                        <span className="ptg-type-body" style={{ fontSize: "var(--ptg-text-sm)" }}>
+                          Récupérateur: {c.display_name}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="ptg-type-body" style={{ margin: "0.45rem 0 0", fontSize: "var(--ptg-text-xs)", color: "var(--ptg-text-muted)" }}>
+                    Pas encore de récupération confirmée.
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
       <p className="ptg-type-body" style={{ margin: "1rem 0", fontSize: "var(--ptg-text-sm)", color: "var(--ptg-olive)" }}>
         {GROWTH_MICRO_WIN}
+      </p>
+      <p className="ptg-type-body" style={{ margin: "0 0 1rem", fontSize: "var(--ptg-text-xs)", color: "var(--ptg-text-muted)" }}>
+        Confidentialité: les identités sont masquées publiquement. Elles sont visibles uniquement entre la personne qui publie
+        et celle qui réserve.
       </p>
 
       <div className="ptg-stack ptg-stack--compact">
@@ -242,7 +289,7 @@ export function SecondeGrailleClient() {
           Graille+
         </Link>
         <Link href="/accueil" style={{ textAlign: "center", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
-          ← Accueil
+          {UX_BACK.appAccueil}
         </Link>
       </div>
     </>

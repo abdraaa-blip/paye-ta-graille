@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { trackGrowthEvent } from "@/lib/growth-events";
@@ -25,7 +25,10 @@ export function NextActionCard({
   marginBottom = "1rem",
 }: Props) {
   return (
-    <div className="ptg-surface ptg-surface--static ptg-scene-card ptg-card" style={{ marginBottom }}>
+    <div
+      className="ptg-surface ptg-surface--static ptg-scene-card ptg-card ptg-next-action-card"
+      style={{ marginBottom }}
+    >
       <p className="ptg-card-title">{title}</p>
       <p className="ptg-type-body" style={{ margin: "0.35rem 0 0.7rem", fontSize: "var(--ptg-text-ui-sm)" }}>
         {body}

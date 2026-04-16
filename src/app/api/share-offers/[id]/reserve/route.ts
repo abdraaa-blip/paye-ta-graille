@@ -16,7 +16,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     return jsonError("validation_error", "Offre invalide.", 400);
   }
 
-  const limited = rateLimitForUser(session.user.id, "share_reserve", 40, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "share_reserve", 40, 60_000);
   if (limited) return limited;
 
   const trust = await requireModuleTrust(session.user, session.supabase);

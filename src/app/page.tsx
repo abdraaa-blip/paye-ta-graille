@@ -1,6 +1,7 @@
 ﻿import Link from "next/link";
 import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
+import { HeroOrbitLabels } from "@/components/HeroOrbitLabels";
 import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgLandingDecor } from "@/components/PtgLandingDecor";
@@ -23,14 +24,15 @@ export default function HomePage() {
         <BrandScribbleBackdrop />
         <PtgLandingDecor variant="full" />
         <div className="ptg-hero-stage">
-          <div className="ptg-hero-orbits" aria-hidden>
-            <span className="ptg-hero-orbit ptg-hero-orbit--left-top">fait maison</span>
-            <span className="ptg-hero-orbit ptg-hero-orbit--right-top">chaud maintenant</span>
-            <span className="ptg-hero-orbit ptg-hero-orbit--left-bottom">table de quartier</span>
-            <span className="ptg-hero-orbit ptg-hero-orbit--right-bottom">simple et humain</span>
-          </div>
+          <HeroOrbitLabels />
           <div className="ptg-hero-card">
-            <p className="ptg-kicker-pill ptg-kicker-pill--hero">{UX_HOME.kicker}</p>
+            <Link
+              href="/a-propos"
+              className="ptg-kicker-pill ptg-kicker-pill--hero ptg-kicker-pill--link"
+              aria-label={UX_HOME.kickerLinkAria}
+            >
+              {UX_HOME.kicker}
+            </Link>
             <div className="ptg-accent-rule ptg-accent-rule--hero" />
             <MarketingPulseLine lines={MARKETING_HOME_PULSE_LINES} intervalMs={6500} className="ptg-home-pulse" />
             <h1 id="hero-title" className="ptg-type-display ptg-type-display--hero" style={{ margin: "0 0 0.65rem" }}>

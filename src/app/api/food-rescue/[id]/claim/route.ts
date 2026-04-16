@@ -17,7 +17,7 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
     return jsonError("validation_error", "Annonce invalide.", 400);
   }
 
-  const limited = rateLimitForUser(session.user.id, "food_rescue_claim", 30, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "food_rescue_claim", 30, 60_000);
   if (limited) return limited;
 
   const trust = await requireModuleTrust(session.user, session.supabase);

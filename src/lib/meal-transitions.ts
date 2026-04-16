@@ -34,6 +34,7 @@ const ALLOWED: Partial<Record<MealStatus, Partial<Record<MealStatus, readonly Me
     cancelled: ["host", "guest"],
   },
   confirmed: {
+    /** Manuel : hôte ou invité. Sinon clôture auto côté cron après fin de créneau + grâce (`meal-reminders`). */
     completed: ["host", "guest"],
     cancelled: ["host", "guest"],
   },

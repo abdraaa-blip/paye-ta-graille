@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { SiteFooter } from "@/components/SiteFooter";
+import { GROWTH_REPAS_OUVERTS_SLOGAN } from "@/lib/growth-copy";
 
 export const metadata: Metadata = {
   title: "Repas ouverts",
@@ -16,16 +18,30 @@ export default function RepasOuvertsPage() {
       <PtgAppFlow>
         <div className="ptg-page-inner">
         <AppNav />
-        <div className="ptg-page-head">
-          <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-            Repas ouverts
-          </h1>
-          <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-          <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
-          Ici, à terme, tu verras <strong>qui a envie de manger</strong>, <strong>quand</strong>, et <strong>où</strong> : des
-          envies du moment, des tables un peu ouvertes, du spontané, <strong>sans</strong> tourner ça en appli de drague.
-          </p>
-        </div>
+        <PtgMenuCard variant="mist" stamp="Au fil">
+          <div className="ptg-page-head">
+            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+              Repas ouverts
+            </h1>
+            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+            <p
+              className="ptg-type-body"
+              style={{
+                margin: "0 0 0.65rem",
+                fontSize: "var(--ptg-text-md-sm)",
+                fontWeight: 700,
+                lineHeight: 1.35,
+                color: "var(--ptg-accent-deep)",
+              }}
+            >
+              {GROWTH_REPAS_OUVERTS_SLOGAN}
+            </p>
+            <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
+              Ici, à terme, tu verras <strong>qui a envie de manger</strong>, <strong>quand</strong>, et <strong>où</strong> : des
+              envies du moment, des tables un peu ouvertes, du spontané, <strong>sans</strong> tourner ça en appli de drague.
+            </p>
+          </div>
+        </PtgMenuCard>
         <div className="ptg-surface ptg-surface--static ptg-card" style={{ marginBottom: "1rem" }}>
           <p style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-sm)", fontWeight: 700 }}>Ce que tu pourras faire ici</p>
           <ul className="ptg-type-body ptg-prose-list ptg-prose-list--sm" style={{ margin: 0 }}>

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(
+  const limited = await rateLimitForUser(
     session.user.id,
     "report_post",
     6,

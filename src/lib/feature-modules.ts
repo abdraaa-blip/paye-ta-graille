@@ -1,5 +1,5 @@
 /**
- * Modules produit optionnels — activation par variables NEXT_PUBLIC_* (= visibles côté client).
+ * Modules produit optionnels, activation par variables NEXT_PUBLIC_* (= visibles côté client).
  * Tout à 0 ou absent : la V1 reste inchangée (pas de lien nav supplémentaire).
  */
 
@@ -17,7 +17,7 @@ export function moduleFoodRescueEnabled(): boolean {
   return truthy(process.env.NEXT_PUBLIC_PTG_MODULE_FOOD_RESCUE);
 }
 
-/** Paiement sécurisé repas (Stripe Connect / escrow — implémentation progressive). */
+/** Paiement sécurisé repas (Stripe Connect / escrow, implémentation progressive). */
 export function modulePaymentsEnabled(): boolean {
   return truthy(process.env.NEXT_PUBLIC_PTG_MODULE_PAYMENTS);
 }
@@ -28,7 +28,7 @@ export function extensionsNavVisible(): boolean {
 }
 
 /**
- * « Surprise graille » sur Rencontres — désactiver avec NEXT_PUBLIC_PTG_SURPRISE_GRAILLE=0 ou false.
+ * « Surprise graille » sur Rencontres : désactiver avec NEXT_PUBLIC_PTG_SURPRISE_GRAILLE=0 ou false.
  * Absent / vide = activé (boucle découverte légère).
  */
 export function surpriseGrailleEnabled(): boolean {

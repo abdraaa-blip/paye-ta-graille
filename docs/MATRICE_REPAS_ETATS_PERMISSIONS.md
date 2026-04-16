@@ -62,7 +62,7 @@
 
 ## Zones encore ouvertes (à trancher avant scale)
 
-1. **`completed` (MVP)** : **chacun·e peut** passer `confirmed` → `completed` (tap « Repas fait ») — `DECISIONS_PRODUIT_LOG.md` ; timeout auto 24h ou double tap = plus tard. Serveur : `src/lib/meal-transitions.ts`.  
+1. **`completed` (MVP)** : **chacun·e peut** passer `confirmed` → `completed` (tap « Repas fait ») — `meal-transitions.ts`. **Clôture auto** : cron `GET /api/cron/meal-reminders` passe en `completed` après fin de créneau + grâce (`PTG_MEAL_AUTO_COMPLETE_GRACE_HOURS`, défaut 24). Double validation des deux parties = plus tard si besoin.  
 2. **Contenu `cancelled`** : raison visible pour l’autre partie oui/non.  
 3. **Durée de rétention** des messages après `completed` / `cancelled`.
 

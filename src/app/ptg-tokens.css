@@ -1,13 +1,13 @@
 /**
- * Paye ta graille — design tokens (source unique pour scale & sémantique).
+ * Paye ta graille : design tokens (source unique pour scale & sémantique).
  * Les composants dans globals.css consomment ces variables.
  *
  * Hiérarchie couleur :
- *   Niveau 0 — fond / atmosphère : --ptg-bg, --ptg-sand, --ptg-butter, motifs
- *   Niveau 1 — surfaces : --ptg-surface, --ptg-bg-elevated, --ptg-muted
- *   Niveau 2 — texte : --ptg-text, --ptg-text-muted, --ptg-ink-display
- *   Niveau 3 — accent & action : --ptg-accent, --ptg-accent-deep (CTA, liens forts)
- *   Niveau 4 — sémantique produit : success, surprise, danger, info
+ *   Niveau 0 : fond / atmosphère : --ptg-bg, --ptg-sand, --ptg-butter, motifs
+ *   Niveau 1 : surfaces : --ptg-surface, --ptg-bg-elevated, --ptg-muted
+ *   Niveau 2 : texte : --ptg-text, --ptg-text-muted, --ptg-ink-display
+ *   Niveau 3 : accent & action : --ptg-accent, --ptg-accent-deep (CTA, liens forts)
+ *   Niveau 4 : sémantique produit : success, surprise, danger, info
  */
 :root {
   /* --- Palette principale (chaleur, appétit) --- */
@@ -34,12 +34,12 @@
   --ptg-danger: #a33a32;
   --ptg-info: #5a6d8c;
 
-  /* --- Palette secondaire (équilibre, repos visuel) — même famille, moins saturée --- */
+  /* --- Palette secondaire (équilibre, repos visuel) : même famille, moins saturée --- */
   --ptg-secondary-sage: var(--ptg-olive);
   --ptg-secondary-dusty-rose: color-mix(in srgb, var(--ptg-rose-dish) 75%, var(--ptg-line));
   --ptg-secondary-warm-gray: color-mix(in srgb, var(--ptg-text-muted) 88%, var(--ptg-sand));
 
-  /* Sémantique (alias) — pour nouveaux écrans & thèmes futurs */
+  /* Sémantique (alias) : pour nouveaux écrans & thèmes futurs */
   --ptg-color-bg: var(--ptg-bg);
   --ptg-color-surface: var(--ptg-surface);
   --ptg-color-text: var(--ptg-text);
@@ -60,7 +60,7 @@
   --ptg-emotion-surprise: var(--ptg-rose-dish);
   --ptg-emotion-attention: var(--ptg-danger);
 
-  /* Signature visuelle : traits culinaires (décor SVG) — encre chaude, pas noir */
+  /* Signature visuelle : traits culinaires (décor SVG) : encre chaude, pas noir */
   --ptg-sketch-ink: color-mix(in srgb, var(--ptg-accent-deep) 58%, var(--ptg-rose-dish) 28%, #3d2a22);
   /* Ligne « coup de pinceau » sous titres (hiérarchie + marque) */
   --ptg-accent-rule-gradient: linear-gradient(
@@ -101,7 +101,7 @@
   --ptg-space-8: 2rem;
   --ptg-space-10: 2.5rem;
 
-  /* Empilement (z-index) — éviter les valeurs magiques dans les features */
+  /* Empilement (z-index) : éviter les valeurs magiques dans les features */
   --ptg-z-behind: -1;
   --ptg-z-base: 0;
   --ptg-z-raised: 1;
@@ -114,7 +114,7 @@
   --ptg-leading-body: 1.55;
   --ptg-leading-relaxed: 1.65;
 
-  /* Boutons — hauteurs & typo (cohérence tactile / accessibilité) */
+  /* Boutons : hauteurs & typo (cohérence tactile / accessibilité) */
   --ptg-btn-height-lg: 48px;
   --ptg-btn-height-md: 44px;
   --ptg-btn-height-sm: 40px;
@@ -128,13 +128,13 @@
   --ptg-content-wide: min(32rem, 100%);
 
   /* Échelle typo (corps Inter, titres Fraunces via classes) */
-  /** 11px — micro-labels, badges denses */
+  /** 11px : micro-labels, badges denses */
   --ptg-text-2xs: 0.6875rem;
   --ptg-text-xs: 0.75rem;
   --ptg-text-sm: 0.8125rem;
-  /**14px — corps carte / formulaires / listes secondaires (préférer à l’inline) */
+  /**14px : corps carte / formulaires / listes secondaires (préférer à l’inline) */
   --ptg-text-ui-sm: 0.875rem;
-  /** 15px — pont ui-sm → corps (liens Moi, ghost, listes « md ») */
+  /** 15px : pont ui-sm → corps (liens Moi, ghost, listes « md ») */
   --ptg-text-md-sm: 0.9375rem;
   --ptg-text-base: 1rem;
   --ptg-text-md: 1.0625rem;
@@ -160,8 +160,8 @@
 
   --ptg-hero-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   --ptg-paper-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
-  /* Motif traits organiques (nappe esquissée) — très bas pour ne pas rivaliser avec le contenu */
+  /* Motif traits organiques (nappe esquissée) : très bas pour ne pas rivaliser avec le contenu */
   --ptg-sketch-motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='none' stroke='%23c9b8a5' stroke-width='0.55' stroke-linecap='round' opacity='0.14'%3E%3Cpath d='M12 42c22-8 44-6 66 2s44 10 66 4'/%3E%3Cpath d='M-6 96c28 6 56 4 84-6s56-12 84-2'/%3E%3Cpath d='M8 148c26 10 52 8 78-4s52-16 78-6'/%3E%3Cpath d='M96 18c-4 18-2 36 6 52'/%3E%3Cpath d='M132 118c10-14 18-30 22-48'/%3E%3C/g%3E%3C/svg%3E");
-  /* Poussière / grain très léger (chaleur « farine ») — pose graphique sans motif lourd */
+  /* Poussière / grain très léger (chaleur « farine ») : pose graphique sans motif lourd */
   --ptg-flour-speckle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23c9b8a5' opacity='0.11'%3E%3Ccircle cx='18' cy='24' r='0.65'/%3E%3Ccircle cx='56' cy='12' r='0.5'/%3E%3Ccircle cx='92' cy='38' r='0.55'/%3E%3Ccircle cx='34' cy='78' r='0.5'/%3E%3Ccircle cx='88' cy='86' r='0.6'/%3E%3Ccircle cx='72' cy='58' r='0.45'/%3E%3Ccircle cx='12' cy='102' r='0.5'/%3E%3C/g%3E%3C/svg%3E");
 }

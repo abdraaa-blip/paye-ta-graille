@@ -1,11 +1,20 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import { trackGrowthEvent } from "@/lib/growth-events";
 import { GROWTH_INVITE_CARD, GROWTH_INVITE_SHARE_TEXT } from "@/lib/growth-copy";
 
+/** `source` = segment analytics (`ref=friend_<source>` + events invite_*). */
+export type InviteFriendSource =
+  | "accueil"
+  | "decouvrir"
+  | "repas"
+  | "repas_matched"
+  | "repas_confirmed"
+  | "repas_completed";
+
 type Props = {
-  source: "accueil" | "decouvrir" | "repas";
+  source: InviteFriendSource;
   title?: string;
   body?: string;
 };

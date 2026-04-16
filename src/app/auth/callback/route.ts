@@ -1,7 +1,9 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getPostLoginPath } from "@/lib/auth/post-login-path";
 import { isSupabaseConfigured } from "@/lib/env-public";
 import { safeAuthRedirectPath } from "@/lib/http/safe-redirect-path";
+import { createServiceRoleClient } from "@/lib/supabase/admin";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
@@ -41,23 +43,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/auth?error=auth`);
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const uid = user?.id;
+  if (uid) {
+    const admin = createServiceRoleClient();
+    const client = admin ?? supabase;
+    const { error: geErr } = await client.from("growth_events").insert({
+      user_id: uid,
+      event_name: "auth_magic_link_exchange",
+      context: "auth_callback",
+      metadata: {},
+    });
+    if (geErr && process.env.NODE_ENV !== "production") {
+      console.warn("[auth/callback] growth_events:", geErr.message);
+    }
+  }
+
   let destination = next;
   if (destination === "/accueil") {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("city, display_name")
-        .eq("id", user.id)
-        .maybeSingle();
-      const cityOk = Boolean(profile?.city?.trim());
-      const nameOk = Boolean(profile?.display_name?.trim() && profile.display_name.trim().length >= 2);
-      if (!cityOk || !nameOk) {
-        destination = "/profil?setup=1";
-      }
-    }
+    destination = await getPostLoginPath(supabase);
   }
 
   const response = NextResponse.redirect(`${origin}${destination}`);

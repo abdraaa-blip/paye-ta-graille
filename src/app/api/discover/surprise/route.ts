@@ -18,7 +18,7 @@ export async function GET() {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "discover_surprise_get", 20, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "discover_surprise_get", 20, 60_000);
   if (limited) return limited;
 
   const { data: me, error: meErr } = await session.supabase

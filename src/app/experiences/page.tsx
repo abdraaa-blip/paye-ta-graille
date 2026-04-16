@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { SiteFooter } from "@/components/SiteFooter";
+import { GROWTH_EXPERIENCES_SLOGAN } from "@/lib/growth-copy";
 
 export const metadata: Metadata = {
   title: "Expériences",
@@ -47,17 +49,31 @@ export default function ExperiencesPage() {
       <PtgAppFlow>
         <div className="ptg-page-inner">
         <AppNav />
-        <div className="ptg-page-head">
-          <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-            Expériences Paye ta graille
-          </h1>
-          <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-          <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
-          Tu passes de « je mange avec quelqu’un » à « <strong>je participe à une expérience alimentaire organisée</strong> ».
-          Ce n’est pas un agenda d’événements générique : tout reste <strong>social</strong>, <strong>autour du repas réel</strong>,{" "}
-          <strong>sans</strong> te transformer en marketplace de résas.
-          </p>
-        </div>
+        <PtgMenuCard variant="spark" stamp="Carte surprise">
+          <div className="ptg-page-head">
+            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+              Expériences Paye ta graille
+            </h1>
+            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+            <p
+              className="ptg-type-body"
+              style={{
+                margin: "0 0 0.65rem",
+                fontSize: "var(--ptg-text-md-sm)",
+                fontWeight: 700,
+                lineHeight: 1.35,
+                color: "var(--ptg-rose-dish)",
+              }}
+            >
+              {GROWTH_EXPERIENCES_SLOGAN}
+            </p>
+            <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
+              Tu passes de « je mange avec quelqu’un » à « <strong>je participe à une expérience alimentaire organisée</strong> ».
+              Ce n’est pas un agenda d’événements générique : tout reste <strong>social</strong>, <strong>autour du repas réel</strong>,{" "}
+              <strong>sans</strong> te transformer en marketplace de résas.
+            </p>
+          </div>
+        </PtgMenuCard>
 
         <div className="ptg-surface ptg-surface--static ptg-card" style={{ marginBottom: "1rem" }}>
           <p className="ptg-card-title" style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-md-sm)" }}>
@@ -123,6 +139,23 @@ export default function ExperiencesPage() {
           <strong>Pas encore réservable.</strong> On ouvrira les inscriptions quand le cadre avec les lieux et la confiance
           utilisateur sera solide, pas pour transformer l’app en billetterie générique.
         </p>
+
+        <div className="ptg-surface ptg-surface--static ptg-card" style={{ marginBottom: "1rem" }}>
+          <p className="ptg-card-title" style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-md-sm)" }}>
+            Solidarité &amp; maraudes (piste)
+          </p>
+          <p className="ptg-type-body" style={{ margin: 0, fontSize: "var(--ptg-text-ui-sm)", lineHeight: 1.55 }}>
+            Une idée en réflexion : des <strong>actions collectives</strong> (ex. maraude) avec date fixée suffisamment à
+            l&apos;avance, rôles clairs et transparence ; <strong>pas encore dans l&apos;app</strong>, car ça touche à la
+            confiance, à la sécurité des lieux et souvent à la <strong>mise en commun d&apos;argent</strong> (responsabilité,
+            remboursements). Si le cœur « repas &amp; rencontres » est solide, ce volet pourrait arriver en{" "}
+            <strong>module dédié</strong>, probablement sans paiement intégré au tout premier jet. Les{" "}
+            <Link href="/partenaires" style={{ fontWeight: 600 }}>
+              partenariats
+            </Link>{" "}
+            et le terrain valideront si on le fait et comment.
+          </p>
+        </div>
 
         <p className="ptg-type-body" style={{ margin: "0 0 1rem", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
           L’idée reste simple : un prix clair pour toi, parfois un partenariat avec un lieu qui a envie de nous faire

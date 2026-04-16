@@ -6,6 +6,7 @@ import { readApiError } from "@/lib/api/read-api-error";
 import { displayInitials } from "@/lib/display-initials";
 import { trackGrowthEvent } from "@/lib/growth-events";
 import { GROWTH_MICRO_WIN, GROWTH_MODULE_SHARE } from "@/lib/growth-copy";
+import { UX_BACK } from "@/lib/ux-copy";
 
 type Offer = {
   id: string;
@@ -278,7 +279,7 @@ export function PartageGrailleClient() {
           Graille+
         </Link>
         <Link href="/accueil" style={{ textAlign: "center", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
-          ← Accueil
+          {UX_BACK.appAccueil}
         </Link>
       </div>
     </>

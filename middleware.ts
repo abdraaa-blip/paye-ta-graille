@@ -28,13 +28,15 @@ export async function middleware(request: NextRequest) {
     await supabase.auth.getUser();
   }
 
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
+  /* En-têtes défense (X-Frame-Options, etc.) : uniquement dans `next.config.ts` pour une seule source de vérité. */
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Pas de refresh session sur statiques / favicon / métadonnées (moins de charge Supabase & crawlers).
+     */
+    "/((?!_next/static|_next/image|favicon.ico|icon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.webmanifest|api/cron/).*)",
+  ],
 };

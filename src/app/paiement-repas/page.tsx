@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AppNav } from "@/components/AppNav";
 import { ModuleDisabledNotice } from "@/components/ModuleDisabledNotice";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { SiteFooter } from "@/components/SiteFooter";
 import { modulePaymentsEnabled } from "@/lib/feature-modules";
 import { GROWTH_MODULE_PAY } from "@/lib/growth-copy";
@@ -22,7 +23,10 @@ export default function PaiementRepasPage() {
         <PtgAppFlow>
           <div className="ptg-page-inner">
             <AppNav />
-            <ModuleDisabledNotice title="Paiement du repas" />
+            <ModuleDisabledNotice
+              title="Paiement du repas"
+              devHint="Pour un test équipe : définir NEXT_PUBLIC_PTG_MODULE_PAYMENTS=1, STRIPE_SECRET_KEY et webhook (voir .env.example et docs/NOTE_PAIEMENT_STRIPE.md). Profil avec e-mail confirmé requis."
+            />
           </div>
         </PtgAppFlow>
         <SiteFooter />
@@ -35,16 +39,30 @@ export default function PaiementRepasPage() {
       <PtgAppFlow>
         <div className="ptg-page-inner">
           <AppNav />
-          <div className="ptg-page-head">
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              {GROWTH_MODULE_PAY.title}
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-            <p className="ptg-type-body" style={{ margin: "0 0 1rem", fontSize: "var(--ptg-text-ui-sm)", lineHeight: 1.55, fontWeight: 600 }}>
-              Tu règles l’addition avec l’autre personne. Ici tu sécurises le geste (Stripe, sans stocker ta carte).{" "}
-              <strong>E-mail confirmé</strong>, <strong>pseudo</strong> et <strong>ville</strong> requis sur le profil.
-            </p>
-          </div>
+          <PtgMenuCard variant="ledger" stamp="L’addition">
+            <div className="ptg-page-head">
+              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                {GROWTH_MODULE_PAY.title}
+              </h1>
+              <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+              <p
+                className="ptg-type-body"
+                style={{
+                  margin: "0 0 0.65rem",
+                  fontSize: "var(--ptg-text-md-sm)",
+                  fontWeight: 700,
+                  lineHeight: 1.35,
+                  color: "var(--ptg-info)",
+                }}
+              >
+                {GROWTH_MODULE_PAY.oneLiner}
+              </p>
+              <p className="ptg-type-body" style={{ margin: "0 0 1rem", fontSize: "var(--ptg-text-ui-sm)", lineHeight: 1.55, fontWeight: 600 }}>
+                Tu règles l’addition avec l’autre personne. Ici tu sécurises le geste (Stripe, sans stocker ta carte).{" "}
+                <strong>E-mail confirmé</strong>, <strong>pseudo</strong> et <strong>ville</strong> requis sur le profil.
+              </p>
+            </div>
+          </PtgMenuCard>
 
           <details className="ptg-surface ptg-surface--static ptg-card" style={{ marginBottom: "1rem" }}>
             <summary className="ptg-type-body" style={{ cursor: "pointer", fontWeight: 700, fontSize: "var(--ptg-text-sm)" }}>

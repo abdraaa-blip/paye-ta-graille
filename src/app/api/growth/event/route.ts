@@ -5,12 +5,23 @@ import { rateLimitForUser } from "@/lib/api/rate-limit";
 import { requireSession } from "@/lib/api/session";
 
 const eventNames = [
+  "onboarding_started",
+  "onboarding_step_completed",
+  "onboarding_completed",
+  "accueil_viewed",
+  "auth_page_viewed",
+  "auth_otp_verified",
+  "discover_viewed",
+  "meal_proposed",
+  "meal_venue_submitted",
+  "meal_status_updated",
   "ritual_card_seen",
   "ritual_card_click",
   "next_action_click",
   "invite_share_opened",
   "invite_link_copied",
   "invite_native_shared",
+  "invite_attribution",
   "discover_propose_click",
   "repas_refresh_click",
   "nudge_level_updated",
@@ -19,6 +30,15 @@ const eventNames = [
   "module_rescue_publish",
   "module_rescue_claim",
   "module_payment_checkout_start",
+  "lieux_search",
+  "lieux_nearby_click",
+  "lieux_place_picked",
+  "lieux_maps_open",
+  "lieux_copy_place",
+  "lieux_memory_save",
+  "lieux_memory_optin_public",
+  "partners_page_view",
+  "partners_cta_click",
 ] as const;
 
 const bodySchema = z.object({
@@ -34,7 +54,7 @@ export async function POST(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "growth_event_post", 60, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "growth_event_post", 60, 60_000);
   if (limited) return limited;
 
   let body: unknown;

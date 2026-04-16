@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
-import { UX_LOADING, UX_SIGNALER } from "@/lib/ux-copy";
+import { UX_BACK, UX_LOADING, UX_SIGNALER } from "@/lib/ux-copy";
 
 function SignalerFormInner() {
   const searchParams = useSearchParams();
@@ -55,7 +55,7 @@ function SignalerFormInner() {
       <PtgAppFlow>
         <div className="ptg-page-inner">
           <Link href="/accueil" className="ptg-link-back">
-            ← Accueil
+            {UX_BACK.appAccueil}
           </Link>
         <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
           {UX_SIGNALER.title}

@@ -1,29 +1,13 @@
-const base = process.env.PTG_BASE_URL?.trim() || "http://localhost:3000";
+import {
+  EXPECTED_STATUS,
+  SMOKE_ROUTES,
+  validateHealthJson,
+  validateHomeHtml,
+  validateManifestText,
+  validateRobotsText,
+} from "./smoke-public-shared.mjs";
 
-const routes = [
-  "/",
-  "/hero/landing-watercolor.webp",
-  "/accueil",
-  "/commencer",
-  "/auth",
-  "/onboarding",
-  "/decouvrir",
-  "/repas",
-  "/repas-ouverts",
-  "/experiences",
-  "/lieux",
-  "/reseau-graille",
-  "/moi",
-  "/profil",
-  "/signaler",
-  "/graille-plus",
-  "/partage-graille",
-  "/seconde-graille",
-  "/paiement-repas",
-  "/legal/cgu",
-  "/legal/confidentialite",
-  "/api/health",
-];
+const base = process.env.PTG_BASE_URL?.trim() || "http://127.0.0.1:3000";
 
 const timeoutMs = 12000;
 let failed = 0;
@@ -38,9 +22,52 @@ async function checkRoute(route) {
       signal: ctrl.signal,
       headers: { "User-Agent": "ptg-smoke-public" },
     });
-    const ok = res.status < 500;
+    let ok = res.status < 500;
+    let detail = "";
+    const expectedStatus = EXPECTED_STATUS.get(route);
+    if (expectedStatus !== undefined && res.status !== expectedStatus) {
+      ok = false;
+      detail = ` :: expected status ${expectedStatus}, got ${res.status}`;
+    }
+    if (route === "/api/health" && ok && res.status === 200) {
+      try {
+        const json = await res.json();
+        const err = validateHealthJson(json);
+        if (err) {
+          ok = false;
+          detail = ` :: ${err}`;
+        }
+      } catch {
+        ok = false;
+        detail = " :: health response not valid JSON";
+      }
+    }
+    if (route === "/" && ok && res.status === 200) {
+      const html = await res.text();
+      const err = validateHomeHtml(html);
+      if (err) {
+        ok = false;
+        detail = ` :: ${err}`;
+      }
+    }
+    if (route === "/manifest.webmanifest" && ok && res.status === 200) {
+      const text = await res.text();
+      const err = validateManifestText(text);
+      if (err) {
+        ok = false;
+        detail = ` :: ${err}`;
+      }
+    }
+    if (route === "/robots.txt" && ok && res.status === 200) {
+      const text = await res.text();
+      const err = validateRobotsText(text);
+      if (err) {
+        ok = false;
+        detail = ` :: ${err}`;
+      }
+    }
     if (!ok) failed += 1;
-    console.log(`${ok ? "OK " : "ERR"} ${String(res.status).padStart(3, " ")} ${route}`);
+    console.log(`${ok ? "OK " : "ERR"} ${String(res.status).padStart(3, " ")} ${route}${detail}`);
   } catch (e) {
     failed += 1;
     const msg = e instanceof Error ? e.message : String(e);
@@ -50,7 +77,7 @@ async function checkRoute(route) {
   }
 }
 
-for (const route of routes) {
+for (const route of SMOKE_ROUTES) {
   // eslint-disable-next-line no-await-in-loop
   await checkRoute(route);
 }

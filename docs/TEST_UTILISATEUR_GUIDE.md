@@ -1,5 +1,7 @@
 # Test utilisateur — guide rapide (Paye ta graille)
 
+**Complément** : priorités **bloquantes / importantes**, dépendances migrations & cron, check-list courte → **`PLAN_TEST_BETA.md`**.
+
 Objectif: valider un parcours réel sans ambiguïté.
 
 ## 1) Préparer l'environnement
@@ -11,11 +13,10 @@ Objectif: valider un parcours réel sans ambiguïté.
    - `NEXT_PUBLIC_PTG_MODULE_SHARE=1`
    - `NEXT_PUBLIC_PTG_MODULE_FOOD_RESCUE=1`
    - `NEXT_PUBLIC_PTG_MODULE_PAYMENTS=1` (optionnel si Stripe pas prêt)
-3. Lancer:
-   - `npm run verify`
-   - `npm run build`
-   - `npm run start`
-4. Smoke test public:
+3. Lancer (équipe / CI) :
+   - `npm run verify:ship` — lint, types, build, Playwright smoke
+   - ou à la main : `npm run verify`, `npm run build`, `npm run start`
+4. Smoke HTTP optionnel (serveur déjà lancé) :
    - `npm run smoke:public`
 
 ## 2) Scénarios à jouer (ordre recommandé)
@@ -69,7 +70,7 @@ Tester:
 
 ## 5) Critères de validation avant test externe
 
-- `verify` et `build` passent
+- `npm run verify:ship` passe (ou au minimum `verify` + `build`)
 - migrations Supabase appliquées
 - pas d'erreurs bloquantes en console navigateur sur les flows clés
 - au moins 1 parcours complet A -> B validé

@@ -4,12 +4,20 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
 import { AppNav } from "@/components/AppNav";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MealPotluckPanel } from "@/components/MealPotluckPanel";
 import { RestaurantsNearbyMap } from "@/components/RestaurantsNearbyMap";
+import { InviteFriendCard } from "@/components/InviteFriendCard";
 import { COMPANIONS_MEAL_COMPLETED_LINK_LABEL, COMPANIONS_NAV_LABEL } from "@/lib/companions-copy";
+import {
+  GROWTH_INVITE_CARD_COMPLETED,
+  GROWTH_INVITE_CARD_CONFIRMED,
+  GROWTH_INVITE_CARD_MATCHED,
+} from "@/lib/growth-copy";
 import { mealStatusLabel } from "@/lib/meal-status-labels";
+import { trackGrowthEvent } from "@/lib/growth-events";
 
 type Venue = {
   id: string;
@@ -235,6 +243,11 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
       setError((await readApiError(res)).message);
       return;
     }
+    void trackGrowthEvent({
+      event: "meal_status_updated",
+      context: "meal_detail",
+      metadata: { meal_id: mealId, to: status },
+    });
     await loadMeal();
     await loadMessages();
   }
@@ -259,6 +272,11 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
       setError((await readApiError(res)).message);
       return;
     }
+    void trackGrowthEvent({
+      event: "meal_venue_submitted",
+      context: "meal_detail",
+      metadata: { meal_id: mealId, has_place_id: Boolean(venuePlaceId) },
+    });
     setVenueName("");
     setVenueAddress("");
     setVenuePlaceId(null);
@@ -339,16 +357,18 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
               ← Mes repas
             </Link>
           </p>
-          <div className="ptg-page-head">
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              Repas
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
-            <p style={{ margin: "0 0 0", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
-              État : <strong>{mealStatusLabel(meal.status)}</strong>
-              {meal.budget_band ? ` · ${meal.budget_band}` : ""}
-            </p>
-          </div>
+          <PtgMenuCard variant="kin" stamp="Ce repas">
+            <div className="ptg-page-head">
+              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                Repas
+              </h1>
+              <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
+              <p style={{ margin: "0 0 0", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
+                État : <strong>{mealStatusLabel(meal.status)}</strong>
+                {meal.budget_band ? ` · ${meal.budget_band}` : ""}
+              </p>
+            </div>
+          </PtgMenuCard>
 
           {error && (
             <p className="ptg-banner ptg-banner-warn" role="alert">
@@ -418,6 +438,14 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
             Vous vous êtes dit oui pour manger ensemble. Patiente : ton hôte choisit un lieu public. Rien à faire de ton
             côté pour l’instant.
           </p>
+        )}
+
+        {meal.status === "matched" && (isHost || isGuest) && (
+          <InviteFriendCard
+            source="repas_matched"
+            title={GROWTH_INVITE_CARD_MATCHED.title}
+            body={GROWTH_INVITE_CARD_MATCHED.body}
+          />
         )}
 
         {isHost && (meal.status === "matched" || meal.status === "venue_proposed") && (
@@ -599,9 +627,17 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
             <p className="ptg-type-body" style={{ margin: "0 0 0.75rem", fontSize: "var(--ptg-text-md-sm)" }}>
               Jour J : profite de la table. Quand c’est fini, un clic suffit pour clôturer côté app.
             </p>
+            <InviteFriendCard
+              source="repas_confirmed"
+              title={GROWTH_INVITE_CARD_CONFIRMED.title}
+              body={GROWTH_INVITE_CARD_CONFIRMED.body}
+            />
             <button type="button" className="ptg-btn-primary" disabled={busy} onClick={() => void patchStatus("completed")}>
               Repas fait
             </button>
+            <p className="ptg-type-body" style={{ margin: "0.75rem 0 0", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
+              Si personne ne clique, le repas se clôture automatiquement un peu après la fin du créneau (tâche serveur).
+            </p>
           </div>
         )}
 
@@ -625,6 +661,11 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
             <p className="ptg-type-body" style={{ margin: "0.5rem 0 0", fontSize: "var(--ptg-text-ui-sm)" }}>
               Tu le/la revois à table ? Quand tu veux : une prochaine graille, un message, ou rien du tout.
             </p>
+            <InviteFriendCard
+              source="repas_completed"
+              title={GROWTH_INVITE_CARD_COMPLETED.title}
+              body={GROWTH_INVITE_CARD_COMPLETED.body}
+            />
             <p className="ptg-type-body" style={{ margin: "0.65rem 0 0", fontSize: "var(--ptg-text-sm)", color: "var(--ptg-text-muted)" }}>
               Bientôt : chaque repas partagé pourra nourrir un <strong>lien de table</strong> (privé, sans score public),
               visible dans <strong>{COMPANIONS_NAV_LABEL}</strong> : revoir la personne, repas croisé, tout doux.{" "}

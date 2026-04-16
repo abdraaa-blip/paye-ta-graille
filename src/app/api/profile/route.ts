@@ -44,7 +44,7 @@ const patchSchema = z
       .transform((v) => (v === undefined ? undefined : v === "" ? null : v)),
     city: z.string().min(1).max(120).nullable().optional(),
     radius_km: z.number().int().min(5).max(200).optional(),
-    /** WGS84 — les deux null efface la position ; les deux nombres la fixent. */
+    /** WGS84 : les deux null efface la position ; les deux nombres la fixent. */
     latitude: z.number().gte(-90).lte(90).nullable().optional(),
     longitude: z.number().gte(-180).lte(180).nullable().optional(),
     social_intent: z.enum(["ami", "ouvert", "dating_leger"]).optional(),
@@ -54,6 +54,9 @@ const patchSchema = z
       .optional(),
     tags: z.array(z.string().min(1).max(40)).max(24).optional(),
     nudge_level: z.enum(["calme", "normal", "off"]).optional(),
+    nudge_quiet_start_hour: z.number().int().min(0).max(23).optional(),
+    nudge_quiet_end_hour: z.number().int().min(0).max(23).optional(),
+    nudge_max_per_day: z.number().int().min(0).max(6).optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
@@ -126,7 +129,7 @@ export async function GET() {
 
   const settingsRes = await session.supabase
     .from("user_settings")
-    .select("nudge_level, locale")
+    .select("nudge_level, locale, nudge_quiet_start_hour, nudge_quiet_end_hour, nudge_max_per_day")
     .eq("user_id", session.user.id)
     .maybeSingle();
   const settings = settingsRes.error ? null : settingsRes.data;
@@ -138,7 +141,7 @@ export async function PATCH(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "profile_patch", 24, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "profile_patch", 24, 60_000);
   if (limited) return limited;
 
   let body: unknown;
@@ -153,7 +156,14 @@ export async function PATCH(request: Request) {
     return jsonError("validation_error", parsed.error.flatten().formErrors.join("; "), 400);
   }
 
-  const { tags, nudge_level, ...profileFields } = parsed.data;
+  const {
+    tags,
+    nudge_level,
+    nudge_quiet_start_hour,
+    nudge_quiet_end_hour,
+    nudge_max_per_day,
+    ...profileFields
+  } = parsed.data;
   const updates = Object.fromEntries(
     Object.entries(profileFields).filter(([, v]) => v !== undefined),
   );
@@ -184,12 +194,28 @@ export async function PATCH(request: Request) {
     }
   }
 
-  const settingsRow: { user_id: string; updated_at: string; nudge_level?: string } = {
+  const settingsRow: {
+    user_id: string;
+    updated_at: string;
+    nudge_level?: string;
+    nudge_quiet_start_hour?: number;
+    nudge_quiet_end_hour?: number;
+    nudge_max_per_day?: number;
+  } = {
     user_id: session.user.id,
     updated_at: new Date().toISOString(),
   };
   if (nudge_level !== undefined) {
     settingsRow.nudge_level = nudge_level;
+  }
+  if (nudge_quiet_start_hour !== undefined) {
+    settingsRow.nudge_quiet_start_hour = nudge_quiet_start_hour;
+  }
+  if (nudge_quiet_end_hour !== undefined) {
+    settingsRow.nudge_quiet_end_hour = nudge_quiet_end_hour;
+  }
+  if (nudge_max_per_day !== undefined) {
+    settingsRow.nudge_max_per_day = nudge_max_per_day;
   }
   await session.supabase.from("user_settings").upsert(settingsRow, { onConflict: "user_id" });
 

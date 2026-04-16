@@ -6,11 +6,12 @@ import { readApiError } from "@/lib/api/read-api-error";
 import { AppNav } from "@/components/AppNav";
 import { InviteFriendCard } from "@/components/InviteFriendCard";
 import { NextActionCard } from "@/components/NextActionCard";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { trackGrowthEvent } from "@/lib/growth-events";
 import { mealStatusLabel } from "@/lib/meal-status-labels";
-import { UX_REPAS } from "@/lib/ux-copy";
+import { UX_BACK, UX_REPAS } from "@/lib/ux-copy";
 import { getUxVariant } from "@/lib/ux-variant";
 
 type Venue = {
@@ -67,20 +68,22 @@ export function RepasListClient() {
       <PtgAppFlow>
         <div className="ptg-page-inner">
         <AppNav />
-        <div className="ptg-page-head">
-          <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-            Mes repas
-          </h1>
-          <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-          <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
-            Demandes, confirmations et rendez-vous.
-          </p>
-        </div>
+        <PtgMenuCard variant="ember" stamp="Tes tables">
+          <div className="ptg-page-head">
+            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+              Mes repas
+            </h1>
+            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+            <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
+              Demandes, confirmations et rendez-vous.
+            </p>
+          </div>
+        </PtgMenuCard>
         <NextActionCard
           title={UX_REPAS.nextActionTitle}
           body={UX_REPAS.nextActionBody}
           ctaHref="/decouvrir"
-          ctaLabel="Retourner sur Decouvrir"
+          ctaLabel="Retour à Autour de toi"
           ctaClassName="ptg-btn-secondary"
           eventContext="repas_next_action"
           eventMetadata={{ variant: uxVariant }}
@@ -185,7 +188,7 @@ export function RepasListClient() {
 
         <p style={{ marginTop: "1.25rem" }}>
           <Link href="/accueil" className="ptg-link-back" style={{ marginBottom: 0 }}>
-            ← {UX_REPAS.backAccueil}
+            {UX_BACK.appAccueil}
           </Link>
         </p>
         </div>
