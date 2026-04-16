@@ -1,4 +1,4 @@
-const base = process.env.PTG_BASE_URL?.trim() || "http://localhost:3000";
+const base = process.env.PTG_BASE_URL?.trim() || "http://127.0.0.1:3000";
 
 let failed = 0;
 
@@ -14,6 +14,23 @@ async function readText(path) {
   });
   const text = await res.text();
   return { status: res.status, text };
+}
+
+const healthRes = await fetch(new URL("/api/health", base).toString(), {
+  method: "GET",
+  headers: { "User-Agent": "ptg-assert-beta-seo" },
+});
+if (healthRes.status !== 200) {
+  fail(`/api/health expected 200, got ${healthRes.status}`);
+} else {
+  try {
+    const health = await healthRes.json();
+    if (health?.publicBeta !== true) {
+      fail("/api/health publicBeta doit être true (build beta + bon serveur sur PTG_BASE_URL)");
+    }
+  } catch {
+    fail("/api/health corps JSON invalide");
+  }
 }
 
 const robots = await readText("/robots.txt");

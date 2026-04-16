@@ -17,7 +17,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/"],
+      /** Espace connecté / outils internes : pas d’indexation même si un lien fuite. */
+      disallow: ["/api/", "/interne/"],
     },
     sitemap: new URL("/sitemap.xml", base).toString(),
   };

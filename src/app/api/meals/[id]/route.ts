@@ -63,7 +63,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "meal_patch", 80, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "meal_patch", 80, 60_000);
   if (limited) return limited;
 
   const { id: rawId } = await ctx.params;

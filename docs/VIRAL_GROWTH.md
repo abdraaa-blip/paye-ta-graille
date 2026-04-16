@@ -5,6 +5,12 @@
 
 **Principe** : le viral vient du **récit racontable** (“on a mangé avec des inconnus, c’était ouf / cool / simple”), pas du “partage pour gagner des points”.
 
+### Implémentation dans l’app (référence code)
+
+- **`InviteFriendCard`** : lien `/commencer?ref=friend_<source>` + tracking `invite_share_opened` / `invite_link_copied` / `invite_native_shared` (`src/components/InviteFriendCard.tsx`).
+- **Moments d’invitation** : accueil, découvrir, liste repas ; **repas détail** — après **match**, **repas confirmé** (avant « Repas fait »), **repas terminé** (`src/app/repas/[id]/MealDetailClient.tsx`). Copy dédiées dans `src/lib/growth-copy.ts` (`GROWTH_INVITE_CARD_*`).
+- **Arrivée invité·e** : `/commencer?ref=friend_*` → redirection vers `/auth` ou `/onboarding` avec **`invite_ref`** ; bandeau **`InviteRefBanner`** sur auth et onboarding ; persistance **`sessionStorage`** + événement **`invite_attribution`** une fois après OTP ou fin onboarding (si session API OK).
+
 ---
 
 ## 1) Mécaniques de partage **naturel** (sans forcer)
@@ -138,11 +144,15 @@ Cadre éthique : **EAST** (easy, attractive, social, timely) sans cacher l’int
 - `discover_propose_click`
 - `repas_refresh_click`
 - `nudge_level_updated`
+- `partners_page_view` / `partners_cta_click` (page Partenaires, métadonnée `cta`: `mailto` | `graille_plus`)
+- Funnel produit (complète auth → activation) : `auth_page_viewed`, `auth_otp_verified`, `auth_magic_link_exchange` (serveur, callback), `discover_viewed`, `meal_proposed`, `meal_venue_submitted`, `meal_status_updated`, `onboarding_started` / `onboarding_step_completed` / `onboarding_completed`, `accueil_viewed`
 
 Source technique :
 - table `public.growth_events`
-- vue `public.growth_kpi_daily`
+- vue `public.growth_kpi_daily` (totaux, **funnel** auth/découverte/repas/onboarding/accueil, **Partenaires** : vues, CTA mailto / Graille+, actifs — migration `20260427100000_growth_kpi_funnel.sql`)
 - endpoint `POST /api/growth/event`
+- endpoint `GET /api/growth/kpi?days=30` (session admin ou en-tête `x-ptg-growth-kpi-secret`) — voir `PTG_GROWTH_ADMIN_USER_IDS` / `PTG_GROWTH_KPI_SECRET`
+- page interne noindex `/interne/croissance` (tableau agrégé)
 - helper front `src/lib/growth-events.ts`
 
 Exemples SQL pilotage :

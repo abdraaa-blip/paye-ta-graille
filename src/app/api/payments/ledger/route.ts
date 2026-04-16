@@ -7,7 +7,7 @@ export async function GET() {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "payments_ledger_list", 30, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "payments_ledger_list", 30, 60_000);
   if (limited) return limited;
 
   const { data, error } = await session.supabase

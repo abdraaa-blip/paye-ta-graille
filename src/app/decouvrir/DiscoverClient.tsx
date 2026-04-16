@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -78,8 +78,14 @@ export function DiscoverClient() {
       return;
     }
     const json = (await res.json()) as { profiles?: Profile[] };
-    setProfiles(json.profiles ?? []);
-    if ((json.profiles ?? []).length === 0) {
+    const list = json.profiles ?? [];
+    setProfiles(list);
+    void trackGrowthEvent({
+      event: "discover_viewed",
+      context: "decouvrir",
+      metadata: { profile_count: list.length },
+    });
+    if (list.length === 0) {
       setHint(
         <>
           {UX_DISCOVER.hintEmpty}{" "}

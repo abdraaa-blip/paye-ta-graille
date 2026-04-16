@@ -21,7 +21,7 @@ export async function POST(request: Request, ctx: Ctx) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "venue_post", 30, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "venue_post", 30, 60_000);
   if (limited) return limited;
 
   const { id: rawMealId } = await ctx.params;

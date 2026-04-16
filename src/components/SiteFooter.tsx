@@ -21,6 +21,10 @@ export function SiteFooter() {
         <span className="ptg-footer-sep" aria-hidden>
           ·
         </span>
+        <Link href="/partenaires">{UX_FOOTER.partners}</Link>
+        <span className="ptg-footer-sep" aria-hidden>
+          ·
+        </span>
         <Link href="/signaler">{UX_FOOTER.report}</Link>
       </nav>
       <p className="ptg-footer-note">{UX_FOOTER.note}</p>

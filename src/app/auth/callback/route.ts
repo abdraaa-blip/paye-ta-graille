@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getPostLoginPath } from "@/lib/auth/post-login-path";
 import { isSupabaseConfigured } from "@/lib/env-public";
 import { safeAuthRedirectPath } from "@/lib/http/safe-redirect-path";
+import { createServiceRoleClient } from "@/lib/supabase/admin";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
@@ -40,6 +41,24 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
     return NextResponse.redirect(`${origin}/auth?error=auth`);
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const uid = user?.id;
+  if (uid) {
+    const admin = createServiceRoleClient();
+    const client = admin ?? supabase;
+    const { error: geErr } = await client.from("growth_events").insert({
+      user_id: uid,
+      event_name: "auth_magic_link_exchange",
+      context: "auth_callback",
+      metadata: {},
+    });
+    if (geErr && process.env.NODE_ENV !== "production") {
+      console.warn("[auth/callback] growth_events:", geErr.message);
+    }
   }
 
   let destination = next;

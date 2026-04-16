@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { InviteRefBanner } from "@/components/InviteRefBanner";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -12,6 +14,11 @@ export default function OnboardingPage() {
           <Link href="/" className="ptg-link-back">
             {UX_BACK.marketingHome}
           </Link>
+        </div>
+        <div className="ptg-page-inner" style={{ paddingBottom: "0" }}>
+          <Suspense fallback={null}>
+            <InviteRefBanner />
+          </Suspense>
         </div>
         <OnboardingWizard />
       </PtgAppFlow>

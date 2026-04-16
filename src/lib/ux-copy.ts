@@ -21,7 +21,7 @@ export const UX_BETA = {
 /** Pages d’erreur globales (`not-found`, `error`). */
 export const UX_ERRORS = {
   notFoundTitle: "Page introuvable",
-  notFoundBody: "Ce lien ne mène nulle part — ou la page a déménagé.",
+  notFoundBody: "Ce lien ne mène nulle part, ou la page a déménagé.",
   notFoundCtaHome: "Retour à l’accueil",
   errorTitle: "Un souci technique",
   errorBody: "Quelque chose s’est mal passé. Tu peux réessayer ou revenir plus tard.",
@@ -126,7 +126,7 @@ export const UX_ACCUEIL = {
     a: "Un passage de 30 secondes peut suffire : voir qui mange, proposer si tu le sens, puis fermer l'app.",
     b: "Regarde rapidement ce soir, propose si l'envie est la, puis passe a autre chose.",
   }),
-  nextActionTitle: "Action recommandee",
+  nextActionTitle: "Action recommandée",
   nextActionIn: uxa({
     a: "Passe sur Découvrir et choisis une table qui te ressemble.",
     b: "Va dans Découvrir, puis propose un repas si le profil te parle.",
@@ -288,6 +288,8 @@ export const UX_MOI = {
     b: COMPANIONS_NAV_LABEL,
   }),
   navProfil: "Modifier mon profil",
+  /** Page partenariats / monétisation : utile pros & curieux. */
+  navPartenaires: "Restos & partenariats",
   navOnboarding: uxa({ a: "Parcours guidé (brouillon local)", b: "Refaire le questionnaire local" }),
   notifTitle: "Rappels",
   notifBody: uxa({
@@ -526,6 +528,7 @@ export const UX_FOOTER = {
   about: "À propos",
   legal: uxa({ a: "Conditions", b: "CGU" }),
   privacy: "Confidentialité",
+  partners: "Partenaires",
   report: uxa({ a: "Signaler", b: "Un problème ?" }),
   note: uxa({
     a: "Repas en lieu public, intentions dites clairement. Aucune promesse de zéro risque.",

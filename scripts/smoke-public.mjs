@@ -1,43 +1,16 @@
-const base = process.env.PTG_BASE_URL?.trim() || "http://localhost:3000";
+import {
+  EXPECTED_STATUS,
+  SMOKE_ROUTES,
+  validateHealthJson,
+  validateHomeHtml,
+  validateManifestText,
+  validateRobotsText,
+} from "./smoke-public-shared.mjs";
 
-const routes = [
-  "/",
-  "/a-propos",
-  "/hero/landing-watercolor.webp",
-  "/accueil",
-  "/commencer",
-  "/auth",
-  "/onboarding",
-  "/decouvrir",
-  "/repas",
-  "/repas-ouverts",
-  "/experiences",
-  "/lieux",
-  "/reseau-graille",
-  "/moi",
-  "/profil",
-  "/signaler",
-  "/graille-plus",
-  "/partage-graille",
-  "/seconde-graille",
-  "/paiement-repas",
-  "/legal/cgu",
-  "/legal/confidentialite",
-  "/route-inexistante-test-404",
-  "/robots.txt",
-  "/sitemap.xml",
-  "/api/health",
-];
+const base = process.env.PTG_BASE_URL?.trim() || "http://127.0.0.1:3000";
 
 const timeoutMs = 12000;
 let failed = 0;
-
-/** Kicker hero : lien vers À propos + classe pill (évite un faux positif si seul le footer pointe vers /a-propos). */
-const HOME_EXPECT_KICKER_MARKERS = ['href="/a-propos"', "ptg-kicker-pill--link"];
-const EXPECTED_STATUS = new Map([
-  ["/api/health", 200],
-  ["/route-inexistante-test-404", 404],
-]);
 
 async function checkRoute(route) {
   const ctrl = new AbortController();
@@ -56,12 +29,41 @@ async function checkRoute(route) {
       ok = false;
       detail = ` :: expected status ${expectedStatus}, got ${res.status}`;
     }
+    if (route === "/api/health" && ok && res.status === 200) {
+      try {
+        const json = await res.json();
+        const err = validateHealthJson(json);
+        if (err) {
+          ok = false;
+          detail = ` :: ${err}`;
+        }
+      } catch {
+        ok = false;
+        detail = " :: health response not valid JSON";
+      }
+    }
     if (route === "/" && ok && res.status === 200) {
       const html = await res.text();
-      const missing = HOME_EXPECT_KICKER_MARKERS.filter((m) => !html.includes(m));
-      if (missing.length > 0) {
+      const err = validateHomeHtml(html);
+      if (err) {
         ok = false;
-        detail = ` :: home HTML missing hero kicker markers: ${missing.join(", ")}`;
+        detail = ` :: ${err}`;
+      }
+    }
+    if (route === "/manifest.webmanifest" && ok && res.status === 200) {
+      const text = await res.text();
+      const err = validateManifestText(text);
+      if (err) {
+        ok = false;
+        detail = ` :: ${err}`;
+      }
+    }
+    if (route === "/robots.txt" && ok && res.status === 200) {
+      const text = await res.text();
+      const err = validateRobotsText(text);
+      if (err) {
+        ok = false;
+        detail = ` :: ${err}`;
       }
     }
     if (!ok) failed += 1;
@@ -75,7 +77,7 @@ async function checkRoute(route) {
   }
 }
 
-for (const route of routes) {
+for (const route of SMOKE_ROUTES) {
   // eslint-disable-next-line no-await-in-loop
   await checkRoute(route);
 }

@@ -11,11 +11,14 @@ import {
 } from "@/lib/auth/device-email-hint";
 import { getPostLoginPath } from "@/lib/auth/post-login-path";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { InviteRefBanner } from "@/components/InviteRefBanner";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MARKETING_ENTRY_PULSE_LINES } from "@/lib/marketing-copy";
+import { emitInviteAttributionOnce } from "@/lib/growth-invite-attribution";
+import { trackGrowthEvent } from "@/lib/growth-events";
 import { UX_AUTH } from "@/lib/ux-copy";
 
 function getEmailRedirectTo(): string {
@@ -44,6 +47,10 @@ function AuthForm() {
   const [rememberEmail, setRememberEmail] = useState(true);
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
   const otpDigits = otp.replace(/\D/g, "");
+
+  useEffect(() => {
+    void trackGrowthEvent({ event: "auth_page_viewed", context: "auth" });
+  }, []);
 
   useEffect(() => {
     if (!supabase) return;
@@ -133,6 +140,8 @@ function AuthForm() {
       return;
     }
     persistAuthEmailHint(email, rememberEmail);
+    void trackGrowthEvent({ event: "auth_otp_verified", context: "auth" });
+    await emitInviteAttributionOnce("auth_otp");
     await goToAppAfterLogin();
   }
 
@@ -165,6 +174,8 @@ function AuthForm() {
                 </p>
               </div>
             </PtgMenuCard>
+
+            <InviteRefBanner />
 
             {err === "auth" && (
               <p className="ptg-banner ptg-banner-warn" role="alert">

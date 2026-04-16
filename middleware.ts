@@ -33,5 +33,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Pas de refresh session sur statiques / favicon / métadonnées (moins de charge Supabase & crawlers).
+     */
+    "/((?!_next/static|_next/image|favicon.ico|icon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.webmanifest|api/cron/).*)",
+  ],
 };

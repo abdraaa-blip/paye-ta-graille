@@ -201,7 +201,7 @@ export function LieuxClient() {
 
   async function copyPickedPlace() {
     if (!picked) return;
-    const text = picked.address ? `${picked.name} — ${picked.address}` : picked.name;
+    const text = picked.address ? `${picked.name} · ${picked.address}` : picked.name;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

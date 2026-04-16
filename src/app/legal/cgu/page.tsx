@@ -6,7 +6,7 @@ import { UX_BACK } from "@/lib/ux-copy";
 
 export const metadata: Metadata = {
   title: "Conditions d'utilisation · Paye ta graille",
-  description: "Cadre d'usage de la plateforme Paye ta graille (texte provisoire).",
+  description: "Cadre d'usage de la plateforme Paye ta graille.",
 };
 
 export default function CguPage() {
@@ -21,10 +21,7 @@ export default function CguPage() {
           Conditions d&apos;utilisation
         </h1>
         <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-        <p className="ptg-banner ptg-banner-warn">
-          <strong>Texte provisoire.</strong> Il sera complété avant une diffusion large. En cas de
-          doute, rapproche-toi d’un conseil juridique.
-        </p>
+        <p className="ptg-banner">Cadre d&apos;usage officiel de la version en ligne Paye ta graille.</p>
 
         <article className="ptg-type-body" style={{ marginTop: "1.5rem", lineHeight: 1.65 }}>
           <h2 className="ptg-type-prose-h2">1. Objet</h2>
@@ -45,10 +42,10 @@ export default function CguPage() {
             comportement des autres utilisateurs ni l&apos;issue des repas.
           </p>
 
-          <h2 className="ptg-type-prose-h2">4. Contact</h2>
+          <h2 className="ptg-type-prose-h2">4. Contact et moderation</h2>
           <p>
-            Pour la phase test, prévois une adresse e-mail ou un formulaire support dédié. (
-            <Link href="/signaler">Signaler un problème</Link> côté app.)
+            Signaler un probleme via <Link href="/signaler">Signaler un probleme</Link>. Les contenus
+            illegaux, harcelants ou dangereux peuvent etre supprimes et le compte suspendu.
           </p>
         </article>
         </div>

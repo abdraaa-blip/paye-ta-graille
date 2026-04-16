@@ -21,7 +21,10 @@ export default function PartageGraillePage() {
         <PtgAppFlow>
           <div className="ptg-page-inner">
             <AppNav />
-            <ModuleDisabledNotice title="Partage de graille" />
+            <ModuleDisabledNotice
+              title="Partage de graille"
+              devHint="Test équipe : NEXT_PUBLIC_PTG_MODULE_SHARE=1 dans .env.local puis redémarrer le serveur."
+            />
           </div>
         </PtgAppFlow>
         <SiteFooter />

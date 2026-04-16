@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const limited = rateLimitForUser(session.user.id, "payments_checkout", 20, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "payments_checkout", 20, 60_000);
   if (limited) return limited;
 
   let body: unknown;

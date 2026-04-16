@@ -23,10 +23,19 @@
 ### [2026-04-12] Règle provisoire `completed` (blueprint MVP)
 
 - **Contexte** : sans état `completed` clair, pas de Mes tables fiable ni métriques North Star propres.  
-- **Décision** (proposition **à valider** équipe) : **les deux** participants confirment **« Repas fait »** **ou** bascule auto **24h** après l’horaire du repas **si** aucun signalement bloquant.  
+- **Décision** (proposition initiale blueprint) : **les deux** participants confirment **« Repas fait »** **ou** bascule auto **24h** après l’horaire du repas **si** aucun signalement bloquant.  
 - **Alternatives** : un seul côté suffit ; modération manuelle uniquement.  
 - **Conséquences** : implémentation `PATCH meals → completed` + analytics.  
-- **Liens** : `BLUEPRINT_PRODUIT_FINAL_MVP.md` §4, `METRICS_PRODUCT.md`, `MATRICE_REPAS_ETATS_PERMISSIONS.md`.
+- **Liens** : `BLUEPRINT_PRODUIT_FINAL_MVP.md` §4, `METRICS_PRODUCT.md`, `MATRICE_REPAS_ETATS_PERMISSIONS.md`.  
+- **Mise à jour** : voir **[2026-04-30]** — implémentation réelle du MVP code.
+
+### [2026-04-30] `completed` en production code : un clic + auto après créneau
+
+- **Contexte** : éviter les repas bloqués indéfiniment en `confirmed` ; livrer vite sans module « double signature ».  
+- **Décision** : **l’hôte ou l’invité** peut passer en `completed` (un clic « Repas fait ») ; **clôture automatique** via cron `GET /api/cron/meal-reminders` après **fin de fenêtre** (`window_end` si ≥ `window_start`, sinon `window_start`) + **`PTG_MEAL_AUTO_COMPLETE_GRACE_HOURS`** (défaut 24). Exécution : RPC SQL `auto_complete_confirmed_meals` ; si RPC **introuvable** seulement, fallback Node (même règle) ; autre erreur RPC → erreur exposée, pas de fallback. **Double validation des deux parties** = reportée (voir entrée 2026-04-12 si le produit l’exige plus tard).  
+- **Alternatives** : uniquement manuel (repas oubliés) ; uniquement auto sans clic (moins de contrôle utilisateur).  
+- **Conséquences** : migrations `20260430200000_auto_complete_meals_rpc.sql`, `src/lib/meals/meal-auto-complete.ts`, doc API + déploiement.  
+- **Liens** : `MATRICE_REPAS_ETATS_PERMISSIONS.md`, `meal-transitions.ts`, `MealDetailClient.tsx`.
 
 ### [2026-04-13] Gate profil après première connexion (ville + pseudo)
 

@@ -1,5 +1,5 @@
 /**
- * Composants & patterns UI — tokens dans `ptg-tokens.css`.
+ * Composants & patterns UI : tokens dans `ptg-tokens.css`.
  * Design system : docs/DESIGN_SYSTEM.md · tokens : ptg-tokens.css
  */
 @import "./ptg-tokens.css";
@@ -43,6 +43,144 @@ body::before {
   z-index: -1;
   background-image: var(--ptg-paper-grain);
   opacity: 0.22;
+}
+
+/* Ambiance globale : vapeur culinaire subtile + faisceaux doux sur zones sombres. */
+.ptg-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ptg-ambient__smoke {
+  position: absolute;
+  bottom: -10%;
+  width: min(42vw, 22rem);
+  height: min(46vh, 26rem);
+  border-radius: 50% 45% 55% 50%;
+  filter: blur(26px);
+  opacity: 0.12;
+  background: radial-gradient(
+    ellipse at 50% 55%,
+    color-mix(in srgb, var(--ptg-apricot-wash) 72%, transparent),
+    transparent 70%
+  );
+  animation: ptg-smoke-rise 20s ease-in-out infinite;
+}
+
+.ptg-ambient__smoke--1 {
+  left: -6%;
+  animation-delay: 0s;
+}
+
+.ptg-ambient__smoke--2 {
+  left: 36%;
+  opacity: 0.1;
+  animation-delay: -7s;
+}
+
+.ptg-ambient__smoke--3 {
+  right: -8%;
+  opacity: 0.11;
+  animation-delay: -12s;
+}
+
+.ptg-ambient__beam {
+  position: absolute;
+  top: -8%;
+  width: 30vw;
+  height: 52vh;
+  filter: blur(2px);
+  opacity: 0.1;
+  mix-blend-mode: screen;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #fff 42%, var(--ptg-accent)) 0%,
+    color-mix(in srgb, var(--ptg-accent) 14%, transparent) 35%,
+    transparent 100%
+  );
+  clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+  animation: ptg-beam-sweep 14s ease-in-out infinite;
+}
+
+.ptg-ambient__beam--1 {
+  left: 14%;
+  animation-delay: 0s;
+}
+
+.ptg-ambient__beam--2 {
+  right: 10%;
+  opacity: 0.085;
+  animation-delay: -5.6s;
+}
+
+@keyframes ptg-smoke-rise {
+  0%,
+  100% {
+    transform: translate3d(0, 16px, 0) scale(0.96);
+  }
+  50% {
+    transform: translate3d(0, -26px, 0) scale(1.06);
+  }
+}
+
+@keyframes ptg-beam-sweep {
+  0%,
+  100% {
+    transform: translateX(0) rotate(-10deg);
+  }
+  50% {
+    transform: translateX(8vw) rotate(7deg);
+  }
+}
+
+/* Variante sombre locale (page partenaires) avec faisceaux croisés plus lisibles. */
+.ptg-night-stage {
+  position: relative;
+  margin-top: 0.9rem;
+  min-height: 8.5rem;
+  border-radius: var(--ptg-radius-card);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 28%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, #0f1115 95%, black), color-mix(in srgb, #171a22 92%, black));
+  overflow: hidden;
+}
+
+.ptg-night-stage__beam {
+  position: absolute;
+  top: -20%;
+  width: 44%;
+  height: 130%;
+  opacity: 0.28;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #fff 76%, var(--ptg-accent) 24%) 0%,
+    color-mix(in srgb, var(--ptg-accent) 20%, transparent) 38%,
+    transparent 100%
+  );
+  clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+  filter: blur(2px);
+  animation: ptg-night-beam 9s ease-in-out infinite;
+}
+
+.ptg-night-stage__beam--1 {
+  left: 8%;
+}
+
+.ptg-night-stage__beam--2 {
+  right: 8%;
+  animation-delay: -4.5s;
+}
+
+@keyframes ptg-night-beam {
+  0%,
+  100% {
+    transform: rotate(-9deg) translateX(0);
+  }
+  50% {
+    transform: rotate(8deg) translateX(10%);
+  }
 }
 
 a {
@@ -126,7 +264,7 @@ a:hover {
   padding: var(--ptg-space-3);
 }
 
-/** Rangée profil (avatar + bloc texte) — listes découverte, fiches */
+/** Rangée profil (avatar + bloc texte) : listes découverte, fiches */
 .ptg-profile-row {
   display: flex;
   gap: 0.85rem;
@@ -149,7 +287,7 @@ a:hover {
   gap: var(--ptg-space-4);
 }
 
-/** Listes sans puces (pile verticale) — cartes, fils */
+/** Listes sans puces (pile verticale) : cartes, fils */
 .ptg-list-plain {
   list-style: none;
   padding: 0;
@@ -284,7 +422,7 @@ a:hover {
   cursor: not-allowed;
 }
 
-/** Variante dense (barres d’actions secondaires, cartes) — garde la zone tactile minimale */
+/** Variante dense (barres d’actions secondaires, cartes) : garde la zone tactile minimale */
 .ptg-btn-primary--compact {
   min-height: var(--ptg-btn-height-sm);
   padding: 0.62rem var(--ptg-btn-pad-x-compact);
@@ -352,7 +490,7 @@ a.ptg-btn-primary {
   color: var(--ptg-text);
 }
 
-/** Titres dans contenus longs (légal, docs) — hiérarchie sous le H1 page */
+/** Titres dans contenus longs (légal, docs) : hiérarchie sous le H1 page */
 .ptg-type-prose-h2 {
   margin: var(--ptg-space-6) 0 var(--ptg-space-2);
   font-family: var(--ptg-font-display);
@@ -480,6 +618,18 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   transform: translateY(0);
 }
 
+.ptg-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .ptg-footer {
   margin-top: auto;
   padding: 2rem 1.5rem 1.5rem;
@@ -603,6 +753,32 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   );
   opacity: 0.48;
   pointer-events: none;
+}
+
+/* Micro-feedback CTA « prochaine action » : léger, sans surcharge cognitive */
+.ptg-next-action-card {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.ptg-next-action-card:focus-within {
+  outline: 2px solid color-mix(in srgb, var(--ptg-accent) 40%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .ptg-next-action-card:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-next-action-card {
+    transition: none;
+  }
+
+  .ptg-next-action-card:hover {
+    transform: none;
+  }
 }
 
 .ptg-page-inner--wide {
@@ -890,6 +1066,7 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   max-width: min(38rem, 100%);
   margin-inline: auto;
   outline: none;
+  scroll-margin-top: 1.25rem;
 }
 
 .ptg-about-livret-wrap:focus-visible .ptg-about-livret {
@@ -986,11 +1163,12 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 .ptg-about-livret__nav-meta {
   font-size: var(--ptg-text-2xs);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--ptg-text-muted);
   text-align: center;
   flex: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .ptg-about-livret__hint {
@@ -1047,7 +1225,132 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   color: var(--ptg-accent-deep);
 }
 
-/* Carte restaurant (têtes de page module / parcours) — variantes = couleur + grain, même ADN que le livret */
+.ptg-about-livret-teaser {
+  margin: 0 0 1rem;
+  max-width: none;
+  font-size: var(--ptg-text-sm);
+  color: var(--ptg-text-muted);
+  line-height: 1.5;
+}
+
+.ptg-about-livret-teaser__link {
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ptg-accent-deep) 88%, var(--ptg-text));
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.ptg-about-livret-teaser__link:hover {
+  color: var(--ptg-accent-deep);
+}
+
+.ptg-about-livret__to-services {
+  margin: 0.65rem 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px solid color-mix(in srgb, var(--ptg-line) 38%, transparent);
+  text-align: center;
+}
+
+.ptg-about-livret__to-services-link {
+  font-size: var(--ptg-text-ui-sm);
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ptg-accent-deep) 88%, var(--ptg-text));
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.ptg-about-livret__to-services-link:hover {
+  color: var(--ptg-accent-deep);
+}
+
+.ptg-about-services-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 0 1.25rem 2.75rem;
+  max-width: min(42rem, 100%);
+  margin-inline: auto;
+  outline: none;
+  scroll-margin-top: 1.25rem;
+}
+
+.ptg-about-services-intro {
+  margin: 0 auto 1rem;
+  max-width: 36rem;
+  text-align: center;
+  font-size: var(--ptg-text-sm);
+  color: var(--ptg-text-muted);
+}
+
+.ptg-about-services-livret {
+  position: relative;
+  border-radius: calc(var(--ptg-radius-card) + 4px);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 52%, var(--ptg-accent) 14%);
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--ptg-surface) 92%, var(--ptg-butter)),
+    color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-sand))
+  );
+  box-shadow: var(--ptg-shadow-lift), 0 1px 0 color-mix(in srgb, #fff 65%, transparent) inset;
+  padding: 1.15rem 1.2rem 1rem;
+}
+
+.ptg-about-services-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 520px) {
+  .ptg-about-services-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ptg-about-service-link {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--ptg-radius-card);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 48%, var(--ptg-accent) 12%);
+  background: color-mix(in srgb, var(--ptg-surface) 94%, transparent);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background var(--ptg-duration-fast) var(--ptg-ease-out),
+    border-color var(--ptg-duration-fast) var(--ptg-ease-out),
+    box-shadow var(--ptg-duration-fast) var(--ptg-ease-out);
+}
+
+.ptg-about-service-link:hover {
+  background: color-mix(in srgb, var(--ptg-accent) 8%, var(--ptg-surface));
+  border-color: color-mix(in srgb, var(--ptg-accent) 38%, var(--ptg-line));
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 55%, transparent) inset;
+}
+
+.ptg-about-service-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ptg-accent) 35%, transparent);
+}
+
+.ptg-about-service-link__label {
+  display: block;
+  font-weight: 700;
+  font-size: var(--ptg-text-ui-sm);
+  color: var(--ptg-ink-display);
+  letter-spacing: -0.01em;
+}
+
+.ptg-about-service-link__blurb {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: var(--ptg-text-2xs);
+  line-height: 1.45;
+  color: var(--ptg-text-muted);
+}
+
+/* Carte restaurant (têtes de page module / parcours) : variantes = couleur + grain, même ADN que le livret */
 .ptg-menu-card {
   --ptg-menu-ornament: var(--ptg-accent);
   --ptg-menu-edge-a: var(--ptg-line);
@@ -1609,7 +1912,7 @@ a.ptg-kicker-pill--link:focus-visible {
   font-size: var(--ptg-text-ui-sm);
 }
 
-/* Décor landing (traits) — encre « esquisse » alignée au design system */
+/* Décor landing (traits) : encre « esquisse » alignée au design system */
 .ptg-landing-decor {
   position: absolute;
   inset: 0;
@@ -2232,6 +2535,12 @@ a.ptg-kicker-pill--link:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ptg-ambient__smoke,
+  .ptg-ambient__beam,
+  .ptg-night-stage__beam {
+    animation: none;
+  }
+
   .ptg-hero-atmosphere__wash {
     filter: blur(28px);
   }
@@ -2370,7 +2679,7 @@ a.ptg-kicker-pill--link:focus-visible {
   }
 }
 
-/* Typo utilitaires — fin de feuille pour surcharger boutons / liens si besoin */
+/* Typo utilitaires : fin de feuille pour surcharger boutons / liens si besoin */
 .ptg-font-2xs {
   font-size: var(--ptg-text-2xs);
 }

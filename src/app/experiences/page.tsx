@@ -140,6 +140,23 @@ export default function ExperiencesPage() {
           utilisateur sera solide, pas pour transformer l’app en billetterie générique.
         </p>
 
+        <div className="ptg-surface ptg-surface--static ptg-card" style={{ marginBottom: "1rem" }}>
+          <p className="ptg-card-title" style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-md-sm)" }}>
+            Solidarité &amp; maraudes (piste)
+          </p>
+          <p className="ptg-type-body" style={{ margin: 0, fontSize: "var(--ptg-text-ui-sm)", lineHeight: 1.55 }}>
+            Une idée en réflexion : des <strong>actions collectives</strong> (ex. maraude) avec date fixée suffisamment à
+            l&apos;avance, rôles clairs et transparence ; <strong>pas encore dans l&apos;app</strong>, car ça touche à la
+            confiance, à la sécurité des lieux et souvent à la <strong>mise en commun d&apos;argent</strong> (responsabilité,
+            remboursements). Si le cœur « repas &amp; rencontres » est solide, ce volet pourrait arriver en{" "}
+            <strong>module dédié</strong>, probablement sans paiement intégré au tout premier jet. Les{" "}
+            <Link href="/partenaires" style={{ fontWeight: 600 }}>
+              partenariats
+            </Link>{" "}
+            et le terrain valideront si on le fait et comment.
+          </p>
+        </div>
+
         <p className="ptg-type-body" style={{ margin: "0 0 1rem", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
           L’idée reste simple : un prix clair pour toi, parfois un partenariat avec un lieu qui a envie de nous faire
           confiance, sans vendre ton attention à la sauvette.

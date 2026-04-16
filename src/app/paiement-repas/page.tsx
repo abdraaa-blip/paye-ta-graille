@@ -23,7 +23,10 @@ export default function PaiementRepasPage() {
         <PtgAppFlow>
           <div className="ptg-page-inner">
             <AppNav />
-            <ModuleDisabledNotice title="Paiement du repas" />
+            <ModuleDisabledNotice
+              title="Paiement du repas"
+              devHint="Pour un test équipe : définir NEXT_PUBLIC_PTG_MODULE_PAYMENTS=1, STRIPE_SECRET_KEY et webhook (voir .env.example et docs/NOTE_PAIEMENT_STRIPE.md). Profil avec e-mail confirmé requis."
+            />
           </div>
         </PtgAppFlow>
         <SiteFooter />

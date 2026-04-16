@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "discover_get", 45, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "discover_get", 45, 60_000);
   if (limited) return limited;
 
   const url = new URL(request.url);

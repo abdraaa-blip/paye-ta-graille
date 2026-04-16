@@ -20,7 +20,10 @@ export default function SecondeGraillePage() {
         <PtgAppFlow>
           <div className="ptg-page-inner">
             <AppNav />
-            <ModuleDisabledNotice title="Seconde graille" />
+            <ModuleDisabledNotice
+              title="Seconde graille"
+              devHint="Test équipe : NEXT_PUBLIC_PTG_MODULE_FOOD_RESCUE=1 dans .env.local puis redémarrer le serveur."
+            />
           </div>
         </PtgAppFlow>
         <SiteFooter />

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:stable": "next dev",
     "build": "next build",
     "clean:next": "node scripts/clean-next.mjs",
     "build:clean": "node scripts/clean-next.mjs && next build",
@@ -17,12 +18,19 @@
     "typecheck": "tsc --noEmit",
     "verify": "npm run lint && npm run typecheck",
     "verify:full": "npm run verify && npm run build",
+    "verify:ship": "npm run verify && npm run build && playwright test",
     "optimize:hero": "node scripts/optimize-hero.mjs",
     "smoke:public": "node scripts/smoke-public.mjs",
     "assert:beta-seo": "node scripts/assert-beta-seo.mjs",
     "wait:health": "node scripts/wait-for-health.mjs",
     "checks:prod-local": "node scripts/run-prod-checks.mjs",
-    "deploy:preflight": "node scripts/deploy-preflight.mjs"
+    "checks:prod-local:beta-seo": "node scripts/run-prod-checks.mjs --with-beta-seo",
+    "deploy:preflight": "node scripts/deploy-preflight.mjs",
+    "cron:meal-reminders": "node scripts/trigger-meal-reminders.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:beta-seo": "node scripts/e2e-beta-seo.mjs",
+    "test:e2e:full": "npm run build && playwright test",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",
@@ -36,6 +44,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

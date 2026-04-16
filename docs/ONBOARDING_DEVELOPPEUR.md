@@ -21,12 +21,12 @@ npm ci   # nécessite package-lock.json (fourni) ; sinon npm install une fois pu
 npm run dev
 ```
 
-Ouvrir `http://localhost:3000` · santé API : `http://localhost:3000/api/health`
+Ouvrir `http://localhost:3000` · santé API : `http://localhost:3000/api/health` · scripts smoke / `wait:health` : défaut **`http://127.0.0.1:3000`** (`PTG_BASE_URL` si besoin)
 
 ## Base de données
 
 1. Créer un projet sur [Supabase](https://supabase.com).  
-2. SQL Editor : exécuter le contenu de `supabase/migrations/20260412120000_core_profiles_meals.sql` (ou utiliser CLI Supabase si vous migrez en pipeline).  
+2. Appliquer **toutes** les migrations du dossier `supabase/migrations/` **dans l’ordre des timestamps** (SQL Editor ou `supabase db push`). Le fichier `20260412120000_core_profiles_meals.sql` est le socle ; en bout de chaîne courante : rappels **`20260430100000_meals_reminder_columns.sql`**, RPC clôture auto **`20260430200000_auto_complete_meals_rpc.sql`** (sinon le cron utilise un fallback Node plus lent).  
 3. **Auth** : activer Email (magic link) dans Authentication → Providers.  
 4. Tester l’inscription depuis l’app dès les écrans auth branchés.
 
@@ -40,11 +40,19 @@ Ouvrir `http://localhost:3000` · santé API : `http://localhost:3000/api/health
 | `src/types/` | Types partagés (repas, profil) |
 | `docs/` | Produit, UX, légal, déploiement |
 
+## Test bêta (parcours réel)
+
+Check-list, priorités et scénario **2 comptes** : **`docs/PLAN_TEST_BETA.md`**.
+
 ## Prochaines branches fonctionnelles
 
 Voir `docs/BLUEPRINT_PRODUIT_FINAL_MVP.md` (sprints 0–5).
 
 ## Dépannage
 
+- **CI GitHub** : `.github/workflows/ci.yml` enchaîne `verify`, `deploy:preflight`, `build`, puis **Playwright** (`test:e2e`) ; un job séparé **`beta-seo`** rebuild avec `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` et lance `test:e2e:beta-seo`.  
 - **Build CI** : des placeholders `NEXT_PUBLIC_*` sont injectés dans GitHub Actions pour que `next build` ne échoue pas sans vrai projet Supabase.  
 - **Erreur Supabase client** : vérifier `.env.local` et redémarrer `npm run dev`.
+- **Windows + `next dev --turbopack`** : après `npm run clean:next`, des erreurs `ENOENT` sur `.next/static/development/_buildManifest.js.tmp.*` peuvent apparaître. Essaie `npm run dev:stable` (Webpack) ou relance `dev` sans nettoyer le cache entre deux runs.
+- **`checks:prod-local` / `checks:prod-local:beta-seo`** : le script vérifie que **le serveur lancé par le script** répond (nonce dans `/api/health`). Si le port est déjà pris par un autre `next dev` / `next start`, ferme-le ou utilise `PTG_CHECK_PORT=3010` avec `PTG_BASE_URL=http://127.0.0.1:3010`.
+- **`deploy:preflight`** sans clés Google : en local uniquement, tu peux définir `PTG_PREFLIGHT_ALLOW_MISSING_PLACES=1` dans l’environnement ou dans `.env.local` pour passer le préflight sans `GOOGLE_PLACES_API_KEY` / `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (un avertissement sera affiché).

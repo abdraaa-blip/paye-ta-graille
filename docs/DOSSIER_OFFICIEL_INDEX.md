@@ -50,6 +50,8 @@
 | `METRICS_PRODUCT.md` | KPI |
 | `SCALE_ARCHITECTURE.md` | Scalabilité |
 | `AUDIT_PRODUIT_GLOBAL.md` | Audit cohérence et priorités |
+| `PLAN_TEST_BETA.md` | Test bêta : priorités, dépendances Supabase/Vercel/cron, check-list |
+| `TEST_UTILISATEUR_GUIDE.md` | Scénarios utilisateur A–E et critères de validation |
 
 ---
 

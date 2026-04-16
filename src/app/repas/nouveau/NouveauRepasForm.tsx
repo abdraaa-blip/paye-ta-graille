@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,6 +7,7 @@ import { readApiError } from "@/lib/api/read-api-error";
 import { AppNav } from "@/components/AppNav";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
+import { trackGrowthEvent } from "@/lib/growth-events";
 import { UX_NOUVEAU_REPAS } from "@/lib/ux-copy";
 
 export function NouveauRepasForm({ guestId }: { guestId: string }) {
@@ -42,8 +43,13 @@ export function NouveauRepasForm({ guestId }: { guestId: string }) {
       setErr(message);
       return;
     }
-    const json = (await res.json()) as { meal?: { id: string } };
+    const json = (await res.json()) as { meal?: { id: string; format?: string } };
     if (json.meal?.id) {
+      void trackGrowthEvent({
+        event: "meal_proposed",
+        context: "nouveau_repas",
+        metadata: { meal_id: json.meal.id, format: json.meal.format ?? (groupCoordination ? "group" : "duo") },
+      });
       router.push(`/repas/${json.meal.id}`);
       return;
     }

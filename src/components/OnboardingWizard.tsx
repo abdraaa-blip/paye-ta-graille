@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MEAL_INTENT_DESCRIPTIONS, MEAL_INTENT_LABELS } from "@/lib/intent-labels";
 import {
   defaultProfileDraft,
@@ -20,6 +20,8 @@ import {
 } from "@/lib/tag-options";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
+import { emitInviteAttributionOnce } from "@/lib/growth-invite-attribution";
+import { trackGrowthEvent } from "@/lib/growth-events";
 import { MARKETING_ENTRY_PULSE_LINES } from "@/lib/marketing-copy";
 import { UX_ONBOARDING } from "@/lib/ux-copy";
 
@@ -29,6 +31,10 @@ export function OnboardingWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState(defaultProfileDraft);
+
+  useEffect(() => {
+    void trackGrowthEvent({ event: "onboarding_started", context: "onboarding" });
+  }, []);
 
   const canContinue = useMemo(() => {
     if (step === 1) return draft.displayName.trim().length >= 2 && draft.city.trim().length >= 2;
@@ -51,11 +57,41 @@ export function OnboardingWizard() {
     });
   }
 
-  function finish() {
+  function nextStep() {
+    void trackGrowthEvent({
+      event: "onboarding_step_completed",
+      context: "onboarding",
+      metadata: { step },
+    });
+    setStep((s) => s + 1);
+  }
+
+  async function finish() {
+    void trackGrowthEvent({
+      event: "onboarding_completed",
+      context: "onboarding",
+      metadata: { stepCount },
+    });
     saveProfileDraft({
       ...draft,
       completedAt: new Date().toISOString(),
     });
+    await emitInviteAttributionOnce("onboarding_completed");
+    router.push("/accueil");
+  }
+
+  async function fastFinish() {
+    // Fast path to first value: save essentials now, enrich profile later from /profil.
+    saveProfileDraft({
+      ...draft,
+      completedAt: new Date().toISOString(),
+    });
+    void trackGrowthEvent({
+      event: "onboarding_completed",
+      context: "onboarding_fast_path",
+      metadata: { completedAtStep: step },
+    });
+    await emitInviteAttributionOnce("onboarding_fast_path");
     router.push("/accueil");
   }
 
@@ -337,13 +373,18 @@ export function OnboardingWizard() {
               className="ptg-btn-primary"
               style={{ flex: 1 }}
               disabled={!canContinue}
-              onClick={() => setStep((s) => s + 1)}
+              onClick={nextStep}
             >
               {UX_ONBOARDING.continue}
             </button>
           ) : (
             <button type="button" className="ptg-btn-primary" style={{ flex: 1 }} onClick={finish}>
               {UX_ONBOARDING.finish}
+            </button>
+          )}
+          {step >= 2 && step < stepCount && (
+            <button type="button" className="ptg-btn-ghost" onClick={fastFinish}>
+              Finir vite (je completerai plus tard)
             </button>
           )}
         </div>

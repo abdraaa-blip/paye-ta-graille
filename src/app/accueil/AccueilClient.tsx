@@ -19,10 +19,11 @@ import {
   MARKETING_KEY_CHOICE_OR_SURPRISE,
   MARKETING_TAGLINE_GOLDEN,
 } from "@/lib/marketing-copy";
-import { UX_ACCUEIL, UX_LOADING } from "@/lib/ux-copy";
+import { UX_ACCUEIL, UX_FOOTER, UX_LOADING } from "@/lib/ux-copy";
 import { clearProfileDraft, loadProfileDraft, type ProfileDraft } from "@/lib/profile-draft";
 import { extensionsNavVisible } from "@/lib/feature-modules";
 import { GROWTH_ACCUEIL_HOOKS, GROWTH_CTA_INVITE_EAT } from "@/lib/growth-copy";
+import { trackGrowthEvent } from "@/lib/growth-events";
 import { getUxVariant } from "@/lib/ux-variant";
 
 type ServerProfile = {
@@ -67,7 +68,8 @@ export function AccueilClient() {
   useEffect(() => {
     setDraft(loadProfileDraft());
     void refreshServer();
-  }, [refreshServer]);
+    void trackGrowthEvent({ event: "accueil_viewed", context: "accueil", metadata: { variant: uxVariant } });
+  }, [refreshServer, uxVariant]);
 
   async function syncDraftToServer() {
     const d = loadProfileDraft();
@@ -255,6 +257,10 @@ export function AccueilClient() {
           <p className="ptg-type-body" style={{ margin: "0.75rem 0 0", fontSize: "var(--ptg-text-ui-sm)" }}>
             <Link href="/lieux" style={{ fontWeight: 600 }}>
               Lieux & repères
+            </Link>
+            <span style={{ color: "var(--ptg-text-muted)" }}> · </span>
+            <Link href="/partenaires" style={{ fontWeight: 600 }}>
+              {UX_FOOTER.partners}
             </Link>
             <span style={{ color: "var(--ptg-text-muted)" }}> · </span>
             <Link href="/repas" style={{ fontWeight: 600 }}>

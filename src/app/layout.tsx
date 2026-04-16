@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { AmbientAppEffects } from "@/components/AmbientAppEffects";
 import { BetaBanner } from "@/components/BetaBanner";
 import { SkipLink } from "@/components/SkipLink";
 import { MARKETING_CORE_PROMISE, MARKETING_HERO_PRIMARY, MARKETING_TAGLINE_GOLDEN } from "@/lib/marketing-copy";
@@ -57,6 +58,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${fraunces.variable}`}>
       <body>
+        <AmbientAppEffects />
         <SkipLink />
         <BetaBanner />
         <main id="contenu-principal" tabIndex={-1} aria-label="Contenu principal">

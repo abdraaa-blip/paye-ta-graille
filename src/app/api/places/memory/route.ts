@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "places_memory_get", 60, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "places_memory_get", 60, 60_000);
   if (limited) return limited;
 
   const url = new URL(request.url);
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
-  const limited = rateLimitForUser(session.user.id, "places_memory_post", 40, 60_000);
+  const limited = await rateLimitForUser(session.user.id, "places_memory_post", 40, 60_000);
   if (limited) return limited;
 
   let body: unknown;

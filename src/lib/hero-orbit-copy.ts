@@ -1,4 +1,4 @@
-/** Pastilles orbitales hero landing — source unique pour `HeroOrbitLabels`. */
+/** Pastilles orbitales hero landing, source unique pour `HeroOrbitLabels`. */
 export const HOME_HERO_ORBIT_LABELS = [
   "fait maison",
   "chaud maintenant",

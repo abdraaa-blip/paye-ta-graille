@@ -1,9 +1,9 @@
 /**
- * Page À propos — ton chaleureux, aligné marque (pas juridique : voir CGU).
+ * Page À propos : ton chaleureux, aligné marque (pas juridique : voir CGU).
  */
 export const ABOUT_BRAND_NAME = "Paye ta graille";
 
-/** Pastilles orbitales hero À propos (4 positions — même composant que la landing). */
+/** Pastilles orbitales hero À propos (4 positions, même composant que la landing). */
 export const ABOUT_HERO_ORBIT_LABELS = [
   "à propos",
   "la marque",
@@ -49,6 +49,27 @@ export type AboutLivretPage = {
 
 export const ABOUT_LIVRET_INTRO =
   "Comme une carte qu’on retourne : chaque page raconte un morceau de Paye ta graille, du pourquoi au comment, sans jargon.";
+
+/** Persistance session (page + ouverture), clé versionnée si le format change. */
+export const ABOUT_LIVRET_SESSION_KEY = "ptg.about.livret.v1";
+
+/** Ancres reconnues : `#livret-payetagraille` (id section) ou raccourci `#livret`. */
+export const ABOUT_LIVRET_HASH_ALIASES = ["livret"] as const;
+
+/** Description courte pour métadonnées et partage social. */
+export const ABOUT_PAGE_SHARE_DESCRIPTION =
+  "Concept Paye ta graille : repas réel, intentions à table (j’invite, on partage, je me fais inviter), livret interactif et index des pages de l’app.";
+
+/** Mots-clés SEO (page À propos). */
+export const ABOUT_PAGE_KEYWORDS = [
+  "Paye ta graille",
+  "à propos",
+  "repas partagé",
+  "rencontre autour du repas",
+  "intentions à table",
+  "Graille+",
+  "réseau social repas",
+] as const;
 
 export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
   {
@@ -121,4 +142,40 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
       "Si ce livret te parle, tu sais déjà l’essentiel : à Paye ta graille, on commence par manger. Le reste, si le reste veut venir.",
     ],
   },
+] as const;
+
+/** Second volet « carte » : entrées vers les pages utiles de l’app (toujours visible sous le livret). */
+export const ABOUT_SERVICES_SECTION_TITLE = "Ce qu’on propose";
+
+export const ABOUT_SERVICES_SECTION_INTRO =
+  "Un index cliquable : chaque carte mène à une partie du site. Les modules Graille+ ou repas ouverts peuvent être en « à venir » selon ton espace ; la page t’expliquera toujours où tu en es.";
+
+export type AboutServiceLink = {
+  href: string;
+  label: string;
+  blurb: string;
+};
+
+export const ABOUT_SERVICE_LINKS: readonly AboutServiceLink[] = [
+  { href: "/commencer", label: "Commencer", blurb: "Entrer dans le parcours : invitation, intentions, premier pas." },
+  { href: "/auth", label: "Connexion / inscription", blurb: "Ouvrir une session ou créer un compte." },
+  { href: "/accueil", label: "Accueil", blurb: "Le hub de l’app une fois connecté·e." },
+  { href: "/decouvrir", label: "Rencontres", blurb: "Voir qui mange autour de toi et proposer un repas." },
+  { href: "/repas/nouveau", label: "Proposer un repas", blurb: "Créer une nouvelle invitation ou demande de table." },
+  { href: "/repas", label: "Mes repas", blurb: "Suivre les demandes, confirmations et rendez-vous." },
+  { href: "/lieux", label: "Lieux", blurb: "Repères, carte et idées de tables près de toi." },
+  { href: "/moi", label: "Moi", blurb: "Profil, rappels et réglages qui te rassurent." },
+  { href: "/profil", label: "Modifier le profil", blurb: "Pseudo, ville, intentions et tags graille." },
+  { href: "/onboarding", label: "Parcours guidé", blurb: "Questionnaire local pour affiner ton profil avant connexion." },
+  { href: "/reseau-graille", label: "Compagnons", blurb: "Après table : lien discret, repas croisés ; la vision s’étoffe ici." },
+  { href: "/experiences", label: "Expériences", blurb: "Tables organisées et idées d’événements (réservation quand c’est prêt)." },
+  { href: "/repas-ouverts", label: "Repas ouverts", blurb: "Fil spontané « qui mange quand », en préparation côté produit." },
+  { href: "/graille-plus", label: "Graille+", blurb: "Partage culinaire, seconde graille, paiement : modules optionnels." },
+  { href: "/partage-graille", label: "Partage de graille", blurb: "Offrir ou réserver une table maison quand le module est activé." },
+  { href: "/seconde-graille", label: "Seconde graille", blurb: "Anti-gaspillage et surplus, quand le module est activé." },
+  { href: "/paiement-repas", label: "Paiement du repas", blurb: "Sécuriser l’addition via Stripe quand le module est activé." },
+  { href: "/partenaires", label: "Partenaires", blurb: "Restos, pros et pistes de collaboration." },
+  { href: "/signaler", label: "Signaler", blurb: "Nous écrire si quelque chose cloche (compte requis pour le formulaire)." },
+  { href: "/legal/cgu", label: "CGU", blurb: "Conditions d’utilisation." },
+  { href: "/legal/confidentialite", label: "Confidentialité", blurb: "Données personnelles et traitements." },
 ] as const;
