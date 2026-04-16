@@ -1,0 +1,167 @@
+/**
+ * Paye ta graille — design tokens (source unique pour scale & sémantique).
+ * Les composants dans globals.css consomment ces variables.
+ *
+ * Hiérarchie couleur :
+ *   Niveau 0 — fond / atmosphère : --ptg-bg, --ptg-sand, --ptg-butter, motifs
+ *   Niveau 1 — surfaces : --ptg-surface, --ptg-bg-elevated, --ptg-muted
+ *   Niveau 2 — texte : --ptg-text, --ptg-text-muted, --ptg-ink-display
+ *   Niveau 3 — accent & action : --ptg-accent, --ptg-accent-deep (CTA, liens forts)
+ *   Niveau 4 — sémantique produit : success, surprise, danger, info
+ */
+:root {
+  /* --- Palette principale (chaleur, appétit) --- */
+  --ptg-bg: #fbf6ef;
+  --ptg-bg-elevated: #fffdf9;
+  --ptg-surface: #ffffff;
+  --ptg-muted: #ead8c4;
+  --ptg-sand: #f3e6d6;
+  --ptg-butter: #fff4e0;
+  --ptg-apricot-wash: color-mix(in srgb, #f4a574 12%, transparent);
+  --ptg-line: #c9b8a5;
+  --ptg-line-subtle: color-mix(in srgb, var(--ptg-line) 45%, transparent);
+  --ptg-text: #1a1512;
+  --ptg-text-muted: #5e5348;
+  --ptg-ink-display: #2a1f1a;
+  --ptg-accent: #e07a3a;
+  --ptg-accent-deep: #8a4020;
+  --ptg-accent-muted: color-mix(in srgb, var(--ptg-accent) 14%, var(--ptg-surface));
+  --ptg-accent-glow: color-mix(in srgb, var(--ptg-accent) 32%, transparent);
+  --ptg-rose-dish: #c4655a;
+  --ptg-tomato-deep: #9b3b2e;
+  --ptg-olive: #4f6f54;
+  --ptg-success: #4f6f54;
+  --ptg-danger: #a33a32;
+  --ptg-info: #5a6d8c;
+
+  /* --- Palette secondaire (équilibre, repos visuel) — même famille, moins saturée --- */
+  --ptg-secondary-sage: var(--ptg-olive);
+  --ptg-secondary-dusty-rose: color-mix(in srgb, var(--ptg-rose-dish) 75%, var(--ptg-line));
+  --ptg-secondary-warm-gray: color-mix(in srgb, var(--ptg-text-muted) 88%, var(--ptg-sand));
+
+  /* Sémantique (alias) — pour nouveaux écrans & thèmes futurs */
+  --ptg-color-bg: var(--ptg-bg);
+  --ptg-color-surface: var(--ptg-surface);
+  --ptg-color-text: var(--ptg-text);
+  --ptg-color-text-muted: var(--ptg-text-muted);
+  --ptg-color-accent: var(--ptg-accent);
+  --ptg-color-accent-strong: var(--ptg-accent-deep);
+  --ptg-color-border: var(--ptg-line);
+  --ptg-color-success: var(--ptg-success);
+  --ptg-color-danger: var(--ptg-danger);
+
+  /* Rôles émotionnels (inchangés, réf. DA) */
+  --ptg-emotion-accueil-bg: var(--ptg-bg);
+  --ptg-emotion-accueil-surface: var(--ptg-surface);
+  --ptg-emotion-accueil-text: var(--ptg-text);
+  --ptg-emotion-rencontre-stroke: var(--ptg-line);
+  --ptg-emotion-rencontre-accent: var(--ptg-accent);
+  --ptg-emotion-succes: var(--ptg-success);
+  --ptg-emotion-surprise: var(--ptg-rose-dish);
+  --ptg-emotion-attention: var(--ptg-danger);
+
+  /* Signature visuelle : traits culinaires (décor SVG) — encre chaude, pas noir */
+  --ptg-sketch-ink: color-mix(in srgb, var(--ptg-accent-deep) 58%, var(--ptg-rose-dish) 28%, #3d2a22);
+  /* Ligne « coup de pinceau » sous titres (hiérarchie + marque) */
+  --ptg-accent-rule-gradient: linear-gradient(
+    90deg,
+    var(--ptg-accent),
+    color-mix(in srgb, var(--ptg-accent) 38%, var(--ptg-rose-dish))
+  );
+  /* Landing hero : duo chaud + sauge (réf. « bistrot illustré ») */
+  --ptg-accent-rule-gradient-hero: linear-gradient(
+    92deg,
+    var(--ptg-accent),
+    color-mix(in srgb, var(--ptg-accent) 45%, var(--ptg-olive)),
+    color-mix(in srgb, var(--ptg-olive) 72%, var(--ptg-accent-deep))
+  );
+  --ptg-hero-wash-orange: color-mix(in srgb, #e67e22 22%, var(--ptg-accent) 78%);
+  --ptg-hero-wash-sage: color-mix(in srgb, var(--ptg-olive) 55%, #7d9a6b);
+  --ptg-hero-wash-gold: color-mix(in srgb, #f0c14b 35%, var(--ptg-butter));
+
+  /* Ombres & rayons */
+  --ptg-shadow-soft: 0 4px 24px rgba(36, 28, 24, 0.07);
+  --ptg-shadow-lift: 0 8px 32px rgba(36, 28, 24, 0.1);
+  --ptg-shadow-card: 0 1px 0 rgba(255, 255, 255, 0.7) inset, var(--ptg-shadow-soft);
+  --ptg-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--ptg-accent) 35%, transparent);
+  --ptg-radius-sm: 10px;
+  --ptg-radius-md: 12px;
+  --ptg-radius-card: 20px;
+  --ptg-radius-pill: 999px;
+
+  /* Espacements (base 4px) */
+  --ptg-space-1: 0.25rem;
+  --ptg-space-2: 0.5rem;
+  --ptg-space-3: 0.75rem;
+  /** Entre 3 et 4 : formulaires denses, listes repas */
+  --ptg-space-3-5: 0.65rem;
+  --ptg-space-4: 1rem;
+  --ptg-space-5: 1.25rem;
+  --ptg-space-6: 1.5rem;
+  --ptg-space-8: 2rem;
+  --ptg-space-10: 2.5rem;
+
+  /* Empilement (z-index) — éviter les valeurs magiques dans les features */
+  --ptg-z-behind: -1;
+  --ptg-z-base: 0;
+  --ptg-z-raised: 1;
+  --ptg-z-sticky: 40;
+  --ptg-z-skip: 50;
+
+  /* Interlignes & densité de lecture */
+  --ptg-leading-tight: 1.18;
+  --ptg-leading-snug: 1.35;
+  --ptg-leading-body: 1.55;
+  --ptg-leading-relaxed: 1.65;
+
+  /* Boutons — hauteurs & typo (cohérence tactile / accessibilité) */
+  --ptg-btn-height-lg: 48px;
+  --ptg-btn-height-md: 44px;
+  --ptg-btn-height-sm: 40px;
+  --ptg-btn-pad-x: 1.4rem;
+  --ptg-btn-pad-x-compact: 1.15rem;
+  --ptg-btn-font-size: var(--ptg-text-base);
+  --ptg-btn-font-size-sm: var(--ptg-text-md-sm);
+
+  /* Layout colonne app */
+  --ptg-content-max: 28rem;
+  --ptg-content-wide: min(32rem, 100%);
+
+  /* Échelle typo (corps Inter, titres Fraunces via classes) */
+  /** 11px — micro-labels, badges denses */
+  --ptg-text-2xs: 0.6875rem;
+  --ptg-text-xs: 0.75rem;
+  --ptg-text-sm: 0.8125rem;
+  /**14px — corps carte / formulaires / listes secondaires (préférer à l’inline) */
+  --ptg-text-ui-sm: 0.875rem;
+  /** 15px — pont ui-sm → corps (liens Moi, ghost, listes « md ») */
+  --ptg-text-md-sm: 0.9375rem;
+  --ptg-text-base: 1rem;
+  --ptg-text-md: 1.0625rem;
+  --ptg-text-lg: 1.125rem;
+  --ptg-text-xl: 1.25rem;
+  /* Display hero (clamp défini dans globals sur .ptg-type-display) */
+  --ptg-text-display-min: 1.85rem;
+  --ptg-text-display-max: 2.75rem;
+  --ptg-text-display-pref: 5.5vw;
+
+  --ptg-font-weight-body: 400;
+  --ptg-font-weight-medium: 500;
+  --ptg-font-weight-semibold: 600;
+  --ptg-font-weight-bold: 700;
+
+  --ptg-font-sans: var(--font-inter), system-ui, sans-serif;
+  --ptg-font-display: var(--font-fraunces), "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+
+  --ptg-ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ptg-ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --ptg-duration: 0.22s;
+  --ptg-duration-slow: 0.35s;
+
+  --ptg-hero-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  --ptg-paper-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+  /* Motif traits organiques (nappe esquissée) — très bas pour ne pas rivaliser avec le contenu */
+  --ptg-sketch-motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='none' stroke='%23c9b8a5' stroke-width='0.55' stroke-linecap='round' opacity='0.14'%3E%3Cpath d='M12 42c22-8 44-6 66 2s44 10 66 4'/%3E%3Cpath d='M-6 96c28 6 56 4 84-6s56-12 84-2'/%3E%3Cpath d='M8 148c26 10 52 8 78-4s52-16 78-6'/%3E%3Cpath d='M96 18c-4 18-2 36 6 52'/%3E%3Cpath d='M132 118c10-14 18-30 22-48'/%3E%3C/g%3E%3C/svg%3E");
+  /* Poussière / grain très léger (chaleur « farine ») — pose graphique sans motif lourd */
+  --ptg-flour-speckle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23c9b8a5' opacity='0.11'%3E%3Ccircle cx='18' cy='24' r='0.65'/%3E%3Ccircle cx='56' cy='12' r='0.5'/%3E%3Ccircle cx='92' cy='38' r='0.55'/%3E%3Ccircle cx='34' cy='78' r='0.5'/%3E%3Ccircle cx='88' cy='86' r='0.6'/%3E%3Ccircle cx='72' cy='58' r='0.45'/%3E%3Ccircle cx='12' cy='102' r='0.5'/%3E%3C/g%3E%3C/svg%3E");
+}
