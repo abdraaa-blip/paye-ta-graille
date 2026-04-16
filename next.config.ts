@@ -22,13 +22,24 @@ function heroArtRemotePatterns(): NonNullable<NonNullable<NextConfig["images"]>[
 const heroRemotes = heroArtRemotePatterns();
 
 /** En-têtes défense en profondeur (sans CSP strict : incompatible scripts Next sans tuning). */
-const securityHeaders: { key: string; value: string }[] = [
+const baseSecurityHeaders: { key: string; value: string }[] = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
 ];
+
+const securityHeaders =
+  process.env.VERCEL_ENV === "production"
+    ? [
+        ...baseSecurityHeaders,
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains; preload",
+        },
+      ]
+    : baseSecurityHeaders;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

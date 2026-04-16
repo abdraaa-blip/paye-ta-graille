@@ -19,6 +19,7 @@ import {
   tagDisplayLabel,
 } from "@/lib/tag-options";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { MARKETING_ENTRY_PULSE_LINES } from "@/lib/marketing-copy";
 import { UX_ONBOARDING } from "@/lib/ux-copy";
 
@@ -60,9 +61,10 @@ export function OnboardingWizard() {
 
   return (
     <div className="ptg-page-inner">
-        {step === 1 ? (
-          <MarketingPulseLine lines={MARKETING_ENTRY_PULSE_LINES} intervalMs={7100} className="ptg-accueil-pulse" />
-        ) : null}
+      {step === 1 ? (
+        <MarketingPulseLine lines={MARKETING_ENTRY_PULSE_LINES} intervalMs={7100} className="ptg-accueil-pulse" />
+      ) : null}
+      <PtgMenuCard variant="sage">
         <p className="ptg-wizard-meta">{UX_ONBOARDING.step(step, stepCount)}</p>
         {step === 1 && (
           <>
@@ -319,6 +321,7 @@ export function OnboardingWizard() {
             </div>
           </>
         )}
+      </PtgMenuCard>
 
         <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.75rem", flexWrap: "wrap" }}>
           {step > 1 ? (

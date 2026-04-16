@@ -28,7 +28,9 @@ export async function GET() {
 
   const { data, error } = await session.supabase
     .from("food_rescue_listings")
-    .select("*")
+    .select(
+      "id, publisher_user_id, publisher_display_name, publisher_photo_url, city, description, price_cents, window_start, window_end, max_claims, status, created_at",
+    )
     .eq("status", "active")
     .neq("publisher_user_id", session.user.id)
     .order("created_at", { ascending: false })
@@ -42,7 +44,116 @@ export async function GET() {
     (o) => o.city && o.city.trim().length > 0 && o.city.trim().toLowerCase() === city.toLowerCase(),
   );
 
-  return NextResponse.json({ listings: rows });
+  const listingIds = rows.map((r) => r.id);
+  const claimSet = new Set<string>();
+  if (listingIds.length > 0) {
+    const { data: claims } = await session.supabase
+      .from("food_rescue_claims")
+      .select("listing_id")
+      .eq("user_id", session.user.id)
+      .eq("status", "confirmed")
+      .in("listing_id", listingIds);
+    for (const c of claims ?? []) {
+      if (c.listing_id) claimSet.add(c.listing_id);
+    }
+  }
+
+  const listings = rows.map((r) => {
+    const isClaimedByMe = claimSet.has(r.id);
+    return {
+      id: r.id,
+      city: r.city,
+      description: r.description,
+      price_cents: r.price_cents,
+      max_claims: r.max_claims,
+      status: r.status,
+      created_at: r.created_at,
+      window_start: r.window_start,
+      window_end: r.window_end,
+      is_claimed_by_me: isClaimedByMe,
+      // Public anonymat : identité visible seulement aux 2 parties de l’échange.
+      publisher_display_name: isClaimedByMe ? r.publisher_display_name : "Membre vérifié",
+      publisher_photo_url: isClaimedByMe ? r.publisher_photo_url : null,
+    };
+  });
+
+  const { data: myListingsRaw, error: myErr } = await session.supabase
+    .from("food_rescue_listings")
+    .select(
+      "id, publisher_user_id, publisher_display_name, publisher_photo_url, city, description, price_cents, window_start, window_end, max_claims, status, created_at",
+    )
+    .eq("publisher_user_id", session.user.id)
+    .order("created_at", { ascending: false })
+    .limit(24);
+  if (myErr) {
+    return jsonError("rescue_my_list_failed", "Impossible de charger tes annonces pour l’instant.", 500);
+  }
+
+  const myListingIds = (myListingsRaw ?? []).map((r) => r.id);
+  let claimsByListing = new Map<string, { claimer_user_id: string }[]>();
+  if (myListingIds.length > 0) {
+    const { data: myClaims, error: myClaimsErr } = await session.supabase
+      .from("food_rescue_claims")
+      .select("listing_id, user_id")
+      .eq("status", "confirmed")
+      .in("listing_id", myListingIds);
+    if (myClaimsErr) {
+      return jsonError("rescue_claims_fetch_failed", "Impossible de charger les récupérations pour l’instant.", 500);
+    }
+    claimsByListing = new Map<string, { claimer_user_id: string }[]>();
+    for (const c of myClaims ?? []) {
+      if (!c.listing_id || !c.user_id) continue;
+      const arr = claimsByListing.get(c.listing_id) ?? [];
+      arr.push({ claimer_user_id: c.user_id });
+      claimsByListing.set(c.listing_id, arr);
+    }
+  }
+
+  const claimerIds = Array.from(
+    new Set(
+      Array.from(claimsByListing.values())
+        .flat()
+        .map((x) => x.claimer_user_id),
+    ),
+  );
+  const claimerMap = new Map<string, { id: string; display_name: string | null; photo_url: string | null }>();
+  if (claimerIds.length > 0) {
+    const { data: profiles } = await session.supabase
+      .from("profiles")
+      .select("id, display_name, photo_url")
+      .in("id", claimerIds);
+    for (const p of profiles ?? []) {
+      if (p.id) claimerMap.set(p.id, p);
+    }
+  }
+
+  const my_listings = (myListingsRaw ?? []).map((l) => {
+    const claimers = (claimsByListing.get(l.id) ?? []).map((c) => {
+      const p = claimerMap.get(c.claimer_user_id);
+      return {
+        user_id: c.claimer_user_id,
+        display_name: p?.display_name ?? "Membre",
+        photo_url: p?.photo_url ?? null,
+      };
+    });
+    return {
+      id: l.id,
+      publisher_display_name: l.publisher_display_name,
+      publisher_photo_url: l.publisher_photo_url,
+      city: l.city,
+      description: l.description,
+      price_cents: l.price_cents,
+      max_claims: l.max_claims,
+      status: l.status,
+      created_at: l.created_at,
+      window_start: l.window_start,
+      window_end: l.window_end,
+      claims_count: claimers.length,
+      claimers,
+    };
+  });
+
+  return NextResponse.json({ listings, my_listings });
 }
 
 export async function POST(request: Request) {

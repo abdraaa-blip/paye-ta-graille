@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
   COMPANIONS_FUN_KICKER,
@@ -25,41 +26,45 @@ export default function ReseauGraillePage() {
       <PtgAppFlow>
         <div className="ptg-page-inner">
         <AppNav current="reseau" />
-        <p
-          style={{
-            margin: "0 0 0.2rem",
-            fontSize: "var(--ptg-text-2xs)",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--ptg-text-muted)",
-          }}
-        >
-          {COMPANIONS_ZONE_PLAYFUL_NAME}
-        </p>
-        <h1 className="ptg-type-display" style={{ margin: "0 0 0.35rem" }}>
-          {COMPANIONS_NAV_LABEL}
-        </h1>
-        <div className="ptg-accent-rule" style={{ margin: "0 0 0.75rem" }} />
-        <p className="ptg-type-body" style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-ui-sm)", lineHeight: 1.5 }}>
-          {COMPANIONS_ZONE_PLAYFUL_EXPLAIN}
-        </p>
-        <p
-          style={{
-            margin: "0 0 0.75rem",
-            fontSize: "var(--ptg-text-md-sm)",
-            fontWeight: 600,
-            color: "var(--ptg-text-muted)",
-            lineHeight: 1.4,
-          }}
-        >
-          {COMPANIONS_FUN_KICKER}
-        </p>
-        <p className="ptg-type-body" style={{ margin: "0 0 1rem" }}>
-          {COMPANIONS_MICRO.noSwipe} {COMPANIONS_MICRO.realPeople} Ce n’est pas un fil de profils : c’est une{" "}
-          <strong>mémoire des repas</strong> que tu as vécus en vrai. Chaque personne ici, c’est quelqu’un avec qui tu as
-          partagé un moment à table. Et demain, si tu le souhaites, un moyen discret de dire « on remet ça ».
-        </p>
+        <PtgMenuCard variant="kin" stamp="Après table">
+          <div className="ptg-page-head">
+            <p
+              style={{
+                margin: "0 0 0.2rem",
+                fontSize: "var(--ptg-text-2xs)",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--ptg-text-muted)",
+              }}
+            >
+              {COMPANIONS_ZONE_PLAYFUL_NAME}
+            </p>
+            <h1 className="ptg-type-display" style={{ margin: "0 0 0.35rem" }}>
+              {COMPANIONS_NAV_LABEL}
+            </h1>
+            <div className="ptg-accent-rule" style={{ margin: "0 0 0.75rem" }} />
+            <p className="ptg-type-body" style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-ui-sm)", lineHeight: 1.5 }}>
+              {COMPANIONS_ZONE_PLAYFUL_EXPLAIN}
+            </p>
+            <p
+              style={{
+                margin: "0 0 0.75rem",
+                fontSize: "var(--ptg-text-md-sm)",
+                fontWeight: 600,
+                color: "var(--ptg-text-muted)",
+                lineHeight: 1.4,
+              }}
+            >
+              {COMPANIONS_FUN_KICKER}
+            </p>
+            <p className="ptg-type-body" style={{ margin: "0 0 1rem" }}>
+              {COMPANIONS_MICRO.noSwipe} {COMPANIONS_MICRO.realPeople} Ce n’est pas un fil de profils : c’est une{" "}
+              <strong>mémoire des repas</strong> que tu as vécus en vrai. Chaque personne ici, c’est quelqu’un avec qui tu as
+              partagé un moment à table. Et demain, si tu le souhaites, un moyen discret de dire « on remet ça ».
+            </p>
+          </div>
+        </PtgMenuCard>
 
         <h2 style={{ fontSize: "var(--ptg-text-base)", fontWeight: 700, margin: "1.25rem 0 0.5rem" }}>Trois idées, une même table</h2>
         <ol className="ptg-type-body ptg-prose-list ptg-prose-list--md" style={{ margin: "0 0 1rem" }}>

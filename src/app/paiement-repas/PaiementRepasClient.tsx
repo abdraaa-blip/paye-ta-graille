@@ -8,6 +8,7 @@ import { trackGrowthEvent } from "@/lib/growth-events";
 import { GROWTH_MICRO_WIN, GROWTH_MODULE_PAY } from "@/lib/growth-copy";
 import { mealStatusLabel } from "@/lib/meal-status-labels";
 import { type PaymentMood, paymentMoodFromSearchParam } from "@/lib/payment-mood";
+import { UX_BACK } from "@/lib/ux-copy";
 
 type Meal = {
   id: string;
@@ -245,7 +246,7 @@ export function PaiementRepasClient() {
           Graille+
         </Link>
         <Link href="/accueil" style={{ textAlign: "center", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
-          ← Accueil
+          {UX_BACK.appAccueil}
         </Link>
       </div>
     </>

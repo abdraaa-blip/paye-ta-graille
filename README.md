@@ -10,9 +10,9 @@
 |---------|--------|
 | **Stack** | Next.js 15 (App Router) · React 19 · TypeScript strict · Supabase (`@supabase/ssr`) |
 | **Scripts** | Voir § ci-dessous — **toujours** `npm run <nom>` pour les scripts du `package.json` (c’est la forme fiable). |
-| **Config** | `.env.example` · `.nvmrc` (Node 20) · `middleware.ts` (headers sécurité) · CI GitHub `.github/workflows/ci.yml` |
+| **Config** | `.env.example` · `.nvmrc` (Node 20) · `next.config.ts` (en-têtes sécurité, **HSTS** si `VERCEL_ENV=production`) · `middleware.ts` (session Supabase) · `robots.ts` / `sitemap.ts` (SEO ; désactivés en bêta publique) · `not-found` / `error` / `global-error` (pages globales) · CI `.github/workflows/ci.yml` (lint, types, build, **smoke**, + vérif SEO bêta) |
 | **DB** | Migrations dans `supabase/migrations/` — noyau `20260412120000_core_profiles_meals.sql` + **Graille+** `20260418140000_graille_plus_share_rescue_payments.sql` (partage, seconde graille, `payment_ledger`) + instrumentation growth `20260420100000_growth_events.sql` (`growth_events`) + vue KPI `20260420103000_growth_kpi_views.sql` (`growth_kpi_daily`). |
-| **Dev** | `docs/ONBOARDING_DEVELOPPEUR.md` · **UI** : `docs/DESIGN_SYSTEM.md` (tokens : `src/app/ptg-tokens.css`) · sécurité : `docs/SECURITE_CHECKLIST_CODE.md` · RLS : `docs/RLS_SCENARIOS_CHECKLIST.md` · API : `docs/API_CONTRATS_V1.md` · **Stripe** (plus tard) : `docs/NOTE_PAIEMENT_STRIPE.md` · bêta : `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` (bandeau + **noindex**) |
+| **Dev** | `docs/ONBOARDING_DEVELOPPEUR.md` · **UI** : `docs/DESIGN_SYSTEM.md` (tokens : `src/app/ptg-tokens.css`) · sécurité : `docs/SECURITE_CHECKLIST_CODE.md` · RLS : `docs/RLS_SCENARIOS_CHECKLIST.md` · API : `docs/API_CONTRATS_V1.md` · **Stripe** (plus tard) : `docs/NOTE_PAIEMENT_STRIPE.md` · bêta : `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` (bandeau + **noindex** + robots/sitemap fermés) |
 
 **Scripts npm** (`package.json`) — exécuter avec **`npm run …`** :
 
@@ -26,6 +26,11 @@
 | `npm run lint:fix` | ESLint avec corrections auto quand possible. |
 | `npm run typecheck` | TypeScript sans émettre de fichiers. |
 | `npm run verify` | Lint + typecheck (même base que la CI avant le `build`). |
+| `npm run verify:full` | `verify` + `build` (en CI : smoke `smoke-public.mjs` en plus, après `next start`). |
+| `npm run assert:beta-seo` | Vérifie `robots.txt` + `sitemap.xml` en mode bêta public (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`). |
+| `npm run wait:health` | Attend que `/api/health` réponde 200 (utile CI / scripts d’orchestration locale). |
+| `npm run checks:prod-local` | Lance `next start`, attend `/api/health`, exécute `smoke:public`, puis coupe le serveur (cross‑OS). |
+| `npm run deploy:preflight` | Contrôle `.env.local` + hero / vars avant déploiement (voir `docs/DEPLOIEMENT_VERCEL.md`). |
 | `npm run smoke:public` | Smoke test HTTP des routes publiques (serveur démarré requis). |
 
 **Démarrage rapide**

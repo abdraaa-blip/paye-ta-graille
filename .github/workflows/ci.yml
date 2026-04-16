@@ -24,3 +24,41 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
+      - name: Smoke public routes
+        run: |
+          npm run start &
+          server_pid=$!
+          trap 'kill $server_pid 2>/dev/null || true' EXIT
+          npm run wait:health
+          npm run smoke:public
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
+
+  beta-seo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Build in public beta mode
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
+          NEXT_PUBLIC_PTG_PUBLIC_BETA: "1"
+      - name: Assert robots and sitemap in beta
+        run: |
+          npm run start &
+          server_pid=$!
+          trap 'kill $server_pid 2>/dev/null || true' EXIT
+          npm run wait:health
+          npm run assert:beta-seo
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
+          NEXT_PUBLIC_PTG_PUBLIC_BETA: "1"

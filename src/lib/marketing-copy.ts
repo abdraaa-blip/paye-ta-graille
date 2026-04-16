@@ -5,7 +5,13 @@
 
 import type { UxVariant } from "./ux-variant";
 import { COMPANIONS_FUN_KICKER } from "./companions-copy";
-import { GROWTH_INVITE_CARD, GROWTH_MODULE_PAY, GROWTH_MODULE_RESCUE, GROWTH_MODULE_SHARE } from "./growth-copy";
+import {
+  GROWTH_INVITE_CARD,
+  GROWTH_MODULE_PAY,
+  GROWTH_MODULE_RESCUE,
+  GROWTH_MODULE_SHARE,
+  GROWTH_REPAS_OUVERTS_SLOGAN,
+} from "./growth-copy";
 import { uxa } from "./ux-variant";
 
 /** Pour tests ou affichage des deux versions côte à côte */
@@ -63,7 +69,7 @@ export const MARKETING_SECOND_GRAILLE_VARIANTS: readonly string[] = [
 /** Accroches rotatives (landing) : panorama complet avant le scroll. */
 export const MARKETING_HOME_PULSE_LINES: readonly string[] = [
   ...new Set([
-    "On a tous droit à une seconde graille.",
+    GROWTH_MODULE_RESCUE.slogan,
     "Tout le monde mérite une seconde graille.",
     "Grailleur un jour, grailleur toujours.",
     COMPANIONS_FUN_KICKER,
@@ -82,7 +88,7 @@ export const MARKETING_HOME_PULSE_LINES: readonly string[] = [
 /** Connexion / onboarding : promesse marque sans répéter toute la landing. */
 export const MARKETING_ENTRY_PULSE_LINES: readonly string[] = [
   ...new Set([
-    "On a tous droit à une seconde graille.",
+    GROWTH_MODULE_RESCUE.slogan,
     "Grailleur un jour, grailleur toujours.",
     COMPANIONS_FUN_KICKER,
     ...Object.values(MARKETING_TAGLINE_GOLDEN_PAIR),
@@ -96,7 +102,7 @@ export const MARKETING_ENTRY_PULSE_LINES: readonly string[] = [
 /** Accueil connecté : rythme « prochain repas », partage, seconde chance. */
 export const MARKETING_APP_PULSE_LINES: readonly string[] = [
   ...new Set([
-    "On a tous droit à une seconde graille.",
+    GROWTH_MODULE_RESCUE.slogan,
     "Tout le monde mérite une seconde graille.",
     "Grailleur un jour, grailleur toujours.",
     COMPANIONS_FUN_KICKER,
@@ -108,6 +114,7 @@ export const MARKETING_APP_PULSE_LINES: readonly string[] = [
     "Faim ? Tu peux partager la table.",
     "Ce soir, t’as peut-être une table quelque part",
     "Quelqu’un dans ton coin a aussi envie de commander",
+    GROWTH_REPAS_OUVERTS_SLOGAN,
   ]),
 ];
 
@@ -129,9 +136,10 @@ export const MARKETING_DISCOVER_PULSE_LINES: readonly string[] = [
 export const MARKETING_GRAILLE_PLUS_PULSE_LINES: readonly string[] = [
   ...new Set([
     GROWTH_MODULE_SHARE.oneLiner,
+    GROWTH_MODULE_SHARE.slogan,
     GROWTH_MODULE_RESCUE.oneLiner,
     GROWTH_MODULE_PAY.oneLiner,
-    "On a tous droit à une seconde graille.",
+    GROWTH_MODULE_RESCUE.slogan,
     "Repas suspendu : comme au café, version dîner.",
     "Offrir un repas, c’est offrir un moment.",
     ...MARKETING_SECOND_GRAILLE_VARIANTS,

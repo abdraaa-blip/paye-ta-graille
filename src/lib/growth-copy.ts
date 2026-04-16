@@ -48,6 +48,8 @@ export const GROWTH_GRAILLE_PLUS_LEAD =
 export const GROWTH_MODULE_SHARE = {
   title: "Partage de graille",
   oneLiner: "Un plat maison, des infos claires, une réservation simple.",
+  /** Accroche page module (pulses, cartes) — affichée en plus du one-liner sur la page Partage. */
+  slogan: "Offrir un repas, c’est offrir un moment.",
   cta: "Proposer ou parcourir",
   modeGift: "\u{1F381} Don",
   modeChipIn: "\u{1F91D} Participation",
@@ -55,9 +57,21 @@ export const GROWTH_MODULE_SHARE = {
 
 export const GROWTH_MODULE_RESCUE = {
   title: "Seconde graille",
+  /** Phrase d’accroche publique (page module, landing, pulses) — à garder visible sur la page Seconde graille. */
+  slogan: "On a tous droit à une seconde graille.",
   oneLiner: "Un repas sauvé, un sourire en plus.",
   cta: "Voir le concept",
 } as const;
+
+/** Slogan affiché sur la page « Repas ouverts » (également présent dans les pulses app). */
+export const GROWTH_REPAS_OUVERTS_SLOGAN = "Faim ? Tu peux partager la table.";
+
+/** Slogan affiché sur la page « Expériences » (aligné promesse metadata / pilier produit). */
+export const GROWTH_EXPERIENCES_SLOGAN =
+  "Rejoindre plutôt que chercher seul : repas organisé, sans marketplace de résas.";
+
+/** Slogan affiché sur la page « Lieux » (lieu = sert le repas, pas le catalogue). */
+export const GROWTH_LIEUX_SLOGAN = "Un lieu pour le repas que tu organises — pas un catalogue infini.";
 
 export const GROWTH_MODULE_PAY = {
   title: "Addition tranquille",

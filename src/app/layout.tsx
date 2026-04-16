@@ -3,6 +3,7 @@ import { Fraunces, Inter } from "next/font/google";
 import { BetaBanner } from "@/components/BetaBanner";
 import { SkipLink } from "@/components/SkipLink";
 import { MARKETING_CORE_PROMISE, MARKETING_HERO_PRIMARY, MARKETING_TAGLINE_GOLDEN } from "@/lib/marketing-copy";
+import { isPublicBeta } from "@/lib/public-beta";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
@@ -18,8 +19,6 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-const isPublicBeta = process.env.NEXT_PUBLIC_PTG_PUBLIC_BETA === "1";
-
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
   title: {
@@ -28,7 +27,7 @@ export const metadata: Metadata = {
   },
   description: `${MARKETING_HERO_PRIMARY} ${MARKETING_TAGLINE_GOLDEN} ${MARKETING_CORE_PROMISE} j’invite, 50/50, je me fais inviter.`,
   applicationName: "Paye ta graille",
-  ...(isPublicBeta ? { robots: { index: false, follow: false } } : {}),
+  ...(isPublicBeta() ? { robots: { index: false, follow: false } } : {}),
   openGraph: {
     type: "website",
     locale: "fr_FR",

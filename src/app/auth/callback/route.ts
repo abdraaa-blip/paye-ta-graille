@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getPostLoginPath } from "@/lib/auth/post-login-path";
 import { isSupabaseConfigured } from "@/lib/env-public";
 import { safeAuthRedirectPath } from "@/lib/http/safe-redirect-path";
 
@@ -43,21 +44,7 @@ export async function GET(request: NextRequest) {
 
   let destination = next;
   if (destination === "/accueil") {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("city, display_name")
-        .eq("id", user.id)
-        .maybeSingle();
-      const cityOk = Boolean(profile?.city?.trim());
-      const nameOk = Boolean(profile?.display_name?.trim() && profile.display_name.trim().length >= 2);
-      if (!cityOk || !nameOk) {
-        destination = "/profil?setup=1";
-      }
-    }
+    destination = await getPostLoginPath(supabase);
   }
 
   const response = NextResponse.redirect(`${origin}${destination}`);

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
 import { AppNav } from "@/components/AppNav";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { deriveGrailleVibe } from "@/lib/graille-vibe";
@@ -165,15 +166,17 @@ export function ProfilClient({ showPostAuthSetup = false }: { showPostAuthSetup?
         <PtgAppFlow>
           <div className="ptg-page-inner">
             <AppNav current="moi" />
-            <div className="ptg-page-head">
-              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-                {UX_PROFIL.needAuthTitle}
-              </h1>
-              <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-              <p className="ptg-banner" style={{ margin: "0 0 1rem" }}>
-                {UX_PROFIL.needAuthBody}
-              </p>
-            </div>
+            <PtgMenuCard variant="ember" stamp="Connexion">
+              <div className="ptg-page-head">
+                <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                  {UX_PROFIL.needAuthTitle}
+                </h1>
+                <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+                <p className="ptg-banner" style={{ margin: "0 0 1rem" }}>
+                  {UX_PROFIL.needAuthBody}
+                </p>
+              </div>
+            </PtgMenuCard>
             <p>
               <Link href="/auth" className="ptg-btn-primary" style={{ display: "inline-flex" }}>
                 {UX_PROFIL.connect}
@@ -213,23 +216,25 @@ export function ProfilClient({ showPostAuthSetup = false }: { showPostAuthSetup?
       <PtgAppFlow>
         <div className="ptg-page-inner">
           <AppNav current="moi" />
-          <div className="ptg-page-head">
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              {UX_PROFIL.title}
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-            <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
-              {UX_PROFIL.intro}
+          <PtgMenuCard variant="sage" stamp="Qui tu es">
+            <div className="ptg-page-head">
+              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                {UX_PROFIL.title}
+              </h1>
+              <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+              <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
+                {UX_PROFIL.intro}
+              </p>
+            </div>
+          </PtgMenuCard>
+
+          {showPostAuthSetup && (
+            <p className="ptg-banner" style={{ marginBottom: "1.25rem" }} role="status">
+              <strong>{UX_PROFIL.postAuthSetupTitle}</strong>. {UX_PROFIL.postAuthSetupBody}
             </p>
-          </div>
+          )}
 
-        {showPostAuthSetup && (
-          <p className="ptg-banner" style={{ marginBottom: "1.25rem" }} role="status">
-            <strong>{UX_PROFIL.postAuthSetupTitle}</strong>. {UX_PROFIL.postAuthSetupBody}
-          </p>
-        )}
-
-        <form onSubmit={save} className="ptg-surface ptg-surface--static ptg-card--lg" style={{ marginBottom: "1rem" }}>
+          <form onSubmit={save} className="ptg-surface ptg-surface--static ptg-card--lg" style={{ marginBottom: "1rem" }}>
           <div className="ptg-field">
             <label className="ptg-label" htmlFor="pn">
               {UX_ONBOARDING.pseudo}

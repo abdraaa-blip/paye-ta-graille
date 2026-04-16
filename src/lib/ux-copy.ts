@@ -18,8 +18,21 @@ export const UX_BETA = {
   }),
 } as const;
 
+/** Pages d’erreur globales (`not-found`, `error`). */
+export const UX_ERRORS = {
+  notFoundTitle: "Page introuvable",
+  notFoundBody: "Ce lien ne mène nulle part — ou la page a déménagé.",
+  notFoundCtaHome: "Retour à l’accueil",
+  errorTitle: "Un souci technique",
+  errorBody: "Quelque chose s’est mal passé. Tu peux réessayer ou revenir plus tard.",
+  errorRetry: "Réessayer",
+  errorHome: "Accueil",
+} as const;
+
 export const UX_HOME = {
   kicker: "Paye ta graille",
+  /** Le kicker sur la landing est un lien : le nom visible reste la marque. */
+  kickerLinkAria: "À propos du projet Paye ta graille",
   ctaPrimary: uxa({ a: "Commencer", b: "Entrer" }),
   ctaHasAccount: uxa({ a: "J’ai déjà un compte", b: "Me connecter" }),
   blurbAfterSecondary: uxa({
@@ -115,12 +128,12 @@ export const UX_ACCUEIL = {
   }),
   nextActionTitle: "Action recommandee",
   nextActionIn: uxa({
-    a: "Passe sur Decouvrir et choisis une table qui te ressemble.",
-    b: "Va dans Decouvrir, puis propose un repas si le profil te parle.",
+    a: "Passe sur Découvrir et choisis une table qui te ressemble.",
+    b: "Va dans Découvrir, puis propose un repas si le profil te parle.",
   }),
   nextActionOut: uxa({
     a: "Connecte-toi pour voir les profils autour de toi et lancer ta premiere proposition.",
-    b: "Connexion rapide, puis Decouvrir pour commencer.",
+    b: "Connexion rapide, puis Découvrir pour commencer.",
   }),
 } as const;
 
@@ -183,7 +196,6 @@ export const UX_DISCOVER = {
     b: "Petit rappel : comme la personne en face, tu montres une intention repas (invite, partage, invité·e). Si ça sonne juste ensemble, tu proposes.",
   }),
   report: "Signaler",
-  backAccueil: "Accueil",
   ritualTitle: "Anticipation saine",
   ritualBody: uxa({
     a: "Tu peux revenir en fin de journee : il y a parfois une nouvelle table sans que tu aies a forcer.",
@@ -197,8 +209,27 @@ export const UX_DISCOVER = {
 } as const;
 
 export const UX_AUTH = {
-  back: "Retour",
+  /** Lien explicite vers la landing marketing (`/`), distinct du retour navigateur. */
+  backToPresentation: "Page d’accueil du site",
   title: uxa({ a: "Connexion", b: "Se connecter" }),
+  alreadyInSession: uxa({
+    a: "Tu es déjà connecté·e. Tu peux aller directement dans l’app.",
+    b: "Session active : passe à l’app quand tu veux.",
+  }),
+  goToAppAccueil: "Ouvrir l’accueil app",
+  goToDiscover: "Voir les profils",
+  emailRememberHint: uxa({
+    a: "On a repris ton adresse pour aller plus vite la prochaine fois (sur cet appareil).",
+    b: "Même adresse que la dernière fois sur cet appareil : modifie si besoin.",
+  }),
+  emailRememberChoice: uxa({
+    a: "Mémoriser mon e-mail sur cet appareil pour les prochaines connexions.",
+    b: "Garder mon e-mail sur cet appareil (connexion plus rapide).",
+  }),
+  emailForgetOnDevice: uxa({
+    a: "Oublier l’adresse mémorisée sur cet appareil",
+    b: "Effacer l’e-mail enregistré ici",
+  }),
   intro: uxa({
     a: "Ton mail : on t’envoie un code (souvent 6 ou 8 chiffres, selon le mail) et parfois un lien. Le lien ne marche que dans le même navigateur ; le code marche partout.",
     b: "Mail + code à saisir ici (6 à 8 chiffres selon le message), idéal téléphone ou autre navigateur. Le lien seul, c’est le même appareil que la demande.",
@@ -271,7 +302,6 @@ export const UX_MOI = {
     b: "Pas de session ouverte.",
   }),
   connect: "Connexion",
-  backAccueil: "← Accueil",
   profileCheckErr: uxa({
     a: "On n’a pas pu vérifier ta session. Réessaie ou passe par la connexion.",
     b: "Vérification du compte impossible pour l’instant. Nouvel essai ?",
@@ -438,14 +468,13 @@ export const UX_REPAS = {
   emptyCta: uxa({ a: "Voir des profils", b: "Explorer" }),
   groupBadge: "Groupe",
   updated: "Màj",
-  backAccueil: "Accueil",
   emotionWinTitle: "Moment validé 🍽️",
   emotionWinBody: "Tu as des tables en cours. Prends 30 secondes pour voir où ça en est.",
   eveningHint: "Ce soir peut encore se jouer : un message, une proposition, et c'est parti.",
-  nextActionTitle: "Prochaine etape",
+  nextActionTitle: "Prochaine étape",
   nextActionBody: uxa({
-    a: "Si rien n'est confirme, retourne sur Decouvrir pour relancer une proposition.",
-    b: "Pas de table en cours ? Un tour dans Decouvrir peut debloquer la suite.",
+    a: "Si rien n’est confirmé, retourne sur Découvrir pour relancer une proposition.",
+    b: "Pas de table en cours ? Un tour dans Découvrir peut débloquer la suite.",
   }),
 } as const;
 
@@ -492,6 +521,8 @@ export const UX_NOUVEAU_REPAS = {
 } as const;
 
 export const UX_FOOTER = {
+  /** Landing marketing (`/`), utile depuis l’app connectée. */
+  presentation: "Accueil site",
   about: "À propos",
   legal: uxa({ a: "Conditions", b: "CGU" }),
   privacy: "Confidentialité",
@@ -500,4 +531,14 @@ export const UX_FOOTER = {
     a: "Repas en lieu public, intentions dites clairement. Aucune promesse de zéro risque.",
     b: "On te rappelle de choisir un lieu public et de garder les choses claires. Le reste, c’est la vie réelle.",
   }),
+} as const;
+
+/** Libellés unifiés pour liens retour (`/accueil` vs landing `/`). */
+export const UX_BACK = {
+  /** Vers `/accueil` sans flèche (fil d’Ariane, lien inline). */
+  appAccueilShort: "Accueil",
+  /** Lien typique `ptg-link-back` vers `/accueil`. */
+  appAccueil: "← Accueil",
+  /** Landing marketing : aligné `UX_FOOTER.presentation`. */
+  marketingHome: `← ${UX_FOOTER.presentation}`,
 } as const;

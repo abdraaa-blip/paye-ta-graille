@@ -832,6 +832,8 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   width: 100%;
   max-width: min(33rem, 100%);
   z-index: 3;
+  /* Marge pour les pastilles qui dépassent en bas (overflow du shell). */
+  padding-bottom: 0.85rem;
 }
 
 @keyframes ptg-about-line-in {
@@ -868,6 +870,460 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   line-height: 1.4;
   color: color-mix(in srgb, var(--ptg-accent-deep) 65%, var(--ptg-text));
   animation: ptg-about-line-in 0.45s var(--ptg-ease-out) both;
+}
+
+@keyframes ptg-livret-page-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.ptg-about-livret-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 0 1.25rem 2.75rem;
+  max-width: min(38rem, 100%);
+  margin-inline: auto;
+  outline: none;
+}
+
+.ptg-about-livret-wrap:focus-visible .ptg-about-livret {
+  box-shadow: var(--ptg-shadow-lift), 0 0 0 3px color-mix(in srgb, var(--ptg-accent) 35%, transparent);
+}
+
+.ptg-about-livret-wrap > .ptg-type-body {
+  margin: 0 auto 1rem;
+  max-width: 34rem;
+  text-align: center;
+  font-size: var(--ptg-text-sm);
+  color: var(--ptg-text-muted);
+}
+
+.ptg-about-livret {
+  position: relative;
+  border-radius: calc(var(--ptg-radius-card) + 4px);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 52%, var(--ptg-accent) 14%);
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--ptg-surface) 92%, var(--ptg-butter)),
+    color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-sand))
+  );
+  box-shadow: var(--ptg-shadow-lift), 0 1px 0 color-mix(in srgb, #fff 65%, transparent) inset;
+  padding: 1.15rem 1.2rem 1rem;
+  outline: none;
+}
+
+.ptg-about-livret__notch {
+  width: 2.5rem;
+  height: 0.35rem;
+  margin: 0 auto 0.85rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ptg-line) 55%, transparent);
+  opacity: 0.85;
+}
+
+.ptg-about-livret__heading {
+  margin: 0 0 0.2rem;
+  font-family: var(--ptg-font-display);
+  font-size: var(--ptg-text-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ptg-ink-display);
+  line-height: 1.2;
+}
+
+.ptg-about-livret__epigraph {
+  margin: 0 0 0.85rem;
+  font-size: var(--ptg-text-ui-sm);
+  font-style: italic;
+  color: color-mix(in srgb, var(--ptg-accent-deep) 55%, var(--ptg-text-muted));
+}
+
+.ptg-about-livret__sheet {
+  min-height: 14.5rem;
+  animation: ptg-livret-page-in 0.42s var(--ptg-ease-out) both;
+}
+
+.ptg-about-livret__sheet p {
+  margin: 0 0 0.65rem;
+  font-size: var(--ptg-text-ui-sm);
+  line-height: 1.55;
+  color: var(--ptg-text);
+}
+
+.ptg-about-livret__sheet p:last-child {
+  margin-bottom: 0;
+}
+
+.ptg-about-livret__rule {
+  margin: 0.85rem 0 0.75rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ptg-line) 70%, var(--ptg-accent) 15%) 20%,
+    color-mix(in srgb, var(--ptg-line) 70%, var(--ptg-accent) 15%) 80%,
+    transparent
+  );
+  border: 0;
+}
+
+.ptg-about-livret__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid color-mix(in srgb, var(--ptg-line) 45%, transparent);
+}
+
+.ptg-about-livret__nav-meta {
+  font-size: var(--ptg-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ptg-text-muted);
+  text-align: center;
+  flex: 1;
+}
+
+.ptg-about-livret__hint {
+  margin: 0.5rem 0 0;
+  font-size: var(--ptg-text-2xs);
+  text-align: center;
+  color: var(--ptg-text-muted);
+}
+
+.ptg-btn-livret {
+  flex-shrink: 0;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--ptg-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ptg-accent) 28%, var(--ptg-line));
+  background: color-mix(in srgb, var(--ptg-surface) 88%, transparent);
+  color: color-mix(in srgb, var(--ptg-accent-deep) 85%, var(--ptg-text));
+  font: inherit;
+  font-size: var(--ptg-text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--ptg-duration-fast) var(--ptg-ease-out), border-color var(--ptg-duration-fast) var(--ptg-ease-out);
+}
+
+.ptg-btn-livret:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ptg-accent) 10%, var(--ptg-surface));
+  border-color: color-mix(in srgb, var(--ptg-accent) 42%, var(--ptg-line));
+}
+
+.ptg-btn-livret:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ptg-link-savoir-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0 0 1.1rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--ptg-text-md-sm);
+  font-weight: 700;
+  color: color-mix(in srgb, var(--ptg-accent-deep) 88%, var(--ptg-text));
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.ptg-link-savoir-plus:hover {
+  color: var(--ptg-accent-deep);
+}
+
+/* Carte restaurant (têtes de page module / parcours) — variantes = couleur + grain, même ADN que le livret */
+.ptg-menu-card {
+  --ptg-menu-ornament: var(--ptg-accent);
+  --ptg-menu-edge-a: var(--ptg-line);
+  --ptg-menu-edge-b: var(--ptg-line);
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 94%, var(--ptg-butter));
+  --ptg-menu-wash-b: var(--ptg-surface);
+  --ptg-menu-stamp-fg: var(--ptg-accent-deep);
+  --ptg-menu-stamp-bg: color-mix(in srgb, var(--ptg-butter) 82%, var(--ptg-surface));
+  --ptg-menu-rule-angle: -12deg;
+  --ptg-menu-rule-step: 6px;
+  --ptg-menu-texture-opacity: 0.07;
+  position: relative;
+  margin: 0 0 var(--ptg-space-6);
+  padding: 2px;
+  border-radius: calc(var(--ptg-radius-card) + 4px);
+  background: linear-gradient(152deg, var(--ptg-menu-edge-a), var(--ptg-menu-edge-b));
+  box-shadow: var(--ptg-shadow-lift), 0 1px 0 color-mix(in srgb, #fff 55%, transparent) inset;
+}
+
+.ptg-menu-card .ptg-page-head {
+  margin-bottom: 0;
+}
+
+@media (max-width: 520px) {
+  .ptg-menu-card .ptg-page-head {
+    padding-right: 5.25rem;
+  }
+}
+
+.ptg-menu-card__body {
+  position: relative;
+  border-radius: calc(var(--ptg-radius-card) + 2px);
+  background: linear-gradient(168deg, var(--ptg-menu-wash-a), var(--ptg-menu-wash-b));
+  padding: 1.15rem 1.2rem 1.1rem;
+  overflow: hidden;
+}
+
+.ptg-menu-card__body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(120% 85% at 100% 0%, var(--ptg-apricot-wash), transparent 58%);
+}
+
+.ptg-menu-card__body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--ptg-menu-texture-opacity);
+  background-image: repeating-linear-gradient(
+    var(--ptg-menu-rule-angle),
+    transparent,
+    transparent var(--ptg-menu-rule-step),
+    color-mix(in srgb, var(--ptg-menu-ornament) 100%, transparent) var(--ptg-menu-rule-step),
+    color-mix(in srgb, var(--ptg-menu-ornament) 100%, transparent) calc(var(--ptg-menu-rule-step) + 1px)
+  );
+}
+
+.ptg-menu-card__glyph {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.15rem;
+  width: 3.35rem;
+  height: 3.35rem;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.11;
+  color: var(--ptg-menu-ornament);
+}
+
+.ptg-menu-card--ledger .ptg-menu-card__glyph {
+  opacity: 0.085;
+}
+
+.ptg-menu-card__body > *:not(.ptg-menu-card__glyph) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-menu-card__body::after,
+  .ptg-menu-card--spark .ptg-menu-card__body::after {
+    opacity: 0.028 !important;
+  }
+
+  .ptg-menu-card__glyph {
+    opacity: 0.07;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ptg-menu-card__stamp-inner {
+    border-style: solid;
+    border-width: 2px;
+  }
+
+  .ptg-menu-card__glyph {
+    opacity: 0.18;
+  }
+}
+
+.ptg-menu-card__notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 3;
+  width: 2.65rem;
+  height: 0.42rem;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--ptg-bg);
+  border: 1px solid color-mix(in srgb, var(--ptg-menu-edge-a) 38%, var(--ptg-line));
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 45%, transparent) inset;
+  pointer-events: none;
+}
+
+.ptg-menu-card__stamp {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.65rem;
+  z-index: 4;
+  margin: 0;
+  pointer-events: none;
+}
+
+.ptg-menu-card__stamp-inner {
+  display: inline-block;
+  max-width: 9.5rem;
+  transform: rotate(-2.8deg);
+  padding: 0.22rem 0.5rem;
+  border: 1px dashed color-mix(in srgb, var(--ptg-menu-stamp-fg) 38%, var(--ptg-line));
+  border-radius: 5px;
+  background: var(--ptg-menu-stamp-bg);
+  font-size: var(--ptg-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ptg-menu-stamp-fg);
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 55%, transparent) inset;
+}
+
+.ptg-menu-card__ornament {
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.44;
+  border-color: color-mix(in srgb, var(--ptg-menu-ornament) 100%, transparent);
+  border-style: solid;
+  border-width: 0;
+}
+
+.ptg-menu-card__ornament--tl {
+  top: 0.62rem;
+  left: 0.62rem;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-radius: 3px 0 0 0;
+}
+
+.ptg-menu-card__ornament--br {
+  bottom: 0.62rem;
+  right: 0.62rem;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-radius: 0 0 3px 0;
+}
+
+.ptg-menu-card--ember {
+  --ptg-menu-ornament: var(--ptg-accent);
+  --ptg-menu-edge-a: color-mix(in srgb, var(--ptg-accent) 50%, var(--ptg-line));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-rose-dish) 34%, var(--ptg-butter));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 88%, var(--ptg-butter));
+  --ptg-menu-wash-b: color-mix(in srgb, var(--ptg-surface) 97%, var(--ptg-sand));
+}
+
+.ptg-menu-card--apricot {
+  --ptg-menu-ornament: color-mix(in srgb, var(--ptg-accent) 48%, var(--ptg-rose-dish));
+  --ptg-menu-edge-a: color-mix(in srgb, #f4a574 42%, var(--ptg-line));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-rose-dish) 30%, var(--ptg-butter));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 90%, var(--ptg-butter));
+  --ptg-menu-wash-b: color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-sand));
+}
+
+.ptg-menu-card--apricot .ptg-menu-card__body::before {
+  opacity: 1;
+}
+
+.ptg-menu-card--sage {
+  --ptg-menu-ornament: var(--ptg-olive);
+  --ptg-menu-edge-a: color-mix(in srgb, var(--ptg-olive) 40%, var(--ptg-line));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-olive) 26%, var(--ptg-sand));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 90%, var(--ptg-sand));
+  --ptg-menu-wash-b: color-mix(in srgb, var(--ptg-surface) 97%, var(--ptg-butter));
+  --ptg-menu-stamp-fg: color-mix(in srgb, var(--ptg-olive) 82%, var(--ptg-text));
+  --ptg-menu-stamp-bg: color-mix(in srgb, var(--ptg-sand) 55%, var(--ptg-surface));
+  --ptg-menu-rule-angle: 11deg;
+}
+
+.ptg-menu-card--kin {
+  --ptg-menu-ornament: color-mix(in srgb, var(--ptg-olive) 38%, var(--ptg-rose-dish));
+  --ptg-menu-edge-a: color-mix(in srgb, var(--ptg-rose-dish) 26%, var(--ptg-line));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-olive) 30%, var(--ptg-butter));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 88%, var(--ptg-sand));
+  --ptg-menu-wash-b: color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-butter));
+  --ptg-menu-stamp-fg: color-mix(in srgb, var(--ptg-rose-dish) 42%, var(--ptg-olive) 35%, var(--ptg-text));
+  --ptg-menu-stamp-bg: color-mix(in srgb, var(--ptg-sand) 48%, var(--ptg-surface));
+  --ptg-menu-rule-angle: 9deg;
+  --ptg-menu-texture-opacity: 0.052;
+}
+
+.ptg-menu-card--ledger {
+  --ptg-menu-ornament: color-mix(in srgb, var(--ptg-info) 72%, var(--ptg-line));
+  --ptg-menu-edge-a: color-mix(in srgb, var(--ptg-info) 32%, var(--ptg-line));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-text-muted) 22%, var(--ptg-line));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-muted));
+  --ptg-menu-wash-b: var(--ptg-surface);
+  --ptg-menu-stamp-fg: color-mix(in srgb, var(--ptg-info) 52%, var(--ptg-text));
+  --ptg-menu-stamp-bg: color-mix(in srgb, var(--ptg-surface) 88%, var(--ptg-muted));
+  --ptg-menu-texture-opacity: 0.034;
+  --ptg-menu-rule-angle: -6deg;
+}
+
+.ptg-menu-card--spark {
+  --ptg-menu-ornament: var(--ptg-rose-dish);
+  --ptg-menu-edge-a: color-mix(in srgb, var(--ptg-rose-dish) 46%, var(--ptg-accent));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-accent) 38%, var(--ptg-butter));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 86%, var(--ptg-butter));
+  --ptg-menu-wash-b: color-mix(in srgb, var(--ptg-surface) 95%, var(--ptg-sand));
+  --ptg-menu-stamp-fg: color-mix(in srgb, var(--ptg-rose-dish) 55%, var(--ptg-accent-deep));
+}
+
+.ptg-menu-card--spark .ptg-menu-card__body::after {
+  opacity: 0.1;
+  background-image: radial-gradient(
+      circle at 1px 1px,
+      color-mix(in srgb, var(--ptg-menu-ornament) 100%, transparent) 0.55px,
+      transparent 0.65px
+    ),
+    radial-gradient(
+      circle at 1px 1px,
+      color-mix(in srgb, var(--ptg-accent) 100%, transparent) 0.45px,
+      transparent 0.55px
+    );
+  background-size: 10px 10px, 15px 15px;
+  background-position: 0 0, 5px 7px;
+}
+
+.ptg-menu-card--mist {
+  --ptg-menu-ornament: color-mix(in srgb, var(--ptg-olive) 42%, var(--ptg-accent));
+  --ptg-menu-edge-a: color-mix(in srgb, var(--ptg-sand) 62%, var(--ptg-line));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-bg) 35%, var(--ptg-olive) 20%, var(--ptg-line));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 94%, var(--ptg-bg));
+  --ptg-menu-wash-b: color-mix(in srgb, var(--ptg-surface) 98%, var(--ptg-sand));
+  --ptg-menu-stamp-fg: color-mix(in srgb, var(--ptg-text-muted) 88%, var(--ptg-olive));
+  --ptg-menu-rule-step: 10px;
+  --ptg-menu-texture-opacity: 0.048;
+  --ptg-menu-rule-angle: -8deg;
+}
+
+.ptg-menu-card--pin {
+  --ptg-menu-ornament: color-mix(in srgb, var(--ptg-info) 42%, var(--ptg-olive));
+  --ptg-menu-edge-a: color-mix(in srgb, var(--ptg-sand) 58%, var(--ptg-line));
+  --ptg-menu-edge-b: color-mix(in srgb, var(--ptg-info) 22%, var(--ptg-olive) 20%, var(--ptg-line));
+  --ptg-menu-wash-a: color-mix(in srgb, var(--ptg-surface) 92%, var(--ptg-sand));
+  --ptg-menu-wash-b: color-mix(in srgb, var(--ptg-surface) 97%, var(--ptg-bg));
+  --ptg-menu-stamp-fg: color-mix(in srgb, var(--ptg-info) 44%, var(--ptg-olive) 36%, var(--ptg-text));
+  --ptg-menu-stamp-bg: color-mix(in srgb, var(--ptg-surface) 84%, var(--ptg-muted));
+  --ptg-menu-rule-angle: -7deg;
+  --ptg-menu-texture-opacity: 0.041;
 }
 
 .ptg-hero-card {
@@ -908,7 +1364,8 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  /* Au-dessus de la carte (z-index 2) pour que les pastilles basses ne soient pas mangées par le fond du hero. */
+  z-index: 4;
 }
 
 .ptg-hero-orbit {
@@ -925,34 +1382,71 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   text-transform: uppercase;
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
+  transform-origin: center center;
+  will-change: transform;
+  animation: ptg-hero-orbit-dance var(--ptg-orbit-dur, 4.6s) ease-in-out infinite;
 }
 
 .ptg-hero-orbit--left-top {
+  --orbit-r: -7deg;
+  --ptg-orbit-dur: 4.4s;
   left: -4.25rem;
   top: -1.1rem;
-  transform: rotate(-7deg);
+  transform: rotate(var(--orbit-r));
+  animation-delay: 0s;
 }
 
 .ptg-hero-orbit--right-top {
+  --orbit-r: 5deg;
+  --ptg-orbit-dur: 5.1s;
   right: -3.75rem;
   top: 0.35rem;
-  transform: rotate(5deg);
+  transform: rotate(var(--orbit-r));
   border-color: color-mix(in srgb, var(--ptg-olive) 32%, var(--ptg-accent) 28%, var(--ptg-line));
   color: color-mix(in srgb, var(--ptg-olive) 35%, var(--ptg-accent-deep));
+  animation-delay: -1.1s;
 }
 
 .ptg-hero-orbit--left-bottom {
+  --orbit-r: 6deg;
+  --ptg-orbit-dur: 4.8s;
   left: -3.6rem;
   bottom: 4.5rem;
-  transform: rotate(6deg);
+  transform: rotate(var(--orbit-r));
   border-color: color-mix(in srgb, var(--ptg-olive) 28%, var(--ptg-line));
   color: color-mix(in srgb, var(--ptg-accent-deep) 70%, var(--ptg-olive));
+  animation-delay: -2.2s;
 }
 
 .ptg-hero-orbit--right-bottom {
+  --orbit-r: -5deg;
+  --ptg-orbit-dur: 5.3s;
   right: -3.5rem;
   bottom: 3.75rem;
-  transform: rotate(-5deg);
+  transform: rotate(var(--orbit-r));
+  animation-delay: -3s;
+}
+
+@keyframes ptg-hero-orbit-dance {
+  0%,
+  100% {
+    transform: rotate(var(--orbit-r)) translate3d(0, 0, 0) scale(1);
+    box-shadow: var(--ptg-shadow-soft);
+  }
+
+  22% {
+    transform: rotate(calc(var(--orbit-r) + 2.8deg)) translate3d(4px, -6px, 0) scale(1.05);
+    box-shadow: 0 8px 26px color-mix(in srgb, var(--ptg-accent) 14%, transparent);
+  }
+
+  48% {
+    transform: rotate(calc(var(--orbit-r) - 2deg)) translate3d(-3px, 4px, 0) scale(0.98);
+  }
+
+  72% {
+    transform: rotate(calc(var(--orbit-r) + 1.4deg)) translate3d(3px, 5px, 0) scale(1.03);
+    box-shadow: 0 5px 20px color-mix(in srgb, var(--ptg-olive) 12%, transparent);
+  }
 }
 
 .ptg-hero-proof {
@@ -972,6 +1466,33 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   color: var(--ptg-text-muted);
   font-size: var(--ptg-text-xs);
   font-weight: 600;
+  transform-origin: center center;
+  animation: ptg-hero-proof-breathe 4.8s ease-in-out infinite;
+}
+
+.ptg-hero-proof span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.ptg-hero-proof span:nth-child(2) {
+  animation-delay: -1.6s;
+}
+
+.ptg-hero-proof span:nth-child(3) {
+  animation-delay: -3.2s;
+}
+
+@keyframes ptg-hero-proof-breathe {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate3d(0, -2px, 0);
+    opacity: 0.9;
+  }
 }
 
 .ptg-kicker-pill {
@@ -996,6 +1517,24 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
     color-mix(in srgb, var(--ptg-olive) 10%, var(--ptg-surface))
   );
   border-color: color-mix(in srgb, color-mix(in srgb, var(--ptg-accent) 52%, var(--ptg-olive)) 55%, var(--ptg-line));
+}
+
+/* Kicker cliquable (landing → À propos) : pas de soulignement, focus visible. */
+a.ptg-kicker-pill--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform var(--ptg-duration) var(--ptg-ease-out), box-shadow var(--ptg-duration) var(--ptg-ease-out);
+}
+
+a.ptg-kicker-pill--link:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ptg-shadow-soft);
+}
+
+a.ptg-kicker-pill--link:focus-visible {
+  outline: 2px solid var(--ptg-accent);
+  outline-offset: 3px;
 }
 
 .ptg-accent-rule {
@@ -1704,7 +2243,8 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 
   .ptg-about-rotating,
   .ptg-home-pulse,
-  .ptg-accueil-pulse {
+  .ptg-accueil-pulse,
+  .ptg-about-livret__sheet {
     animation: none;
   }
 
@@ -1713,6 +2253,10 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   }
 
   .ptg-hero-card:hover {
+    transform: none;
+  }
+
+  a.ptg-kicker-pill--link:hover {
     transform: none;
   }
 
@@ -1754,6 +2298,15 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   }
 
   .ptg-hero-card {
+    animation: none;
+  }
+
+  .ptg-hero-orbit {
+    animation: none;
+    will-change: auto;
+  }
+
+  .ptg-hero-proof span {
     animation: none;
   }
 

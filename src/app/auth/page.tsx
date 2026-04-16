@@ -2,9 +2,17 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import {
+  clearAuthEmailDeviceStorage,
+  persistAuthEmailHint,
+  PTG_LOCAL_AUTH_EMAIL_KEY,
+  PTG_LOCAL_AUTH_REMEMBER_EMAIL_KEY,
+} from "@/lib/auth/device-email-hint";
+import { getPostLoginPath } from "@/lib/auth/post-login-path";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MARKETING_ENTRY_PULSE_LINES } from "@/lib/marketing-copy";
@@ -31,8 +39,60 @@ function AuthForm() {
   const [authErrorDetail, setAuthErrorDetail] = useState<string | null>(null);
   const [otpSubmitting, setOtpSubmitting] = useState(false);
   const [otpError, setOtpError] = useState(false);
-  const supabase = createBrowserSupabaseClient();
+  const [sessionActive, setSessionActive] = useState(false);
+  const [emailHintFromDevice, setEmailHintFromDevice] = useState(false);
+  const [rememberEmail, setRememberEmail] = useState(true);
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
   const otpDigits = otp.replace(/\D/g, "");
+
+  useEffect(() => {
+    if (!supabase) return;
+    let cancelled = false;
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!cancelled) setSessionActive(Boolean(session));
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSessionActive(Boolean(session));
+    });
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(PTG_LOCAL_AUTH_REMEMBER_EMAIL_KEY) === "0") setRememberEmail(false);
+    } catch {
+      /* idem rememberAuthEmail */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(PTG_LOCAL_AUTH_REMEMBER_EMAIL_KEY) === "0") return;
+      const hint = localStorage.getItem(PTG_LOCAL_AUTH_EMAIL_KEY)?.trim();
+      if (!hint) return;
+      setEmailHintFromDevice(true);
+      setEmail((prev) => prev || hint);
+    } catch {
+      /* idem rememberAuthEmail */
+    }
+  }, []);
+
+  function forgetStoredAuthEmail() {
+    clearAuthEmailDeviceStorage();
+    setRememberEmail(false);
+    setEmailHintFromDevice(false);
+    setEmail("");
+    setOtp("");
+    setOtpError(false);
+    if (status === "sent") setStatus("idle");
+    if (status === "error") {
+      setStatus("idle");
+      setAuthErrorDetail(null);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,6 +111,7 @@ function AuthForm() {
       setStatus("error");
       return;
     }
+    persistAuthEmailHint(email, rememberEmail);
     setStatus("sent");
   }
 
@@ -71,26 +132,17 @@ function AuthForm() {
       setOtpError(true);
       return;
     }
+    persistAuthEmailHint(email, rememberEmail);
     await goToAppAfterLogin();
   }
 
-  /** Meme logique que /auth/callback : completer le profil si ville ou pseudo trop court. */
   async function goToAppAfterLogin() {
     if (!supabase) {
       window.location.assign("/accueil");
       return;
     }
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      window.location.assign("/accueil");
-      return;
-    }
-    const { data: profile } = await supabase.from("profiles").select("city, display_name").eq("id", user.id).maybeSingle();
-    const cityOk = Boolean(profile?.city?.trim());
-    const nameOk = Boolean(profile?.display_name?.trim() && profile.display_name.trim().length >= 2);
-    window.location.assign(!cityOk || !nameOk ? "/profil?setup=1" : "/accueil");
+    const path = await getPostLoginPath(supabase);
+    window.location.assign(path);
   }
 
   return (
@@ -99,16 +151,20 @@ function AuthForm() {
         <div className="ptg-page-inner">
           <div className="ptg-form-panel">
             <Link href="/" className="ptg-link-back">
-              ← {UX_AUTH.back}
+              ← {UX_AUTH.backToPresentation}
             </Link>
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              {UX_AUTH.title}
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-            <MarketingPulseLine lines={MARKETING_ENTRY_PULSE_LINES} intervalMs={6800} className="ptg-accueil-pulse" />
-            <p className="ptg-type-body" style={{ margin: "0 0 1.25rem" }}>
-              {UX_AUTH.intro}
-            </p>
+            <PtgMenuCard variant="ember" stamp="Bienvenue">
+              <div className="ptg-page-head">
+                <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                  {UX_AUTH.title}
+                </h1>
+                <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+                <MarketingPulseLine lines={MARKETING_ENTRY_PULSE_LINES} intervalMs={6800} className="ptg-accueil-pulse" />
+                <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
+                  {UX_AUTH.intro}
+                </p>
+              </div>
+            </PtgMenuCard>
 
             {err === "auth" && (
               <p className="ptg-banner ptg-banner-warn" role="alert">
@@ -118,6 +174,15 @@ function AuthForm() {
             {err === "config" && (
               <p className="ptg-banner ptg-banner-warn" role="alert">
                 {UX_AUTH.errConfig}
+              </p>
+            )}
+
+            {supabase && sessionActive && (
+              <p className="ptg-banner" role="status" style={{ marginBottom: "1rem" }}>
+                {UX_AUTH.alreadyInSession}{" "}
+                <Link href="/accueil">{UX_AUTH.goToAppAccueil}</Link>
+                {" · "}
+                <Link href="/decouvrir">{UX_AUTH.goToDiscover}</Link>
               </p>
             )}
 
@@ -149,6 +214,7 @@ function AuthForm() {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
+                    setEmailHintFromDevice(false);
                     if (status === "error") {
                       setStatus("idle");
                       setAuthErrorDetail(null);
@@ -157,6 +223,69 @@ function AuthForm() {
                     setOtpError(false);
                   }}
                 />
+                {emailHintFromDevice && (
+                  <p className="ptg-type-body" style={{ margin: "0.45rem 0 0", fontSize: "var(--ptg-text-sm)", color: "var(--ptg-text-muted)" }}>
+                    {UX_AUTH.emailRememberHint}
+                  </p>
+                )}
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "0.5rem",
+                    cursor: "pointer",
+                    fontSize: "var(--ptg-text-sm)",
+                    color: "var(--ptg-text-muted)",
+                    marginTop: "0.65rem",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={rememberEmail}
+                    onChange={(e) => {
+                      const on = e.target.checked;
+                      setRememberEmail(on);
+                      try {
+                        localStorage.setItem(PTG_LOCAL_AUTH_REMEMBER_EMAIL_KEY, on ? "1" : "0");
+                        if (!on) localStorage.removeItem(PTG_LOCAL_AUTH_EMAIL_KEY);
+                      } catch {
+                        /* idem rememberAuthEmail */
+                      }
+                      if (!on) {
+                        setEmailHintFromDevice(false);
+                      }
+                    }}
+                    style={{
+                      marginTop: "0.15rem",
+                      width: "1rem",
+                      height: "1rem",
+                      accentColor: "var(--ptg-accent)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span>{UX_AUTH.emailRememberChoice}</span>
+                </label>
+                <p style={{ margin: "0.5rem 0 0" }}>
+                  <button
+                    type="button"
+                    onClick={forgetStoredAuthEmail}
+                    className="ptg-type-body"
+                    style={{
+                      padding: 0,
+                      border: "none",
+                      background: "none",
+                      font: "inherit",
+                      fontSize: "var(--ptg-text-sm)",
+                      color: "var(--ptg-accent-deep)",
+                      textDecoration: "underline",
+                      textUnderlineOffset: "2px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {UX_AUTH.emailForgetOnDevice}
+                  </button>
+                </p>
               </div>
               <button
                 type="submit"

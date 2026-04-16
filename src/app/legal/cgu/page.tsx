@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
+import { UX_BACK } from "@/lib/ux-copy";
 
 export const metadata: Metadata = {
   title: "Conditions d'utilisation · Paye ta graille",
@@ -14,7 +15,7 @@ export default function CguPage() {
       <PtgAppFlow decor="none">
         <div className="ptg-page-inner" style={{ maxWidth: "40rem" }}>
           <Link href="/" className="ptg-link-back">
-            ← Accueil
+            {UX_BACK.marketingHome}
           </Link>
         <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
           Conditions d&apos;utilisation

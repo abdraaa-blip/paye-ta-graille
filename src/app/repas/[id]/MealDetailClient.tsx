@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
 import { AppNav } from "@/components/AppNav";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MealPotluckPanel } from "@/components/MealPotluckPanel";
@@ -339,16 +340,18 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
               ← Mes repas
             </Link>
           </p>
-          <div className="ptg-page-head">
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              Repas
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
-            <p style={{ margin: "0 0 0", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
-              État : <strong>{mealStatusLabel(meal.status)}</strong>
-              {meal.budget_band ? ` · ${meal.budget_band}` : ""}
-            </p>
-          </div>
+          <PtgMenuCard variant="kin" stamp="Ce repas">
+            <div className="ptg-page-head">
+              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                Repas
+              </h1>
+              <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
+              <p style={{ margin: "0 0 0", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}>
+                État : <strong>{mealStatusLabel(meal.status)}</strong>
+                {meal.budget_band ? ` · ${meal.budget_band}` : ""}
+              </p>
+            </div>
+          </PtgMenuCard>
 
           {error && (
             <p className="ptg-banner ptg-banner-warn" role="alert">

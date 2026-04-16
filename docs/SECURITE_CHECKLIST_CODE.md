@@ -20,18 +20,26 @@
 
 ## Headers
 
-- [ ] `middleware.ts` : headers sécurité (déjà en place) ; compléter **CSP** progressivement.
+- [x] En-têtes défense (`X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`) dans `next.config.ts` — **une seule source** (pas de doublon dans `middleware.ts`).  
+- [x] **HSTS** (`Strict-Transport-Security`) ajouté uniquement quand `VERCEL_ENV === "production"` (pas en preview / dev local).  
+- [ ] Compléter **CSP** progressivement si scripts tiers.
 
 ## Contenu & abus
 
 - [ ] Signalement branché + file modération.  
 - [ ] Logs **sans** corps message complet en clair si sensible (RGPD).
+- [x] **Seconde graille** : anonymat public actif côté API/UI (`food-rescue`) — identité du donneur masquée pour le public, déverrouillée uniquement pour le récupérateur confirmé ; identité du récupérateur visible uniquement au donneur sur ses propres annonces.
+
+## Privacy by design
+
+- [x] Minimisation des payloads API sur modules sensibles : éviter `select("*")` + réponses whitelistées (pas de fuite de colonnes internes).  
+- [x] Signaux collectifs lieux agrégés/anonymisés avec seuil de confiance (pas d’exposition d’avis individuels).
 
 ## Déploiement
 
 - [ ] Variables Vercel par environnement (Preview vs Production).  
 - [ ] Pas de secrets dans les logs build.  
-- [ ] Bêta ouverte : `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` active bandeau + `robots: noindex` (évite indexation involontaire).
+- [ ] Bêta ouverte : `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` active bandeau + **noindex** (metadata) + **`robots.txt` disallow /** + **sitemap vide** (voir `src/lib/public-beta.ts`, `robots.ts`, `sitemap.ts`).
 
 ---
 

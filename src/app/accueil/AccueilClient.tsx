@@ -8,11 +8,17 @@ import { HealthyRitualCard } from "@/components/HealthyRitualCard";
 import { InviteFriendCard } from "@/components/InviteFriendCard";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { NextActionCard } from "@/components/NextActionCard";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { mealIntentLabel, socialIntentLabel } from "@/lib/intent-labels";
 import { tagDisplayLabel } from "@/lib/tag-options";
-import { MARKETING_APP_PULSE_LINES, MARKETING_KEY_CHOICE_OR_SURPRISE } from "@/lib/marketing-copy";
+import {
+  MARKETING_APP_PULSE_LINES,
+  MARKETING_CORE_PROMISE,
+  MARKETING_KEY_CHOICE_OR_SURPRISE,
+  MARKETING_TAGLINE_GOLDEN,
+} from "@/lib/marketing-copy";
 import { UX_ACCUEIL, UX_LOADING } from "@/lib/ux-copy";
 import { clearProfileDraft, loadProfileDraft, type ProfileDraft } from "@/lib/profile-draft";
 import { extensionsNavVisible } from "@/lib/feature-modules";
@@ -112,24 +118,50 @@ export function AccueilClient() {
       <PtgAppFlow>
         <div className="ptg-page-inner ptg-scene ptg-scene--accueil">
           <AppNav current="accueil" />
-          <div className="ptg-page-head">
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              {UX_ACCUEIL.title}
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
-            <MarketingPulseLine lines={MARKETING_APP_PULSE_LINES} intervalMs={7000} className="ptg-accueil-pulse" />
-            {draft && (
-              <p style={{ margin: "0 0 0.35rem", fontSize: "var(--ptg-text-md-sm)", color: "var(--ptg-text-muted)" }}>
-                Salut {draft.displayName}
+          <PtgMenuCard variant="ember" stamp="Aujourd’hui">
+            <div className="ptg-page-head">
+              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                {UX_ACCUEIL.title}
+              </h1>
+              <div className="ptg-accent-rule" style={{ margin: "0 0 0.85rem" }} />
+              <MarketingPulseLine lines={MARKETING_APP_PULSE_LINES} intervalMs={7000} className="ptg-accueil-pulse" />
+              {draft && (
+                <p style={{ margin: "0 0 0.35rem", fontSize: "var(--ptg-text-md-sm)", color: "var(--ptg-text-muted)" }}>
+                  Salut {draft.displayName}
+                </p>
+              )}
+              <p className="ptg-type-body" style={{ margin: "0 0 0.35rem" }}>
+                {UX_ACCUEIL.leadFaim}
               </p>
-            )}
-            <p className="ptg-type-body" style={{ margin: "0 0 0.35rem" }}>
-              {UX_ACCUEIL.leadFaim}
-            </p>
-            <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
-              {session === "in" ? UX_ACCUEIL.sessionIn : draft ? UX_ACCUEIL.sessionDraft : UX_ACCUEIL.sessionNoDraft}
-            </p>
-          </div>
+              <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
+                {session === "in" ? UX_ACCUEIL.sessionIn : draft ? UX_ACCUEIL.sessionDraft : UX_ACCUEIL.sessionNoDraft}
+              </p>
+              <p
+                className="ptg-type-body"
+                style={{
+                  margin: "0.75rem 0 0",
+                  fontSize: "var(--ptg-text-sm)",
+                  fontWeight: 600,
+                  lineHeight: 1.45,
+                  color: "var(--ptg-accent-deep)",
+                }}
+              >
+                {MARKETING_TAGLINE_GOLDEN}
+              </p>
+              <p
+                className="ptg-type-body"
+                style={{
+                  margin: "0.35rem 0 0",
+                  fontSize: "var(--ptg-text-sm)",
+                  fontWeight: 600,
+                  lineHeight: 1.45,
+                  color: "var(--ptg-text-muted)",
+                }}
+              >
+                {MARKETING_CORE_PROMISE}
+              </p>
+            </div>
+          </PtgMenuCard>
         <NextActionCard
           title={UX_ACCUEIL.nextActionTitle}
           body={session === "in" ? UX_ACCUEIL.nextActionIn : UX_ACCUEIL.nextActionOut}

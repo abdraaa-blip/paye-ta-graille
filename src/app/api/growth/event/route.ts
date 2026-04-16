@@ -19,6 +19,13 @@ const eventNames = [
   "module_rescue_publish",
   "module_rescue_claim",
   "module_payment_checkout_start",
+  "lieux_search",
+  "lieux_nearby_click",
+  "lieux_place_picked",
+  "lieux_maps_open",
+  "lieux_copy_place",
+  "lieux_memory_save",
+  "lieux_memory_optin_public",
 ] as const;
 
 const bodySchema = z.object({

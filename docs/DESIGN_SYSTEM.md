@@ -115,6 +115,15 @@ Liens : `a.ptg-btn-primary` sans soulignement.
 | `.ptg-scene-card` | Coin « assiette » décoratif léger |
 | `.ptg-ritual-card`, `.ptg-surface.ptg-surprise-card` | Variantes émotionnelles |
 
+### Carte menu (`PtgMenuCard`)
+| Élément | Rôle |
+|--------|------|
+| `src/components/PtgMenuCard.tsx` | Enveloppe **`.ptg-page-head`** sur les parcours app : bordure dégradée, encoche, tampon optionnel, glyphe SVG par variante. |
+| `globals.css` `.ptg-menu-card`, `.ptg-menu-card--*` | **Variantes** (tokens uniquement) : `ember`, `apricot`, `sage`, `kin`, `ledger`, `spark`, `mist`, `pin`. |
+| Hors périmètre | **À propos** : livret dédié (`AProposClient` / `.ptg-about-livret*`) — ne pas fusionner sans refonte copy. |
+
+**Règle** : nouvel écran avec intro type « menu » → une variante existante + tampon court ; nouvelle teinte seulement si aucune variante ne convient.
+
 ### Listes & profils
 | Classe | Usage |
 |--------|--------|
@@ -141,7 +150,8 @@ Liens : `a.ptg-btn-primary` sans soulignement.
 - `.ptg-banner`, `.ptg-banner-warn`, `.ptg-reward-banner`
 
 ### Marketing
-- `.ptg-hero-*`, `.ptg-kicker-pill`, `.ptg-landing-decor`, `.ptg-accent-rule`
+- `.ptg-hero-*`, `.ptg-kicker-pill`, `.ptg-landing-decor`, `.ptg-accent-rule` — sur l’accueil, le pill « Paye ta graille » (`.ptg-kicker-pill--hero`) est un **lien** vers `/a-propos` (`a.ptg-kicker-pill--link`, pas de clignotement).
+- **Liste profils** : route `/decouvrir` (URL sans accent) ; tampon carte « Autour de toi » ; entrée nav **Rencontres**. Dans les phrases en français, utiliser **Découvrir** (accent), pas `Decouvrir`.
 
 ---
 

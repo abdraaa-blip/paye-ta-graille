@@ -9,16 +9,21 @@
 ## 1. Structure projet attendue
 
 ```
-/
+paye-ta-graille/          (dossier à la racine Git si le repo contient ce seul projet)
 ├── package.json          (scripts build, start, lint, typecheck)
-├── next.config.ts       (ou .mjs)
+├── next.config.ts
 ├── tsconfig.json
 ├── src/app/             (App Router)
+├── middleware.ts
 ├── .env.local           (gitignored — dev local)
 └── README.md
 ```
 
+Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `paye-ta-graille/`), dans Vercel → **Settings** → **Root Directory**, mets **`paye-ta-graille`** (là où se trouve `package.json`).
+
 **Build** : `npm run build` doit passer **avant** branche protégée / déploiement prod.
+
+**Prévol** : `npm run deploy:preflight` lit `.env.local` et signale variables manquantes (dont Stripe si module paiement actif) et l’illustration hero — utile avant un push vers Vercel.
 
 ---
 
@@ -30,17 +35,27 @@
 |----------|--------|
 | `NEXT_PUBLIC_SUPABASE_URL` | URL projet Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clé **anon** (respect RLS) |
-| `NEXT_PUBLIC_SITE_URL` | **Recommandé en prod** : `https://ton-domaine.tld` (métadonnées / Open Graph) — sinon Vercel utilise `VERCEL_URL` au build |
+| `NEXT_PUBLIC_SITE_URL` | **Fortement recommandé en prod** : `https://ton-domaine.tld` — métadonnées, liens Stripe, et **redirect OTP / magic link** (`/auth`, `signInWithOtp` → `/auth/callback`). Sans ça, le fallback utilise l’origine courante (ok en dev, fragile si email ouvert ailleurs). |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Carte navigateur (Maps JS) — restreindre la clé par référent HTTP |
+| `NEXT_PUBLIC_PTG_MODULE_SHARE` / `…_FOOD_RESCUE` / `…_PAYMENTS` | Modules « Graille+ » (`1` / `true` pour activer) |
+| `NEXT_PUBLIC_PTG_SURPRISE_GRAILLE` | `0` / `false` pour masquer la surprise sur Découvrir |
+| `NEXT_PUBLIC_PTG_UX_VARIANT` | `b` pour variante copy (voir `ux-variant.ts`) |
+| `NEXT_PUBLIC_PTG_PUBLIC_BETA` | `1` = bandeau bêta + comportement SEO associé |
+| `NEXT_PUBLIC_PTG_HERO_ART` | URL absolue image hero (voir `next.config` `remotePatterns`) |
+| `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION` | `0` / `false` pour désactiver l’illustration locale |
 
 ### Serveur uniquement (sans préfixe public)
 
 | Variable | Usage |
 |----------|--------|
-| `SUPABASE_SERVICE_ROLE_KEY` | **Uniquement** API routes / server actions qui contournent RLS avec extrême prudence (admin) |
-| `DATABASE_URL` | Si connexion directe Postgres (optionnel si tout via Supabase client) |
-| `RESEND_API_KEY` | Emails transactionnels |
-| `GOOGLE_PLACES_API_KEY` | Recherche lieux **proxy** côté serveur |
-| `NEXTAUTH_SECRET` / secrets session | Si auth additionnelle (adapter au choix Supabase Auth) |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Uniquement** API routes / tâches admin — ne jamais exposer au client |
+| `DATABASE_URL` | Si connexion directe Postgres (optionnel si tout via Supabase) |
+| `RESEND_API_KEY` | Emails transactionnels (post-MVP selon implémentation) |
+| `GOOGLE_PLACES_API_KEY` | Places API **côté serveur** (`/api/places/*`) |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Paiements si `NEXT_PUBLIC_PTG_MODULE_PAYMENTS` actif |
+| `PTG_MODULE_REQUIRE_VERIFIED_EMAIL` | Modules Graille+ : exiger email vérifié (`0` pour désactiver en dev) |
+| `PTG_BASE_URL` | Scripts smoke (`smoke-public.mjs`), défaut `http://localhost:3000` |
+| `NEXT_DEV_ALLOWED_ORIGINS` | Dev : IP/host LAN pour `next dev` multi-appareils (voir `next.config`) |
 
 **À configurer dans** : Vercel → Project → **Settings** → **Environment Variables** (Production + Preview + Development selon besoin).
 
@@ -64,9 +79,12 @@
 |---------|--------|
 | `vercel.json` | Optionnel : headers sécurité, rewrites rares ; souvent **inutile** si défaut Next suffit |
 | `.env.example` | Liste des clés **sans valeurs** pour onboarding dev |
-| `.github/workflows/ci.yml` | `lint` + `typecheck` + `build` + tests sur PR |
+| `.github/workflows/ci.yml` | `lint` + `typecheck` + `build` + **smoke** routes publiques (`smoke-public.mjs`) sur PR + job **beta-seo** (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1` : robots fermé, sitemap vide) ; readiness serveur factorisée via `wait-for-health.mjs` |
+| `src/app/global-error.tsx` | Fallback si erreur au niveau root layout (évite écran blanc brut) |
 
-**Headers sécurité** (recommandés en `next.config` ou middleware) : `X-Frame-Options`, `Referrer-Policy`, **CSP** progressive.
+**Headers sécurité** : définis dans **`next.config.ts`** (`/:path*`) — le `middleware` ne fait que la session Supabase, pour éviter de dupliquer les mêmes en-têtes. En **production Vercel** (`VERCEL_ENV=production`), **HSTS** est ajouté automatiquement. **CSP** stricte reste à calibrer si tu ajoutes des scripts tiers.
+
+**SEO** : `src/app/sitemap.ts` et `src/app/robots.ts` — en prod sans bêta, le sitemap liste les pages marketing/légal indexables ; `robots.txt` pointe vers `/sitemap.xml` et interdit `/api/`. Avec **`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`**, le sitemap est vide et `robots.txt` interdit tout le site (complément au `noindex` des metadata).
 
 ---
 
@@ -81,12 +99,20 @@
 Dans Supabase **Authentication → URL configuration** :
 
 - **Site URL** : `https://<ton-domaine-prod.vercel.app>` (ou domaine custom).  
-- **Redirect URLs** : inclure **exactement**  
-  `http://localhost:3000/auth/callback` (dev),  
-  `https://<preview>.vercel.app/auth/callback` (chaque preview si besoin),  
+- **Redirect URLs** : inclure **chaque origine** utilisée, par ex.  
+  `http://localhost:3000/auth/callback` (dev ; si `next dev` utilise **3001** car 3000 est pris, ajouter aussi `http://localhost:3001/auth/callback`),  
+  `https://<preview>.vercel.app/auth/callback` (previews),  
   `https://<prod>/auth/callback`.  
 
-Sans cela, le **magic link** échoue après déploiement.
+Sans cela, le **magic link** / **échange de code** après le mail échoue.
+
+**À propos de `NEXT_PUBLIC_SITE_URL`** : en prod, fixe-la sur l’URL canonique (custom ou `*.vercel.app`) pour que les liens dans les mails OTP pointent vers le bon domaine.
+
+### Sessions (« rester connecté »)
+
+- Après connexion (OTP / magic link), la session est portée par des **cookies** gérés par Supabase + le middleware Next : l’utilisateur reste connecté tant que les jetons sont valides (rafraîchissement automatique), sans case « rester connecté » côté app.
+- Les **durées** (JWT, refresh) se règlent dans le **dashboard Supabase** (Authentication / paramètres de session — libellés selon la version du dashboard). Raccourcis-les si tu cibles des **terminaux partagés** ; pense à garder **Déconnexion** visible (ex. écran Moi).
+- Une case « rester connecté » dédiée n’apporte guère tant que le comportement par défaut est déjà persistant ; l’important est la **durée de session** projet + l’**éducation utilisateur** (déconnexion, appareil partagé).
 
 ---
 
@@ -103,6 +129,10 @@ Sans cela, le **magic link** échoue après déploiement.
 ## 7. Vérifications post-déploiement
 
 - [ ] Page d’accueil **200**  
+- [ ] Local / preview rapide : `npm run checks:prod-local` (start + wait health + smoke + stop serveur)  
+- [ ] `PTG_BASE_URL=https://<ton-domaine> npm run smoke:public` (routes listées + kicker hero → `/a-propos`)  
+- [ ] Si mode bêta public: `PTG_BASE_URL=https://<ton-domaine> npm run assert:beta-seo`  
+- [ ] Seconde graille : vérifier anonymat public (donneur affiché “Membre vérifié” avant claim), puis déverrouillage identité seulement après claim confirmé  
 - [ ] Auth (inscription / magic link) **fonctionne**  
 - [ ] Aucune clé secrète dans le bundle client (inspecter sources / Network)  
 - [ ] `/api/*` erreurs **500** loguées (Vercel Logs / Supabase Logs)  

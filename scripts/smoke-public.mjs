@@ -2,6 +2,7 @@ const base = process.env.PTG_BASE_URL?.trim() || "http://localhost:3000";
 
 const routes = [
   "/",
+  "/a-propos",
   "/hero/landing-watercolor.webp",
   "/accueil",
   "/commencer",
@@ -22,11 +23,21 @@ const routes = [
   "/paiement-repas",
   "/legal/cgu",
   "/legal/confidentialite",
+  "/route-inexistante-test-404",
+  "/robots.txt",
+  "/sitemap.xml",
   "/api/health",
 ];
 
 const timeoutMs = 12000;
 let failed = 0;
+
+/** Kicker hero : lien vers À propos + classe pill (évite un faux positif si seul le footer pointe vers /a-propos). */
+const HOME_EXPECT_KICKER_MARKERS = ['href="/a-propos"', "ptg-kicker-pill--link"];
+const EXPECTED_STATUS = new Map([
+  ["/api/health", 200],
+  ["/route-inexistante-test-404", 404],
+]);
 
 async function checkRoute(route) {
   const ctrl = new AbortController();
@@ -38,9 +49,23 @@ async function checkRoute(route) {
       signal: ctrl.signal,
       headers: { "User-Agent": "ptg-smoke-public" },
     });
-    const ok = res.status < 500;
+    let ok = res.status < 500;
+    let detail = "";
+    const expectedStatus = EXPECTED_STATUS.get(route);
+    if (expectedStatus !== undefined && res.status !== expectedStatus) {
+      ok = false;
+      detail = ` :: expected status ${expectedStatus}, got ${res.status}`;
+    }
+    if (route === "/" && ok && res.status === 200) {
+      const html = await res.text();
+      const missing = HOME_EXPECT_KICKER_MARKERS.filter((m) => !html.includes(m));
+      if (missing.length > 0) {
+        ok = false;
+        detail = ` :: home HTML missing hero kicker markers: ${missing.join(", ")}`;
+      }
+    }
     if (!ok) failed += 1;
-    console.log(`${ok ? "OK " : "ERR"} ${String(res.status).padStart(3, " ")} ${route}`);
+    console.log(`${ok ? "OK " : "ERR"} ${String(res.status).padStart(3, " ")} ${route}${detail}`);
   } catch (e) {
     failed += 1;
     const msg = e instanceof Error ? e.message : String(e);

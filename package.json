@@ -19,6 +19,9 @@
     "verify:full": "npm run verify && npm run build",
     "optimize:hero": "node scripts/optimize-hero.mjs",
     "smoke:public": "node scripts/smoke-public.mjs",
+    "assert:beta-seo": "node scripts/assert-beta-seo.mjs",
+    "wait:health": "node scripts/wait-for-health.mjs",
+    "checks:prod-local": "node scripts/run-prod-checks.mjs",
     "deploy:preflight": "node scripts/deploy-preflight.mjs"
   },
   "dependencies": {

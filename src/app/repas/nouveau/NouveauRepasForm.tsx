@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
 import { AppNav } from "@/components/AppNav";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { UX_NOUVEAU_REPAS } from "@/lib/ux-copy";
 
@@ -58,15 +59,17 @@ export function NouveauRepasForm({ guestId }: { guestId: string }) {
               ← Autour de toi
             </Link>
           </p>
-          <div className="ptg-page-head">
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              {UX_NOUVEAU_REPAS.title}
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-            <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
-              {UX_NOUVEAU_REPAS.intro}
-            </p>
-          </div>
+          <PtgMenuCard variant="ember" stamp="Nouvelle table">
+            <div className="ptg-page-head">
+              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                {UX_NOUVEAU_REPAS.title}
+              </h1>
+              <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+              <p className="ptg-type-body" style={{ margin: "0 0 0" }}>
+                {UX_NOUVEAU_REPAS.intro}
+              </p>
+            </div>
+          </PtgMenuCard>
 
           <label
             className="ptg-surface ptg-surface--static ptg-card--compact"

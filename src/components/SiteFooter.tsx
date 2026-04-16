@@ -5,6 +5,10 @@ export function SiteFooter() {
   return (
     <footer className="ptg-footer">
       <nav aria-label="Liens légaux et informations">
+        <Link href="/">{UX_FOOTER.presentation}</Link>
+        <span className="ptg-footer-sep" aria-hidden>
+          ·
+        </span>
         <Link href="/a-propos">{UX_FOOTER.about}</Link>
         <span className="ptg-footer-sep" aria-hidden>
           ·

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
+import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
   extensionsNavVisible,
@@ -11,7 +12,8 @@ import {
   moduleShareEnabled,
 } from "@/lib/feature-modules";
 import { GROWTH_GRAILLE_PLUS_LEAD, GROWTH_MODULE_PAY, GROWTH_MODULE_RESCUE, GROWTH_MODULE_SHARE } from "@/lib/growth-copy";
-import { MARKETING_GRAILLE_PLUS_PULSE_LINES } from "@/lib/marketing-copy";
+import { MARKETING_GRAILLE_PLUS_PULSE_LINES, MARKETING_TAGLINE_GOLDEN } from "@/lib/marketing-copy";
+import { UX_BACK } from "@/lib/ux-copy";
 
 export const metadata: Metadata = {
   title: "Graille+",
@@ -29,22 +31,48 @@ export default function GraillePlusPage() {
       <PtgAppFlow>
         <div className="ptg-page-inner">
           <AppNav current="graille-plus" />
-          <div className="ptg-page-head">
-            <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
-              Graille+
-            </h1>
-            <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-            <MarketingPulseLine lines={MARKETING_GRAILLE_PLUS_PULSE_LINES} intervalMs={6900} className="ptg-accueil-pulse" />
-            <p className="ptg-type-body" style={{ margin: "0 0 0", lineHeight: 1.55, fontWeight: 600 }}>
-              {GROWTH_GRAILLE_PLUS_LEAD}
-            </p>
-            {any && (
-              <p className="ptg-type-body" style={{ margin: "0.75rem 0 0", fontSize: "var(--ptg-text-sm)", lineHeight: 1.55 }}>
-                Pour publier, réserver ou payer via ces modules : <strong>e-mail confirmé</strong>, <strong>pseudo</strong> et{" "}
-                <strong>ville</strong> sur ton profil.
+          <PtgMenuCard variant="ember" stamp="Menu modules">
+            <div className="ptg-page-head">
+              <h1 className="ptg-type-display" style={{ margin: "0 0 0.5rem" }}>
+                Graille+
+              </h1>
+              <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
+              <MarketingPulseLine lines={MARKETING_GRAILLE_PLUS_PULSE_LINES} intervalMs={6900} className="ptg-accueil-pulse" />
+              <p className="ptg-type-body" style={{ margin: "0 0 0", lineHeight: 1.55, fontWeight: 600 }}>
+                {GROWTH_GRAILLE_PLUS_LEAD}
               </p>
-            )}
-          </div>
+              <p
+                className="ptg-type-body"
+                style={{
+                  margin: "0.65rem 0 0",
+                  fontSize: "var(--ptg-text-sm)",
+                  fontWeight: 600,
+                  lineHeight: 1.45,
+                  color: "var(--ptg-accent-deep)",
+                }}
+              >
+                {MARKETING_TAGLINE_GOLDEN}
+              </p>
+              <p
+                className="ptg-type-body"
+                style={{
+                  margin: "0.35rem 0 0",
+                  fontSize: "var(--ptg-text-sm)",
+                  fontWeight: 700,
+                  lineHeight: 1.4,
+                  color: "var(--ptg-olive)",
+                }}
+              >
+                {GROWTH_MODULE_RESCUE.slogan}
+              </p>
+              {any && (
+                <p className="ptg-type-body" style={{ margin: "0.75rem 0 0", fontSize: "var(--ptg-text-sm)", lineHeight: 1.55 }}>
+                  Pour publier, réserver ou payer via ces modules : <strong>e-mail confirmé</strong>, <strong>pseudo</strong> et{" "}
+                  <strong>ville</strong> sur ton profil.
+                </p>
+              )}
+            </div>
+          </PtgMenuCard>
 
           {!any && (
             <p className="ptg-banner" style={{ marginBottom: "1.25rem" }}>
@@ -185,7 +213,7 @@ export default function GraillePlusPage() {
 
           <p style={{ margin: "1.25rem 0 0" }}>
             <Link href="/accueil" className="ptg-link-back" style={{ marginBottom: 0 }}>
-              ← Accueil
+              {UX_BACK.appAccueil}
             </Link>
           </p>
         </div>
