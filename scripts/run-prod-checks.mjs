@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { withPublicBetaEnv } from "./lib/e2e-env.mjs";
 
 function run(command, args, options = {}) {
   return new Promise((resolve, reject) => {
@@ -56,9 +57,8 @@ async function main() {
   const baseUrl = explicitBase && explicitBase.length > 0 ? explicitBase : `http://127.0.0.1:${port}`;
 
   if (withBetaSeo) {
-    const buildEnv = { ...process.env, NEXT_PUBLIC_PTG_PUBLIC_BETA: "1" };
-    console.log("[checks:prod-local] Build production avec NEXT_PUBLIC_PTG_PUBLIC_BETA=1…");
-    await run("npm", ["run", "build"], { env: buildEnv, shell: process.platform === "win32" });
+    console.log("[checks:prod-local] Build production en mode beta…");
+    await run("npm", ["run", "build:beta"], { env: process.env, shell: process.platform === "win32" });
   }
 
   const childEnv = {
@@ -66,15 +66,13 @@ async function main() {
     PORT: port,
     PTG_BASE_URL: baseUrl,
   };
-  if (withBetaSeo) {
-    childEnv.NEXT_PUBLIC_PTG_PUBLIC_BETA = "1";
-  }
+  const runtimeEnv = withBetaSeo ? withPublicBetaEnv(childEnv) : childEnv;
   console.log(`[checks:prod-local] next start -p ${port} · PTG_BASE_URL=${baseUrl}`);
 
   const server = spawn("npm", ["run", "start", "--", "-p", port], {
     stdio: "inherit",
     shell: process.platform === "win32",
-    env: childEnv,
+    env: runtimeEnv,
   });
 
   const stopServer = () => {
@@ -99,10 +97,10 @@ async function main() {
         `next start a quitté avec le code ${earlyCode} (souvent EADDRINUSE sur le port ${port}). Ferme l’autre processus (next dev, ancien next start) ou lance avec PTG_CHECK_PORT=3010 et PTG_BASE_URL=http://127.0.0.1:3010.`,
       );
     }
-    await run("npm", ["run", "wait:health"], { env: childEnv, shell: process.platform === "win32" });
-    await run("npm", ["run", "smoke:public"], { env: childEnv, shell: process.platform === "win32" });
+    await run("npm", ["run", "wait:health"], { env: runtimeEnv, shell: process.platform === "win32" });
+    await run("npm", ["run", "smoke:public"], { env: runtimeEnv, shell: process.platform === "win32" });
     if (withBetaSeo) {
-      await run("npm", ["run", "assert:beta-seo"], { env: childEnv, shell: process.platform === "win32" });
+      await run("npm", ["run", "assert:beta-seo"], { env: runtimeEnv, shell: process.platform === "win32" });
     }
   } finally {
     stopServer();

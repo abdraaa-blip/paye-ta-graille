@@ -12,7 +12,8 @@
 
 html {
   color-scheme: light;
-  scroll-padding-top: var(--ptg-space-4);
+  /* Ancrage scroll + encoche : évite que le titre soit sous la barre système. */
+  scroll-padding-top: max(var(--ptg-space-4), env(safe-area-inset-top, 0px));
 }
 
 body {
@@ -922,7 +923,8 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 
 .ptg-footer {
   margin-top: auto;
-  padding: 2rem 1.5rem 1.5rem;
+  padding: 2rem max(1.5rem, env(safe-area-inset-right, 0px)) max(1.5rem, env(safe-area-inset-bottom, 0px))
+    max(1.5rem, env(safe-area-inset-left, 0px));
   border-top: 1px solid color-mix(in srgb, var(--ptg-muted) 82%, var(--ptg-line));
   background: linear-gradient(
     180deg,
@@ -951,6 +953,15 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   justify-content: center;
   align-items: center;
   font-size: var(--ptg-text-ui-sm);
+}
+
+.ptg-footer nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--ptg-btn-height-md);
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--ptg-radius-sm);
 }
 
 .ptg-footer-sep {
@@ -987,7 +998,9 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   width: 100%;
   max-width: var(--ptg-content-max);
   margin: 0 auto;
-  padding: var(--ptg-space-6) var(--ptg-space-5) var(--ptg-space-8);
+  padding: max(var(--ptg-space-6), env(safe-area-inset-top, 0px)) max(var(--ptg-space-5), env(safe-area-inset-right, 0px))
+    max(var(--ptg-space-8), env(safe-area-inset-bottom, 0px)) max(var(--ptg-space-5), env(safe-area-inset-left, 0px));
+  overflow-wrap: break-word;
 }
 
 .ptg-scene {
@@ -1102,7 +1115,8 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1.25rem 2.5rem;
+  padding: max(1.5rem, env(safe-area-inset-top, 0px)) max(1.25rem, env(safe-area-inset-right, 0px))
+    max(2.5rem, env(safe-area-inset-bottom, 0px)) max(1.25rem, env(safe-area-inset-left, 0px));
   overflow: hidden;
   background: linear-gradient(
     168deg,
@@ -3208,11 +3222,13 @@ a.ptg-kicker-pill--link:focus-visible {
     color-mix(in srgb, var(--ptg-sand) 90%, var(--ptg-accent) 4%)
   );
   border-bottom: 1px solid color-mix(in srgb, var(--ptg-line) 45%, transparent);
-  padding: 0.45rem 1rem;
+  padding: max(0.45rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px)) 0.45rem
+    max(1rem, env(safe-area-inset-left, 0px));
   text-align: center;
   font-size: var(--ptg-text-sm);
   line-height: 1.45;
   color: var(--ptg-text-muted);
+  overflow-wrap: break-word;
 }
 
 /* Navigation app */
@@ -3221,7 +3237,8 @@ a.ptg-kicker-pill--link:focus-visible {
   gap: var(--ptg-space-2) var(--ptg-space-3);
   flex-wrap: wrap;
   margin-bottom: var(--ptg-space-6);
-  padding: var(--ptg-space-2) var(--ptg-space-2) var(--ptg-space-4);
+  padding: max(var(--ptg-space-2), env(safe-area-inset-top, 0px)) max(var(--ptg-space-2), env(safe-area-inset-right, 0px))
+    var(--ptg-space-4) max(var(--ptg-space-2), env(safe-area-inset-left, 0px));
   border-bottom: 1px solid var(--ptg-line-subtle);
   position: relative;
 }
@@ -3261,8 +3278,9 @@ a.ptg-kicker-pill--link:focus-visible {
   font-weight: 500;
   color: var(--ptg-text-muted);
   text-decoration: none;
-  padding: 0.4rem 0.6rem;
-  min-height: 2.25rem;
+  padding: 0.45rem 0.65rem;
+  /* ~44px zone tactile (WCAG 2.5.5 / usage pouce). */
+  min-height: var(--ptg-btn-height-md);
   display: inline-flex;
   align-items: center;
   border-radius: var(--ptg-radius-sm);
@@ -3671,6 +3689,12 @@ a.ptg-kicker-pill--link:focus-visible {
 }
 
 @media (max-width: 720px) {
+  /* Boutons « compact » : sur petit écran, hauteur tactile alignée sur 44px. */
+  .ptg-btn-primary--compact,
+  .ptg-btn-secondary--compact {
+    min-height: var(--ptg-btn-height-md);
+  }
+
   /* Mobile portrait: priorise l'image entière (évite le recadrage agressif du hero). */
   .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
     object-fit: contain;
