@@ -3,6 +3,8 @@ import { z } from "zod";
 import { jsonError } from "@/lib/api/errors";
 import { rateLimitForUser } from "@/lib/api/rate-limit";
 import { requireSession } from "@/lib/api/session";
+import { notifyReportCreated } from "@/lib/email/report-notify";
+import { createInAppNotifications } from "@/lib/notifications/in-app";
 
 const bodySchema = z
   .object({
@@ -72,6 +74,33 @@ export async function POST(request: Request) {
     }
     return jsonError("report_failed", error.message, 400);
   }
+
+  try {
+    await notifyReportCreated({
+      reportId: data.id,
+      createdAt: data.created_at,
+      reporterId: session.user.id,
+      reporterEmail: session.user.email ?? null,
+      detail: parsed.data.detail,
+      contact: parsed.data.contact ?? null,
+      mealId: parsed.data.meal_id ?? null,
+    });
+  } catch (e) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[report-notify]", e);
+    }
+  }
+
+  void createInAppNotifications([
+    {
+      userId: session.user.id,
+      kind: "report_received",
+      title: "Signalement reçu",
+      body: "Merci, ton signalement a bien été transmis à l’équipe.",
+      ctaHref: "/moi",
+      metadata: { report_id: data.id },
+    },
+  ]);
 
   return NextResponse.json({ ok: true, report: data });
 }

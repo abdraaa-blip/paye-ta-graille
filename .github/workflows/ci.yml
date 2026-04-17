@@ -5,10 +5,28 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  verify:
+  workflow-lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint GitHub Actions workflows
+        uses: rhysd/actionlint@v1.7.12
+
+  verify:
+    needs: [workflow-lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,9 +64,20 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://ci-placeholder.example
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-verify-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
 
   beta-seo:
+    needs: [workflow-lint]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -87,3 +116,61 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
           NEXT_PUBLIC_PTG_PUBLIC_BETA: "1"
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-beta-seo-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+
+  mobile-consistency:
+    needs: [workflow-lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://ci-placeholder.example
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+      - name: Playwright mobile consistency
+        run: |
+          npx playwright install chromium
+          npm run test:e2e:mobile
+        env:
+          NEXT_PUBLIC_SITE_URL: https://ci-placeholder.example
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mobile-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+      - name: Mobile gate summary
+        if: always()
+        run: |
+          {
+            echo "### Mobile consistency gate"
+            echo "- Suite: npm run test:e2e:mobile"
+            echo "- Device profile: Pixel 7 (Playwright mobile config)"
+            echo "- Failure artifacts: playwright-mobile-report"
+          } >> "$GITHUB_STEP_SUMMARY"

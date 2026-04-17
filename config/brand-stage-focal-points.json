@@ -1,0 +1,32 @@
+[
+  {
+    "input": "livret-campagne-slogan.png",
+    "output": "brand-stage-campagne.webp",
+    "position": "center",
+    "focal": { "x": 0.5, "y": 0.5 }
+  },
+  {
+    "input": "livret-manifeste-marche-v2.png",
+    "output": "brand-stage-manifeste.webp",
+    "position": "north",
+    "focal": { "x": 0.5, "y": 0.38 }
+  },
+  {
+    "input": "landing-watercolor.png",
+    "output": "brand-stage-landing.webp",
+    "position": "attention",
+    "focal": { "x": 0.5, "y": 0.5 }
+  },
+  {
+    "input": "brand-logo-signature.png",
+    "output": "brand-stage-logo.webp",
+    "position": "center",
+    "focal": { "x": 0.5, "y": 0.5 }
+  },
+  {
+    "input": "brand-marketplace.png",
+    "output": "brand-stage-marketplace.webp",
+    "position": "center",
+    "focal": { "x": 0.5, "y": 0.5 }
+  }
+]

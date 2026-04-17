@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 import { extensionsNavVisible } from "@/lib/feature-modules";
 
 export function AppNav({
@@ -8,6 +11,31 @@ export function AppNav({
   current?: "accueil" | "decouvrir" | "moi" | "reseau" | "graille-plus";
 }) {
   const showPlus = extensionsNavVisible();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const refreshNotifications = useCallback(async () => {
+    try {
+      const res = await fetch("/api/notifications", { cache: "no-store" });
+      if (!res.ok) return;
+      const json = (await res.json()) as { unread_count?: number };
+      setUnreadCount(Math.max(0, Number(json.unread_count ?? 0)));
+    } catch {
+      // Réseau/session indisponible: on conserve l'état courant sans casser la nav.
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshNotifications();
+    const id = window.setInterval(() => void refreshNotifications(), 45_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void refreshNotifications();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [refreshNotifications]);
 
   return (
     <nav className="ptg-nav" aria-label="Navigation principale">
@@ -56,6 +84,11 @@ export function AppNav({
         aria-current={current === "moi" ? "page" : undefined}
       >
         Moi
+        {unreadCount > 0 ? (
+          <span className="ptg-nav-notif-badge" aria-label={`${unreadCount} notifications non lues`}>
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        ) : null}
       </Link>
     </nav>
   );

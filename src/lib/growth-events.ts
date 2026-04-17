@@ -25,7 +25,9 @@ export type GrowthEventName =
   | "module_rescue_claim"
   | "module_payment_checkout_start"
   | "partners_page_view"
-  | "partners_cta_click";
+  | "partners_cta_click"
+  | "feedback_submitted"
+  | "growth_alert_acknowledged";
 
 type EventPayload = {
   event: GrowthEventName;

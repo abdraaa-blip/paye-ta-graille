@@ -66,11 +66,11 @@ export default function HomePage() {
             >
               {UX_HOME.whisper}
             </p>
-            <div className="ptg-stack ptg-stack--roomy">
-              <Link href="/commencer" className="ptg-btn-primary" style={{ textAlign: "center" }}>
+            <div className="ptg-stack ptg-stack--roomy ptg-guide-press-cycle ptg-motion-profile-subtle">
+              <Link href="/commencer" className="ptg-btn-primary ptg-guide-press" style={{ textAlign: "center" }}>
                 {UX_HOME.ctaPrimary}
               </Link>
-              <Link href="/auth" className="ptg-btn-secondary">
+              <Link href="/auth" className="ptg-btn-secondary ptg-guide-press">
                 {UX_HOME.ctaHasAccount}
               </Link>
             </div>

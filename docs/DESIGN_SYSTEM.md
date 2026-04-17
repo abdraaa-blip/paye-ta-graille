@@ -174,6 +174,18 @@ Liens : `a.ptg-btn-primary` sans soulignement.
 - Chips / nav : `scale` à l’active
 - **`prefers-reduced-motion: reduce`** : animations décor et transitions boutons désactivées ou neutralisées
 
+### Profils motion (guidage CTA)
+
+Pour l’effet d’appui indicatif (`.ptg-guide-press`, `.ptg-guide-press-cycle`), utiliser les profils suivants:
+
+| Profil | Classe | Usage |
+|--------|--------|-------|
+| **Subtle** | `.ptg-motion-profile-subtle` | Héros / CTA déjà très visibles (ex. home) ; signal discret, premium. |
+| **Guided** | `.ptg-motion-profile-guided` | Parcours guidés / index d’exploration (ex. index À propos) ; signal plus lisible. |
+| **Hero** | `.ptg-motion-profile-hero` | Mise en avant intermédiaire quand il faut attirer sans surjouer. |
+
+Source de réglage: tokens motion dans `src/app/ptg-tokens.css` (`--ptg-motion-guide-press-*`).
+
 ---
 
 ## 9. Z-index
@@ -187,6 +199,16 @@ Utiliser `--ptg-z-behind`, `--ptg-z-base`, `--ptg-z-raised`, `--ptg-z-sticky`, `
 - Focus : `outline` général ; boutons / chips : `--ptg-shadow-focus`
 - Zones tactiles : respecter `--ptg-btn-height-*` (min ~44px recommandé)
 - Décor : `aria-hidden` sur les SVG non porteurs de sens
+
+### Checklist QA motion (avant merge)
+
+- `prefers-reduced-motion` : les animations indicatives sont neutralisées.
+- Mobile portrait (`<=640px`, puis `<=390px`) : les cadres médias conservent une hauteur lisible (pas d’écrasement/disparition).
+- Cadence : CTA guidés entre `~2.4s` et `~5.6s` selon le profil (`subtle/guided/hero`), éviter les cycles plus rapides.
+- Lisibilité : glow visible mais non agressif (pas de clignotement fort, pas de saturation pleine persistante).
+- Interaction : toute animation “auto” se met en pause dès interaction utilisateur (ou devient secondaire).
+- Carrousels : éviter la répétition adjacente perçue et limiter le pool à des visuels distincts.
+- Accessibilité clavier : focus visible conservé, aucune animation ne masque la lecture du focus ring.
 
 ---
 

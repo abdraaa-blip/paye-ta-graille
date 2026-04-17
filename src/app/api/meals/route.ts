@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { jsonError } from "@/lib/api/errors";
 import { notifyGuestMealProposed } from "@/lib/email/meal-proposed-notify";
+import { createInAppNotifications } from "@/lib/notifications/in-app";
 import { venuesByMealId } from "@/lib/api/meal-venues";
 import { rateLimitForUser } from "@/lib/api/rate-limit";
 import { requireSession } from "@/lib/api/session";
@@ -96,12 +97,24 @@ export async function POST(request: Request) {
     .eq("id", session.user.id)
     .maybeSingle();
   const hostDisplayName = hostProfile?.display_name?.trim() || "Un membre";
+  const path = `/repas/${data.id}`;
 
   void notifyGuestMealProposed({
     mealId: data.id,
     hostDisplayName,
     guestUserId: parsed.data.guest_user_id,
   });
+
+  void createInAppNotifications([
+    {
+      userId: parsed.data.guest_user_id,
+      kind: "meal_proposed",
+      title: "Nouveau repas proposé",
+      body: `${hostDisplayName} t’a proposé un repas.`,
+      ctaHref: path,
+      metadata: { meal_id: data.id, kind: "meal_proposed" },
+    },
+  ]);
 
   return NextResponse.json({ meal: data }, { status: 201 });
 }
