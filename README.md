@@ -67,7 +67,7 @@ npm run dev
 ```
 
 **Déploiement** : `docs/DEPLOIEMENT_VERCEL.md` : en prod, renseigner de préférence **`NEXT_PUBLIC_SITE_URL`** (Open Graph / `metadataBase`) et les redirect URLs Supabase.
-**CI** : `docs/CI_RUNBOOK.md` : réaction rapide en cas d’échec (`verify`, `mobile-consistency`, `beta-seo`) + gate nocturne `verify:release`.  
+**CI** : `docs/CI_RUNBOOK.md` : réaction rapide en cas d’échec (`verify`, `mobile-consistency`, `beta-seo`) + gate nocturne `verify:release`. Sur `main` / `master`, une **revue approuvée par quelqu’un d’autre que l’auteur** est en général requise pour merger (voir runbook section *PR « verte » mais fusion refusée*).  
 Évolution workflows: `docs/CI_WORKFLOW_COOKBOOK.md` (pattern job, artefacts, résumé standard).
 
 **GitHub CLI (Windows)** : si `gh` n’est pas reconnu dans PowerShell, utiliser `& "C:\Program Files\GitHub CLI\gh.exe" ...` ou ajouter `C:\Program Files\GitHub CLI\` au `PATH`.
