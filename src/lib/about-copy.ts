@@ -252,6 +252,7 @@ export const ABOUT_SERVICE_LINKS: readonly AboutServiceLink[] = [
   { href: "/seconde-graille", label: "Seconde graille", blurb: "Anti-gaspillage et surplus, quand le module est activé." },
   { href: "/paiement-repas", label: "Paiement du repas", blurb: "Sécuriser l’addition via Stripe quand le module est activé." },
   { href: "/partenaires", label: "Partenaires", blurb: "Restos, pros et pistes de collaboration." },
+  { href: "/univers-visuel", label: "Univers visuel", blurb: "Vitrine d’affiches et signatures de marque, sélectionnée (pas un dépôt brut)." },
   { href: "/signaler", label: "Signaler", blurb: "Nous écrire si quelque chose cloche (compte requis pour le formulaire)." },
   { href: "/legal/cgu", label: "CGU", blurb: "Conditions d’utilisation." },
   { href: "/legal/confidentialite", label: "Confidentialité", blurb: "Données personnelles et traitements." },

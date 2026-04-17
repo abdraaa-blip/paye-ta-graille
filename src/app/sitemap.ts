@@ -14,6 +14,7 @@ const PUBLIC_PATHS: { path: string; changeFrequency: MetadataRoute.Sitemap[0]["c
     { path: "/reseau-graille", changeFrequency: "monthly", priority: 0.65 },
     { path: "/repas-ouverts", changeFrequency: "weekly", priority: 0.65 },
     { path: "/partenaires", changeFrequency: "monthly", priority: 0.52 },
+    { path: "/univers-visuel", changeFrequency: "monthly", priority: 0.5 },
     { path: "/graille-plus", changeFrequency: "monthly", priority: 0.55 },
     { path: "/partage-graille", changeFrequency: "monthly", priority: 0.55 },
     { path: "/seconde-graille", changeFrequency: "monthly", priority: 0.55 },

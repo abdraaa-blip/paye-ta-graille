@@ -789,6 +789,33 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   transform: translateY(-1px);
 }
 
+.ptg-visual-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+
+.ptg-visual-frame {
+  margin: 0 0 0.7rem;
+  border-radius: calc(var(--ptg-radius-card) - 6px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 45%, var(--ptg-accent) 12%);
+  background: color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-butter));
+}
+
+.ptg-visual-frame__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+@media (min-width: 860px) {
+  .ptg-visual-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .ptg-surface.ptg-surprise-card {
   border-color: color-mix(in srgb, var(--ptg-emotion-surprise) 32%, var(--ptg-line));
   background: linear-gradient(
