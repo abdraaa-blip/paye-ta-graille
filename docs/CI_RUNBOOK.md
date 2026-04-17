@@ -15,6 +15,13 @@ Pour ajouter/modifier un job CI en respectant les conventions, voir aussi `docs/
 - Chaque job publie aussi un résumé `GITHUB_STEP_SUMMARY` (commande, portée, artefact d’échec).
 - Les résumés sont standardisés via `scripts/ci/write-gate-summary.sh` (source unique).
 
+## PR « verte » mais fusion refusée
+
+- Les checks peuvent être **SUCCESS** alors que GitHub affiche encore **Merge blocked** : en général il manque une **revue approuvée** exigée par la branch protection (`reviewDecision: REVIEW_REQUIRED`).
+- Vérifier l’état : `gh pr view <n> --json mergeStateStatus,reviewDecision,statusCheckRollup`.
+- L’**auto-merge** peut être désactivé sur le dépôt : dans ce cas, merger à la main après approbation (UI GitHub ou `gh pr merge <n> --squash` une fois les exigences remplies).
+- Sous **Windows**, si `gh` est « introuvable » : l’exécutable est souvent `C:\Program Files\GitHub CLI\gh.exe` — ajouter ce dossier au `PATH` ou appeler `gh` avec le chemin complet.
+
 ## Pré-check local avant push
 
 ```bash
