@@ -52,7 +52,7 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://ci-placeholder.example
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
@@ -109,7 +109,7 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://ci-placeholder.example
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
@@ -159,7 +159,7 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://ci-placeholder.example
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
