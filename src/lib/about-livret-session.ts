@@ -3,7 +3,8 @@ import { ABOUT_LIVRET_HASH_ALIASES, ABOUT_LIVRET_SESSION_KEY } from "@/lib/about
 export const ABOUT_LIVRET_SECTION_ID = "livret-payetagraille";
 export const ABOUT_SERVICES_SECTION_ID = "apropos-services";
 
-export type LivretPersisted = { open: boolean; page: number };
+/** Page courante du livret (persistée). Ancienne forme `{ open, page }` : seul `page` est conservé. */
+export type LivretPersisted = { page: number };
 
 export function readLivretSession(): LivretPersisted | null {
   if (typeof window === "undefined") return null;
@@ -12,9 +13,11 @@ export function readLivretSession(): LivretPersisted | null {
     if (!raw) return null;
     const p = JSON.parse(raw) as unknown;
     if (!p || typeof p !== "object") return null;
-    const open = "open" in p && typeof (p as LivretPersisted).open === "boolean" ? (p as LivretPersisted).open : false;
-    const page = "page" in p && typeof (p as LivretPersisted).page === "number" ? (p as LivretPersisted).page : 0;
-    return { open, page };
+    let page = 0;
+    if ("page" in p && typeof (p as LivretPersisted).page === "number") {
+      page = (p as LivretPersisted).page;
+    }
+    return { page };
   } catch {
     return null;
   }
@@ -23,7 +26,7 @@ export function readLivretSession(): LivretPersisted | null {
 export function writeLivretSession(state: LivretPersisted): void {
   if (typeof window === "undefined") return;
   try {
-    sessionStorage.setItem(ABOUT_LIVRET_SESSION_KEY, JSON.stringify(state));
+    sessionStorage.setItem(ABOUT_LIVRET_SESSION_KEY, JSON.stringify({ page: state.page }));
   } catch {
     /* quota / mode privé */
   }
@@ -40,22 +43,6 @@ export function livretHashWantsOpen(hash: string): boolean {
 
 export function servicesHashMatches(hash: string): boolean {
   return normalizeHash(hash) === ABOUT_SERVICES_SECTION_ID;
-}
-
-export function stripOurLivretHash(): void {
-  if (typeof window === "undefined") return;
-  const h = window.location.hash.slice(1);
-  if (h === ABOUT_LIVRET_SECTION_ID || (ABOUT_LIVRET_HASH_ALIASES as readonly string[]).includes(h)) {
-    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
-  }
-}
-
-export function setLivretHashIfAllowed(): void {
-  if (typeof window === "undefined") return;
-  const cur = window.location.hash.slice(1);
-  if (!cur || cur === ABOUT_LIVRET_SECTION_ID || (ABOUT_LIVRET_HASH_ALIASES as readonly string[]).includes(cur)) {
-    window.history.replaceState(null, "", `#${ABOUT_LIVRET_SECTION_ID}`);
-  }
 }
 
 export function scrollToAboutServices(): void {
