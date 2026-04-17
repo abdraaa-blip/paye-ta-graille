@@ -34,7 +34,7 @@ Option recommandée (détection branche distante par défaut):
 npm run checks:ci-governance:auto
 ```
 
-`npm run verify` inclut aussi `npm run test:scripts` (garde-fous des helpers d'orchestration).
+`npm run verify` inclut aussi `npm run test:scripts` (garde-fous des helpers d'orchestration) et `npm run assert:tracked-safe` (aucun secret / `.env*.local` / clé PEM ne doit être suivi par git).
 
 Important:
 

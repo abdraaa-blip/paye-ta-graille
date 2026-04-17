@@ -44,8 +44,9 @@ function hasWorkflowChanges(statusShort) {
 
 function assertStagedSafe(stagedFiles) {
   for (const file of stagedFiles) {
+    const base = file.split(/[/\\]/).pop() ?? file;
     for (const re of BLOCKED_STAGED) {
-      if (re.test(file)) {
+      if (re.test(file) || re.test(base)) {
         throw new Error(`Refus ship: fichier sensible ou interdit en commit (${file}). Retire-le du staging.`);
       }
     }

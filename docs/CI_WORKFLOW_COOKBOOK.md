@@ -61,6 +61,7 @@ my-job:
 - Lancer `workflow-lint` dans le pipeline principal.
 - Le garde-fou `ci-governance` exige docs CI alignées si un workflow est modifié.
 - Vérifier localement les scripts partagés (`npm run test:scripts`).
+- `npm run verify` exécute aussi `assert:tracked-safe` (fichiers sensibles non suivis par git).
 - Pré-check local cross-platform: `npm run checks:ci-governance`.
 - Le pré-check local couvre aussi les changements non commités (staged/unstaged/untracked).
 - Simulation PR contre branche cible: `npm run checks:ci-governance:main`, `npm run checks:ci-governance:master`, ou `--base <branche>`.
