@@ -48,10 +48,10 @@
 | `npm run optimize:hero:dry` | Prévisualise les transformations de `optimize:hero` (sources, dimensions, crop focal point, sorties) sans écrire de fichiers. |
 | `npm run cron:meal-reminders` | Appelle `GET /api/cron/meal-reminders` (variables `CRON_SECRET` + `PTG_BASE_URL`, serveur déjà lancé). |
 | `npm run smoke:public` | Smoke HTTP des routes publiques + invariants HTML (accueil, bandeau `ptg-night-stage` sur Partenaires / Expériences / Repas ouverts) — serveur requis. |
-| `npm run test:e2e` | Playwright : smoke HTTP + accueil navigateur (`e2e/`, `webServer` `next start`, `PTG_E2E_BASE_URL` défaut `http://127.0.0.1:4010`). |
-| `npm run test:e2e:mobile` | Playwright mobile dédié (`playwright.mobile.config.ts`, profil Pixel 7) : cadrage image, continuité fond, stress viewport/orientation. |
+| `npm run test:e2e` | Playwright desktop via wrapper local (`run-e2e-local`) qui force `PTG_PLAYWRIGHT_NO_WEBSERVER=0` pour éviter les faux négatifs d’environnement shell. |
+| `npm run test:e2e:mobile` | Playwright mobile (Pixel 7) via wrapper local (`run-e2e-local --config=playwright.mobile.config.ts`) : cadrage image, continuité fond, stress viewport/orientation. |
 | `npm run test:e2e:beta-seo` | Playwright uniquement `e2e/beta-seo.spec.ts` (rebuild bêta auto via `build:beta`, puis run ; `PTG_SKIP_BETA_BUILD=1` possible en CI si build déjà fait **et** marqueur bêta présent). |
-| `npm run test:e2e:full` | `build:clean` puis `test:e2e`. |
+| `npm run test:e2e:full` | `build:clean` puis `test:e2e` (mêmes garanties wrapper local). |
 | `npm run test:e2e:install` | Télécharge Chromium pour Playwright (une fois par machine / CI). |
 | `npm run test:scripts` | Tests Node ciblés sur les helpers scripts (`scripts/__tests__`). |
 

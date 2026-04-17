@@ -39,10 +39,10 @@
     "ship:dry": "node scripts/ship.mjs --dry-run",
     "deploy:preflight": "node scripts/deploy-preflight.mjs",
     "cron:meal-reminders": "node scripts/trigger-meal-reminders.mjs",
-    "test:e2e": "playwright test",
+    "test:e2e": "node scripts/run-e2e-local.mjs",
     "test:e2e:beta-seo": "node scripts/e2e-beta-seo.mjs",
-    "test:e2e:full": "npm run build:clean && playwright test",
-    "test:e2e:mobile": "playwright test --config=playwright.mobile.config.ts",
+    "test:e2e:full": "npm run build:clean && node scripts/run-e2e-local.mjs",
+    "test:e2e:mobile": "node scripts/run-e2e-local.mjs --config=playwright.mobile.config.ts",
     "test:e2e:install": "playwright install chromium",
     "test:scripts": "node --test scripts/__tests__/*.test.mjs"
   },
