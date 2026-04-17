@@ -32,6 +32,28 @@ function isNegativePublicFlag(v) {
 }
 
 const root = process.cwd();
+
+/** Même liste que `config/public-hero-image-url-env-keys.json`. */
+function loadPublicHeroImageUrlEnvKeys() {
+  const keysPath = resolve(root, "config/public-hero-image-url-env-keys.json");
+  if (!existsSync(keysPath)) {
+    console.error("Missing", keysPath);
+    process.exit(1);
+  }
+  try {
+    const parsed = JSON.parse(readFileSync(keysPath, "utf8"));
+    if (!Array.isArray(parsed.keys) || !parsed.keys.every((k) => typeof k === "string" && k.length > 0)) {
+      throw new Error("invalid « keys » array");
+    }
+    return parsed.keys;
+  } catch (e) {
+    console.error("Invalid config/public-hero-image-url-env-keys.json:", e instanceof Error ? e.message : e);
+    process.exit(1);
+  }
+}
+
+const PUBLIC_HERO_IMAGE_HTTP_ENV_KEYS = loadPublicHeroImageUrlEnvKeys();
+
 const envPath = resolve(root, ".env.local");
 const fileVars = existsSync(envPath) ? parseDotEnv(readFileSync(envPath, "utf8")) : {};
 const env = { ...process.env };
@@ -111,6 +133,16 @@ if (growthSecret && growthSecret.length < 24) {
 
 const DEFAULT_HERO_WEBP = "/hero/landing-watercolor.webp";
 
+function warnLocalImageMissing(raw, label) {
+  const v = String(raw ?? "").trim();
+  if (!v || v.startsWith("http")) return;
+  const rel = v.replace(/^\//, "");
+  const abs = resolve(root, "public", rel);
+  if (!existsSync(abs)) {
+    warnings.push(`${label} : fichier absent (public/${rel}). Corrige la variable ou génère l’asset.`);
+  }
+}
+
 const heroIllusOff = isNegativePublicFlag(env.NEXT_PUBLIC_PTG_HERO_ILLUSTRATION);
 const heroSrc = String(env.NEXT_PUBLIC_PTG_HERO_ART ?? "").trim() || DEFAULT_HERO_WEBP;
 if (!heroIllusOff && !heroSrc.startsWith("http")) {
@@ -121,6 +153,14 @@ if (!heroIllusOff && !heroSrc.startsWith("http")) {
       `Illustration landing absente (public/${rel}). Lance npm run optimize:hero ou mets NEXT_PUBLIC_PTG_HERO_ILLUSTRATION=0.`,
     );
   }
+}
+
+if (!heroIllusOff) {
+  warnLocalImageMissing(env.NEXT_PUBLIC_PTG_HERO_ART_NIGHT, "NEXT_PUBLIC_PTG_HERO_ART_NIGHT");
+  warnLocalImageMissing(env.NEXT_PUBLIC_PTG_HERO_ART_MOBILE, "NEXT_PUBLIC_PTG_HERO_ART_MOBILE");
+  warnLocalImageMissing(env.NEXT_PUBLIC_PTG_HERO_ART_NIGHT_MOBILE, "NEXT_PUBLIC_PTG_HERO_ART_NIGHT_MOBILE");
+  warnLocalImageMissing(env.NEXT_PUBLIC_PTG_HERO_ART_BRAND, "NEXT_PUBLIC_PTG_HERO_ART_BRAND");
+  warnLocalImageMissing(env.NEXT_PUBLIC_PTG_HERO_ART_BRAND_MOBILE, "NEXT_PUBLIC_PTG_HERO_ART_BRAND_MOBILE");
 }
 
 const ogSrc = String(env.NEXT_PUBLIC_PTG_OG_IMAGE ?? "").trim();
@@ -134,19 +174,15 @@ if (ogSrc && !ogSrc.startsWith("http")) {
   }
 }
 
-if (
-  !heroIllusOff &&
-  heroSrc.startsWith("http") &&
-  truthy(env.PTG_VERBOSE_PREFLIGHT)
-) {
-  warnings.push(
-    "NEXT_PUBLIC_PTG_HERO_ART est une URL : hostname autorisé au build (remotePatterns) ; rebuild si tu changes de CDN.",
-  );
-}
-if (ogSrc && ogSrc.startsWith("http") && truthy(env.PTG_VERBOSE_PREFLIGHT)) {
-  warnings.push(
-    "NEXT_PUBLIC_PTG_OG_IMAGE en URL : vérifier accessibilité publique (scrapers sans cookie) ; host autorisé au build si utilisé aussi dans <Image />.",
-  );
+if (truthy(env.PTG_VERBOSE_PREFLIGHT)) {
+  for (const key of PUBLIC_HERO_IMAGE_HTTP_ENV_KEYS) {
+    const v = String(env[key] ?? "").trim();
+    if (v.startsWith("http")) {
+      warnings.push(
+        `${key} est une URL : hostname doit être autorisé au build (next.config remotePatterns). Rebuild Vercel si le CDN change.`,
+      );
+    }
+  }
 }
 
 const siteUrl = String(env.NEXT_PUBLIC_SITE_URL ?? "").trim().replace(/\/+$/, "");
@@ -190,9 +226,9 @@ console.log("3) Promote to production et répéter le même contrôle sur l’UR
 console.log(
   "4) Si fond hero local : placer `public/hero/landing-watercolor.png`, `npm run optimize:hero` (WebP, largeur max 1920px), commit le `.webp` (ou `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION=0`).",
 );
-if (!heroIllusOff && heroSrc.startsWith("http")) {
+if (!heroIllusOff && PUBLIC_HERO_IMAGE_HTTP_ENV_KEYS.some((k) => String(env[k] ?? "").trim().startsWith("http"))) {
   console.log(
-    "5) Hero en URL distante : même NEXT_PUBLIC_PTG_HERO_ART au build qu’en prod ; rebuild si le hostname CDN change (remotePatterns). CI : PTG_VERBOSE_PREFLIGHT=1 pour warning explicite.",
+    "5) Image(s) hero / OG / variantes en URL : aligner les vars au build et sur Vercel ; rebuild si un hostname CDN change (remotePatterns). CI : PTG_VERBOSE_PREFLIGHT=1 pour le détail.",
   );
 }
 console.log("\nPreflight: PASSED");

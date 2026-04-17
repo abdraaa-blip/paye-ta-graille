@@ -21,7 +21,7 @@ export default function HomePage() {
       <section className="ptg-hero-shell ptg-hero-shell--illus-hero" aria-labelledby="hero-title">
         <HeroIllustrationBackdrop />
         <HeroAtmosphere />
-        <BrandScribbleBackdrop />
+        <BrandScribbleBackdrop emphasis />
         <PtgLandingDecor variant="subtle" />
         <div className="ptg-hero-stage">
           <HeroOrbitLabels />

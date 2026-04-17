@@ -33,13 +33,15 @@
 | `npm run checks:prod-local` | Lance `next start` (`-p` via `PTG_CHECK_PORT` ou `PORT`, défaut 3000), propage `PTG_BASE_URL` aux smoke, puis coupe le serveur. Si **EADDRINUSE** sur 3000 : `PTG_CHECK_PORT=3010` et `PTG_BASE_URL=http://127.0.0.1:3010`. |
 | `npm run checks:prod-local:beta-seo` | Enchaîne **`build`** avec `NEXT_PUBLIC_PTG_PUBLIC_BETA=1`, `start`, smoke, puis `assert:beta-seo` (flux bêta bout en bout). |
 | `npm run deploy:preflight` | Contrôle `.env.local` + hero / vars avant déploiement (voir `docs/DEPLOIEMENT_VERCEL.md`). |
-| `npm run optimize:hero` | Convertit `public/hero/landing-watercolor.png` → `landing-watercolor.webp` (largeur max 1920px, LCP). À lancer après chaque nouveau visuel hero ; commit le `.webp`. Carte **Open Graph** dédiée (optionnel) : `NEXT_PUBLIC_PTG_OG_IMAGE` dans `.env.example`. |
+| `npm run optimize:hero` | Convertit le PNG hero en WebP (largeur max 1920px). Génère aussi `landing-watercolor-{night,mobile,night-mobile}.webp` et `brand-marketplace.webp` **si** les PNG homonymes existent dans `public/hero/`. Voir `.env.example` / `DEPLOIEMENT_VERCEL.md` pour les variables d’images. |
 | `npm run cron:meal-reminders` | Appelle `GET /api/cron/meal-reminders` (variables `CRON_SECRET` + `PTG_BASE_URL`, serveur déjà lancé). |
-| `npm run smoke:public` | Smoke test HTTP des routes publiques (serveur démarré requis). |
+| `npm run smoke:public` | Smoke HTTP des routes publiques + invariants HTML (accueil, bandeau `ptg-night-stage` sur Partenaires / Expériences / Repas ouverts) — serveur requis. |
 | `npm run test:e2e` | Playwright : smoke HTTP + accueil navigateur (`e2e/`, `webServer` `next start`, `PTG_BASE_URL` défaut `http://127.0.0.1:3000`). |
 | `npm run test:e2e:beta-seo` | Playwright uniquement `e2e/beta-seo.spec.ts` (build avec `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` requis). |
 | `npm run test:e2e:full` | `build` puis `test:e2e`. |
 | `npm run test:e2e:install` | Télécharge Chromium pour Playwright (une fois par machine / CI). |
+
+**Config** : `config/public-hero-image-url-env-keys.json` liste les variables d’environnement dont les valeurs peuvent être des URL d’images distantes (alignement `next.config` / preflight).
 
 **Démarrage rapide**
 

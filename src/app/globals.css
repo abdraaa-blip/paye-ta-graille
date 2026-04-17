@@ -136,19 +136,57 @@ body::before {
   }
 }
 
-/* Variante sombre locale (page partenaires) avec faisceaux croisés plus lisibles. */
+/* Variante sombre locale (partenaires, expériences…) : illustration accueil + faisceaux. */
 .ptg-night-stage {
   position: relative;
   margin-top: 0.9rem;
-  min-height: 8.5rem;
+  /*
+   * Ratio fixe 3:2 : même proportion mobile / desktop. Image 3:2 + object-fit: contain = pas de bandes.
+   * Export conseillé : 1200×800 ou 816×544 (voir .env.example).
+   */
+  aspect-ratio: 3 / 2;
+  width: 100%;
   border-radius: var(--ptg-radius-card);
   border: 1px solid color-mix(in srgb, var(--ptg-line) 28%, transparent);
   background: linear-gradient(180deg, color-mix(in srgb, #0f1115 95%, black), color-mix(in srgb, #171a22 92%, black));
   overflow: hidden;
 }
 
+/* Même asset que le hero : voile sombre pour garder le cadre « night » lisible. */
+.ptg-night-stage .ptg-hero-illustration__img {
+  opacity: 0.4;
+  object-fit: contain;
+  object-position: 50% 50%;
+}
+
+.ptg-night-stage .ptg-hero-illustration__veil {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #0f1115 82%, transparent) 0%,
+    color-mix(in srgb, #171a22 62%, transparent) 42%,
+    color-mix(in srgb, #0f1115 78%, transparent) 100%
+  );
+  opacity: 0.93;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-night-stage .ptg-hero-illustration__img {
+    opacity: 0.32;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ptg-night-stage .ptg-hero-illustration__img {
+    opacity: 0.26;
+  }
+  .ptg-night-stage .ptg-hero-illustration__veil {
+    opacity: 0.96;
+  }
+}
+
 .ptg-night-stage__beam {
   position: absolute;
+  z-index: 2;
   top: -20%;
   width: 44%;
   height: 130%;
@@ -181,6 +219,28 @@ body::before {
   50% {
     transform: rotate(8deg) translateX(10%);
   }
+}
+
+/* Page Partenaires : espacements via classes (évite styles inline). */
+.ptg-partenaires-card__title {
+  margin: 0 0 0.6rem;
+}
+
+.ptg-partenaires-card__rule {
+  margin: 0 0 1rem;
+}
+
+.ptg-partenaires-card__p {
+  margin: 0 0 0.8rem;
+}
+
+.ptg-partenaires-card__p--last {
+  margin-bottom: 1rem;
+}
+
+.ptg-partenaires-card__link-ghost {
+  text-align: center;
+  text-decoration: none;
 }
 
 a {
@@ -434,6 +494,14 @@ a.ptg-btn-primary {
   color: #fff;
 }
 
+a.ptg-btn-primary:visited {
+  color: #fff;
+}
+
+a.ptg-btn-secondary:visited {
+  color: var(--ptg-accent-deep);
+}
+
 .ptg-type-display {
   font-family: var(--ptg-font-display);
   font-weight: var(--ptg-font-weight-semibold);
@@ -455,6 +523,8 @@ a.ptg-btn-primary {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* Chrome / Safari : sans ça le dégradé peut tomber en repli (texte plein ou illisible). */
+  -webkit-text-fill-color: transparent;
 }
 
 .ptg-type-body {
@@ -813,9 +883,22 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   overflow: hidden;
 }
 
+/* Conteneur art direction (sources mobile / desktop) : même emprise que le calque fill. */
+.ptg-hero-illustration__picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* contain = illustration entière visible (cover recadrait fort sur mobile et bandeaux bas). */
 .ptg-hero-illustration__img {
-  object-fit: cover;
-  object-position: 50% 40%;
+  object-fit: contain;
+  object-position: 50% 50%;
   opacity: 0.4;
   filter: saturate(1.06) contrast(1.03);
 }
@@ -848,9 +931,31 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   }
 }
 
-/* Accueil avec illustration raster : cadre + pastilles plus discrets (évite la saturation visuelle). */
+/* Accueil avec illustration raster : pastilles plus discrets ; image + marque plus lisibles. */
 .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
-  object-position: 50% 44%;
+  opacity: 0.52;
+  /* cover = remplit le bloc hero (contain laissait des bandes quand le ratio ≠ 3:2). */
+  object-fit: cover;
+  object-position: 50% 42%;
+}
+
+.ptg-hero-shell--illus-hero .ptg-hero-illustration__veil {
+  opacity: 0.72;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+    opacity: 0.42;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+    opacity: 0.36;
+  }
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__veil {
+    opacity: 0.82;
+  }
 }
 
 .ptg-hero-shell--illus-hero .ptg-hero-orbits {
@@ -859,6 +964,53 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 
 .ptg-hero-shell--illus-hero::after {
   opacity: 0.32;
+}
+
+/* Fond « marque » (composition dense) : image plus lisible au centre, voile radial + carte déjà givrée pour le texte. */
+.ptg-hero-shell--illus-brand .ptg-hero-illustration__img {
+  opacity: 0.54;
+  object-fit: cover;
+  object-position: 50% 32%;
+  filter: saturate(1.04) contrast(1.02);
+}
+
+.ptg-hero-shell--illus-brand .ptg-hero-illustration__veil {
+  opacity: 0.58;
+  background:
+    radial-gradient(ellipse 92% 78% at 50% 36%, transparent 0%, transparent 38%, color-mix(in srgb, var(--ptg-bg) 52%, transparent) 88%),
+    linear-gradient(
+      168deg,
+      color-mix(in srgb, var(--ptg-bg) 58%, transparent) 0%,
+      transparent 34%,
+      transparent 62%,
+      color-mix(in srgb, var(--ptg-sand) 48%, transparent) 100%
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-hero-shell--illus-brand .ptg-hero-illustration__img {
+    opacity: 0.44;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ptg-hero-shell--illus-brand .ptg-hero-illustration__img {
+    opacity: 0.34;
+  }
+
+  .ptg-hero-shell--illus-brand .ptg-hero-illustration__veil {
+    opacity: 0.78;
+  }
+}
+
+.ptg-hero-shell--illus-brand .ptg-hero-orbits {
+  opacity: 0.5;
+}
+
+.ptg-hero-shell--illus-brand .ptg-hero-card {
+  background: color-mix(in srgb, var(--ptg-surface) 93%, var(--ptg-butter));
+  backdrop-filter: blur(18px) saturate(1.06);
+  -webkit-backdrop-filter: blur(18px) saturate(1.06);
 }
 
 .ptg-hero-atmosphere {
@@ -1857,7 +2009,8 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 }
 
 .ptg-kicker-pill--hero {
-  color: color-mix(in srgb, var(--ptg-accent-deep) 55%, var(--ptg-olive));
+  --ptg-kicker-hero-text: color-mix(in srgb, var(--ptg-accent-deep) 55%, var(--ptg-olive));
+  color: var(--ptg-kicker-hero-text);
   background: linear-gradient(
     135deg,
     color-mix(in srgb, var(--ptg-accent) 14%, var(--ptg-surface)),
@@ -1869,9 +2022,14 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 /* Kicker cliquable (landing → À propos) : pas de soulignement, focus visible. */
 a.ptg-kicker-pill--link {
   text-decoration: none;
-  color: inherit;
+  /* Même teinte que `.ptg-kicker-pill--hero` : `inherit` prenait le corps (~`--ptg-text`) et divergeait du bouton À propos. */
+  color: var(--ptg-kicker-hero-text);
   cursor: pointer;
   transition: transform var(--ptg-duration) var(--ptg-ease-out), box-shadow var(--ptg-duration) var(--ptg-ease-out);
+}
+
+a.ptg-kicker-pill--link:visited {
+  color: var(--ptg-kicker-hero-text);
 }
 
 a.ptg-kicker-pill--link:hover {
@@ -1880,24 +2038,6 @@ a.ptg-kicker-pill--link:hover {
 }
 
 a.ptg-kicker-pill--link:focus-visible {
-  outline: 2px solid var(--ptg-accent);
-  outline-offset: 3px;
-}
-
-/* À propos : kicker = entrée livret (même intention qu’« En savoir plus »). */
-button.ptg-kicker-pill--about-trigger {
-  font: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-
-/* Couleur du texte = même pilule que le kicker lien sur l’accueil (`.ptg-kicker-pill--hero`, pas de dégradé clip). */
-button.ptg-kicker-pill--about-trigger:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--ptg-shadow-soft);
-}
-
-button.ptg-kicker-pill--about-trigger:focus-visible {
   outline: 2px solid var(--ptg-accent);
   outline-offset: 3px;
 }

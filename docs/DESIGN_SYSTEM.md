@@ -151,6 +151,7 @@ Liens : `a.ptg-btn-primary` sans soulignement.
 
 ### Marketing
 - `.ptg-hero-*`, `.ptg-kicker-pill`, `.ptg-landing-decor`, `.ptg-accent-rule` — sur l’accueil, le pill « Paye ta graille » (`.ptg-kicker-pill--hero`) est un **lien** vers `/a-propos` (`a.ptg-kicker-pill--link`, pas de clignotement).
+- `.ptg-night-stage`, `NightStageDecor` : bandeau bas (Partenaires, Expériences, Repas ouverts) — même pipeline d’image que le hero (`HeroIllustrationBackdrop` `variant="night"`), voile sombre + faisceaux. Liste des vars d’URL : `config/public-hero-image-url-env-keys.json` (voir `DEPLOIEMENT_VERCEL.md`).
 - **Liste profils** : route `/decouvrir` (URL sans accent) ; tampon carte « Autour de toi » ; entrée nav **Rencontres**. Dans les phrases en français, utiliser **Découvrir** (accent), pas `Decouvrir`.
 
 ---

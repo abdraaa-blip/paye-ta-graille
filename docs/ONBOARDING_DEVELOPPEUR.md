@@ -21,7 +21,7 @@ npm ci   # nécessite package-lock.json (fourni) ; sinon npm install une fois pu
 npm run dev
 ```
 
-**Illustration d’accueil** : si tu changes `public/hero/landing-watercolor.png`, lance `npm run optimize:hero` puis commit le `landing-watercolor.webp` produit (voir aussi `README.md`). **Carte réseaux sociaux** : option `NEXT_PUBLIC_PTG_OG_IMAGE` (fichier `public/…` ou URL) pour une image 1200×630 sans toucher au hero LCP.
+**Illustration d’accueil** : si tu changes `public/hero/landing-watercolor.png`, lance `npm run optimize:hero` puis commit le(s) `.webp` produit(s) (variantes optionnelles : `landing-watercolor-night.png`, `-mobile.png`, `-night-mobile.png` dans le même dossier). **Carte réseaux sociaux** : `NEXT_PUBLIC_PTG_OG_IMAGE`. **URLs distantes** : liste des clés dans `config/public-hero-image-url-env-keys.json` ; même hostname qu’au build (`remotePatterns`) — voir `docs/DEPLOIEMENT_VERCEL.md`.
 
 Ouvrir `http://localhost:3000` · santé API : `http://localhost:3000/api/health` · scripts smoke / `wait:health` : défaut **`http://127.0.0.1:3000`** (`PTG_BASE_URL` si besoin)
 
@@ -36,6 +36,7 @@ Ouvrir `http://localhost:3000` · santé API : `http://localhost:3000/api/health
 
 | Chemin | Rôle |
 |--------|------|
+| `config/` | Fichiers de référence partagés (ex. clés d’env pour images distantes) |
 | `src/app/` | App Router, pages, layouts |
 | `src/app/api/` | Route Handlers (API) |
 | `src/lib/supabase/` | Clients navigateur / serveur |

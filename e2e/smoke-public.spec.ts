@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
 import {
   EXPECTED_STATUS,
+  NIGHT_STAGE_MARKETING_ROUTES,
   SMOKE_ROUTES,
   validateHealthJson,
   validateHomeHtml,
   validateManifestText,
+  validateNightStageMarketingHtml,
   validateRobotsText,
 } from "../scripts/smoke-public-shared.mjs";
 
@@ -37,6 +39,11 @@ test.describe("Smoke public HTTP", () => {
       if (route === "/robots.txt" && res.status() === 200) {
         const text = await res.text();
         expect(validateRobotsText(text)).toBeNull();
+      }
+
+      if (NIGHT_STAGE_MARKETING_ROUTES.includes(route) && res.status() === 200) {
+        const html = await res.text();
+        expect(validateNightStageMarketingHtml(html)).toBeNull();
       }
     });
   }

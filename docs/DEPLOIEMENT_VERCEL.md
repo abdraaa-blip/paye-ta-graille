@@ -41,9 +41,16 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `NEXT_PUBLIC_PTG_SURPRISE_GRAILLE` | `0` / `false` pour masquer la surprise sur Découvrir |
 | `NEXT_PUBLIC_PTG_UX_VARIANT` | `b` pour variante copy (voir `ux-variant.ts`) |
 | `NEXT_PUBLIC_PTG_PUBLIC_BETA` | `1` = bandeau bêta + comportement SEO associé |
-| `NEXT_PUBLIC_PTG_HERO_ART` | URL absolue image hero (voir `next.config` `remotePatterns`) |
+| `NEXT_PUBLIC_PTG_HERO_ART` | URL absolue image hero (voir `next.config` `remotePatterns`) ; chemin sous `public/` sinon |
 | `NEXT_PUBLIC_PTG_OG_IMAGE` | Optionnel : image **Open Graph / Twitter** (ex. 1200×630) ; sinon = même source que le hero |
+| `NEXT_PUBLIC_PTG_HERO_ART_NIGHT` | Optionnel : image bandeau sombre (Partenaires, Expériences, Repas ouverts) ; absent = même URL que le hero |
+| `NEXT_PUBLIC_PTG_HERO_ART_MOBILE` | Optionnel : recadrage hero **&lt; 640px** (`picture`) ; absent = une seule image |
+| `NEXT_PUBLIC_PTG_HERO_ART_NIGHT_MOBILE` | Optionnel : recadrage mobile pour le bandeau nuit ; absent = pas de source séparée |
+| `NEXT_PUBLIC_PTG_HERO_ART_BRAND` | Optionnel : fond illustré « marque » (ex. À propos) ; défaut `brand-marketplace.webp` |
+| `NEXT_PUBLIC_PTG_HERO_ART_BRAND_MOBILE` | Optionnel : recadrage mobile pour ce fond ; absent = une seule image |
 | `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION` | `0` / `false` pour désactiver l’illustration locale |
+
+**Images en URL distante** : chaque hostname utilisé doit être connu au **build** — la liste exacte des variables est dans **`config/public-hero-image-url-env-keys.json`** (lue par `next.config.ts` et `deploy-preflight`). **Changer de CDN ou d’hôte → nouveau déploiement** pour régénérer `remotePatterns`.
 
 ### Serveur uniquement (sans préfixe public)
 
@@ -89,7 +96,10 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `.github/workflows/ci.yml` | `lint` + `typecheck` + `build` + **Playwright** (smoke HTTP + navigateur) + job **beta-seo** Playwright (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`) ; `smoke:public` reste disponible hors CI |
 | `.github/dependabot.yml` | PR hebdomadaires **npm** (dépendances) — à merger après `verify` / build |
 | `src/app/global-error.tsx` | Fallback si erreur au niveau root layout (évite écran blanc brut) |
-| `public/hero/landing-watercolor.png` | Source PNG du fond d’accueil ; `npm run optimize:hero` produit `landing-watercolor.webp` (largeur max **1920px**, meilleur **LCP**) — versionner le WebP dans Git. |
+| `public/hero/landing-watercolor.png` | Source PNG du fond d’accueil ; `npm run optimize:hero` produit `landing-watercolor.webp` (largeur max **1920px**) — versionner le WebP dans Git. |
+| `public/hero/landing-watercolor-{night,mobile,night-mobile}.png` | Optionnels : mêmes noms en `.webp` générés par `optimize:hero` si les PNG existent ; à relier via `.env` (`NEXT_PUBLIC_PTG_HERO_ART_*`) si tu n’utilises pas les chemins par défaut. |
+| `public/hero/brand-marketplace.png` | Optionnel : composition « marché » pour pages marque ; `optimize:hero` → `brand-marketplace.webp` |
+| `config/public-hero-image-url-env-keys.json` | Source unique des clés d’URL images pour `remotePatterns` + preflight — à mettre à jour si tu ajoutes une nouvelle variable `NEXT_PUBLIC_*` pointant vers une image distante. |
 
 **Headers sécurité** : définis dans **`next.config.ts`** (`/:path*`) — le `middleware` ne fait que la session Supabase, pour éviter de dupliquer les mêmes en-têtes. En **production Vercel** (`VERCEL_ENV=production`), **HSTS** est ajouté automatiquement. La **CSP** tourne en report-only par défaut (`PTG_CSP_REPORT_ONLY=1`) pour un rollout sans casse; passer à `0` après vérification des rapports.
 

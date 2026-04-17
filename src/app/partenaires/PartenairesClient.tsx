@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { NightStageDecor } from "@/components/NightStageDecor";
 import { trackGrowthEvent } from "@/lib/growth-events";
 
 export function PartenairesClient() {
@@ -11,16 +12,14 @@ export function PartenairesClient() {
 
   return (
     <>
-      <section className="ptg-surface ptg-surface--static ptg-card">
-        <h1 className="ptg-type-display" style={{ margin: "0 0 0.6rem" }}>
-          Partenaires restos & événements
-        </h1>
-        <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
-        <p className="ptg-type-body" style={{ margin: "0 0 0.8rem" }}>
+      <section className="ptg-surface ptg-surface--static ptg-card ptg-partenaires-card">
+        <h1 className="ptg-type-display ptg-partenaires-card__title">Partenaires restos & événements</h1>
+        <div className="ptg-accent-rule ptg-partenaires-card__rule" />
+        <p className="ptg-type-body ptg-partenaires-card__p">
           Paye ta graille construit des rencontres autour de vrais repas. On ouvre des collaborations locales: mise en avant
           de lieux fiables, offres limitées et soirées partenaires.
         </p>
-        <p className="ptg-type-body" style={{ margin: "0 0 1rem" }}>
+        <p className="ptg-type-body ptg-partenaires-card__p ptg-partenaires-card__p--last">
           Monétisation envisagée (équilibrée): commission légère sur modules premium, packs visibilité restos, et formats
           événements co-organisés.
         </p>
@@ -34,18 +33,14 @@ export function PartenairesClient() {
           </a>
           <Link
             href="/graille-plus"
-            className="ptg-btn-ghost"
-            style={{ textAlign: "center", textDecoration: "none" }}
+            className="ptg-btn-ghost ptg-partenaires-card__link-ghost"
             onClick={() => void trackGrowthEvent({ event: "partners_cta_click", context: "partenaires_page", metadata: { cta: "graille_plus" } })}
           >
             Voir Graille+
           </Link>
         </div>
       </section>
-      <section className="ptg-night-stage" aria-hidden>
-        <div className="ptg-night-stage__beam ptg-night-stage__beam--1" />
-        <div className="ptg-night-stage__beam ptg-night-stage__beam--2" />
-      </section>
+      <NightStageDecor />
     </>
   );
 }

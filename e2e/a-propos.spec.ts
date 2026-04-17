@@ -4,7 +4,7 @@ test.describe("À propos", () => {
   test("kicker « Notre façon… » ouvre le livret", async ({ page }) => {
     await page.goto("/a-propos");
     await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toHaveCount(0);
-    await page.getByRole("button", { name: /Notre façon de voir les choses/i }).click();
+    await page.getByRole("link", { name: /Notre façon de voir les choses/i }).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
   });
 

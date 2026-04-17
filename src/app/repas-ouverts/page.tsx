@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
+import { NightStageDecor } from "@/components/NightStageDecor";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GROWTH_REPAS_OUVERTS_SLOGAN } from "@/lib/growth-copy";
 
@@ -74,6 +75,7 @@ export default function RepasOuvertsPage() {
             Retour accueil
           </Link>
         </div>
+        <NightStageDecor />
         </div>
       </PtgAppFlow>
       <SiteFooter />

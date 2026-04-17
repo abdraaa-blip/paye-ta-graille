@@ -1,5 +1,6 @@
 import { networkInterfaces } from "node:os";
 import type { NextConfig } from "next";
+import { PUBLIC_HERO_IMAGE_URL_ENV_KEYS } from "./src/lib/public-hero-image-url-env-keys";
 
 /**
  * Dev : origines autorisées pour `/_next/*` (téléphone sur le LAN, cf. `allowedDevOrigins`).
@@ -38,12 +39,12 @@ function remotePatternFromHttpUrl(raw: string | undefined): { protocol: "http" |
   }
 }
 
-/** `NEXT_PUBLIC_PTG_HERO_ART` / `NEXT_PUBLIC_PTG_OG_IMAGE` en URL : hosts autorisés pour `<Image />` au build. */
+/** URLs publiques hero / OG / variantes nuit & mobile : hosts autorisés pour `next/image` au build. */
 function publicImageRemotePatterns(): NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]> {
   const seen = new Set<string>();
   const out: NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]> = [];
-  for (const raw of [process.env.NEXT_PUBLIC_PTG_HERO_ART, process.env.NEXT_PUBLIC_PTG_OG_IMAGE]) {
-    const p = remotePatternFromHttpUrl(raw);
+  for (const envKey of PUBLIC_HERO_IMAGE_URL_ENV_KEYS) {
+    const p = remotePatternFromHttpUrl(process.env[envKey]);
     if (!p) continue;
     const key = `${p.protocol}://${p.hostname}`;
     if (seen.has(key)) continue;

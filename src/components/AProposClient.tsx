@@ -29,6 +29,7 @@ import {
 import { UX_HOME } from "@/lib/ux-copy";
 import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
+import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop";
 import { HeroOrbitLabels } from "@/components/HeroOrbitLabels";
 import { PtgLandingDecor } from "@/components/PtgLandingDecor";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
@@ -210,23 +211,28 @@ export function AProposClient() {
 
   return (
     <>
-      <section className="ptg-hero-shell ptg-hero-shell--tall" aria-labelledby="apropos-title">
+      <section className="ptg-hero-shell ptg-hero-shell--tall ptg-hero-shell--illus-brand" aria-labelledby="apropos-title">
+        <HeroIllustrationBackdrop variant="brand" priority={false} />
         <HeroAtmosphere />
         <BrandScribbleBackdrop />
         <PtgLandingDecor variant="full" />
         <div className="ptg-hero-stage">
           <HeroOrbitLabels labels={ABOUT_HERO_ORBIT_LABELS} rotateIntervalMs={7800} />
           <div className="ptg-hero-card">
-            <button
-              type="button"
-              className="ptg-kicker-pill ptg-kicker-pill--hero ptg-kicker-pill--about-trigger"
-              onClick={openLivretFromKicker}
+            <Link
+              href={`#${ABOUT_LIVRET_SECTION_ID}`}
+              scroll={false}
+              className="ptg-kicker-pill ptg-kicker-pill--hero ptg-kicker-pill--link"
+              onClick={(e) => {
+                e.preventDefault();
+                openLivretFromKicker();
+              }}
               aria-expanded={livretOpen}
               aria-controls={livretOpen ? ABOUT_LIVRET_SECTION_ID : undefined}
               title="Ouvre le livret du concept (même action qu’« En savoir plus »)"
             >
               {ABOUT_KICKER}
-            </button>
+            </Link>
             <div className="ptg-accent-rule ptg-accent-rule--hero" />
             <h1 id="apropos-title" className="ptg-type-display ptg-type-display--hero" style={{ margin: "0 0 0.65rem" }}>
               {ABOUT_BRAND_NAME}

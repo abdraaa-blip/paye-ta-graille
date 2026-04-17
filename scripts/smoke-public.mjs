@@ -1,9 +1,11 @@
 import {
   EXPECTED_STATUS,
+  NIGHT_STAGE_MARKETING_ROUTES,
   SMOKE_ROUTES,
   validateHealthJson,
   validateHomeHtml,
   validateManifestText,
+  validateNightStageMarketingHtml,
   validateRobotsText,
 } from "./smoke-public-shared.mjs";
 
@@ -61,6 +63,14 @@ async function checkRoute(route) {
     if (route === "/robots.txt" && ok && res.status === 200) {
       const text = await res.text();
       const err = validateRobotsText(text);
+      if (err) {
+        ok = false;
+        detail = ` :: ${err}`;
+      }
+    }
+    if (NIGHT_STAGE_MARKETING_ROUTES.includes(route) && ok && res.status === 200) {
+      const html = await res.text();
+      const err = validateNightStageMarketingHtml(html);
       if (err) {
         ok = false;
         detail = ` :: ${err}`;

@@ -26,9 +26,17 @@ const SCRIBBLES: { top: string; left: string; rotate: number; size: string; opac
   { top: "74%", left: "34%", rotate: 6, size: "0.58rem", opacity: 0.039 },
 ];
 
-type Props = { label?: string; className?: string };
+type Props = {
+  label?: string;
+  className?: string;
+  /** Landing avec illustration : marque un peu plus lisible (opacité rehaussée, plafonnée). */
+  emphasis?: boolean;
+};
 
-export function BrandScribbleBackdrop({ label = "Paye ta graille", className }: Props) {
+const EMPHASIS_MULT = 1.62;
+const EMPHASIS_OPACITY_CAP = 0.088;
+
+export function BrandScribbleBackdrop({ label = "Paye ta graille", className, emphasis = false }: Props) {
   const reduceMotion = usePrefersReducedMotion();
 
   return (
@@ -44,7 +52,14 @@ export function BrandScribbleBackdrop({ label = "Paye ta graille", className }: 
             top: s.top,
             left: s.left,
             fontSize: s.size,
-            opacity: reduceMotion ? Math.min(s.opacity * 0.85, 0.04) : s.opacity,
+            opacity: (() => {
+              const raw = s.opacity * (emphasis ? EMPHASIS_MULT : 1);
+              const capped = emphasis ? Math.min(raw, EMPHASIS_OPACITY_CAP) : raw;
+              if (reduceMotion) {
+                return Math.min(capped * 0.85, emphasis ? 0.056 : 0.04);
+              }
+              return capped;
+            })(),
             transform: `rotate(${s.rotate}deg)`,
           }}
         >

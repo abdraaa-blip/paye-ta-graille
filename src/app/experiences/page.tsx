@@ -1,8 +1,9 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
+import { NightStageDecor } from "@/components/NightStageDecor";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GROWTH_EXPERIENCES_SLOGAN } from "@/lib/growth-copy";
 
@@ -170,6 +171,7 @@ export default function ExperiencesPage() {
             Lieux & repères
           </Link>
         </div>
+        <NightStageDecor />
         </div>
       </PtgAppFlow>
       <SiteFooter />
