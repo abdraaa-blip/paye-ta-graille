@@ -31,9 +31,9 @@ fi
 echo "Changed workflows:"
 printf '%s\n' "${CHANGED_WORKFLOWS}"
 
-DOCS_TOUCHED="$(printf '%s\n' "${CHANGED_FILES}" | rg '^(docs/CI_RUNBOOK\.md|docs/CI_WORKFLOW_COOKBOOK\.md|README\.md|\.github/pull_request_template\.md)$' || true)"
+DOCS_TOUCHED="$(printf '%s\n' "${CHANGED_FILES}" | rg '^(docs/CI_RUNBOOK\.md|docs/CI_WORKFLOW_COOKBOOK\.md|docs/DEPLOIEMENT_VERCEL\.md|README\.md|\.github/pull_request_template\.md)$' || true)"
 if [[ -z "${DOCS_TOUCHED}" ]]; then
-  echo "Workflow changes require governance docs alignment (CI runbook/cookbook/README/PR template)." >&2
+    echo "Workflow changes require governance docs alignment (CI runbook, cookbook, DEPLOIEMENT_VERCEL, README, PR template)." >&2
   exit 1
 fi
 

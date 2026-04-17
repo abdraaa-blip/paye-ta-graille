@@ -40,6 +40,8 @@
 | `npm run checks:ci-governance:master` | Pré-check CI governance en simulation PR contre `master` (`--base master`). |
 | `npm run checks:ci-governance:default` | Pré-check CI governance contre la branche par défaut du remote (`origin/HEAD`). |
 | `npm run checks:ci-governance:auto` | Alias ergonomique de `checks:ci-governance:default`. |
+| `npm run ship` | `verify` + (si workflows touchés) governance locale + `git add -A` + commit si changements + `git push` — message : `npm run ship -- "chore: …"` ou `PTG_SHIP_MESSAGE`. Options : `--dry-run`, `--no-verify`, `--no-governance`. |
+| `npm run ship:dry` | Même pré-vol que `ship` sans commit ni push. |
 | `npm run deploy:preflight` | Contrôle `.env.local` + hero / vars avant déploiement (voir `docs/DEPLOIEMENT_VERCEL.md`). |
 | `npm run optimize:hero` | Convertit le PNG hero en WebP (largeur max 1920px). Génère aussi `landing-watercolor-{night,mobile,night-mobile}.webp`, `brand-marketplace.webp`, les assets homogènes `brand-stage-*.webp` (focal points via `config/brand-stage-focal-points.json`), optionnel `brand-poster.webp` + `public/og/paye-ta-graille-share.webp` si les PNG existent. Voir `.env.example` / `DEPLOIEMENT_VERCEL.md`. |
 | `npm run optimize:hero:dry` | Prévisualise les transformations de `optimize:hero` (sources, dimensions, crop focal point, sorties) sans écrire de fichiers. |

@@ -70,6 +70,8 @@ my-job:
 
 ## 5) Checklist avant merge
 
+- Pour un push rapide après review locale : `npm run ship -- "type: description"` (voir `scripts/ship.mjs` et `docs/DEPLOIEMENT_VERCEL.md`).
+
 - Le job a un timeout explicite.
 - Les artefacts d’échec sont configurés.
 - Le résumé `GITHUB_STEP_SUMMARY` est présent et standardisé.

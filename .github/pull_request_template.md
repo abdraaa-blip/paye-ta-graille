@@ -20,7 +20,7 @@
 
 - [ ] Si un workflow CI est modifié, `workflow-lint` est vert et les artefacts d’échec sont conservés
 - [ ] Si un workflow CI est modifié, le résumé standard via `scripts/ci/write-gate-summary.sh` est conservé/ajouté
-- [ ] Si un workflow CI est modifié, documentation alignée (`docs/CI_RUNBOOK.md` et/ou `docs/CI_WORKFLOW_COOKBOOK.md`)
+- [ ] Si un workflow CI est modifié, documentation alignée (`docs/CI_RUNBOOK.md`, `docs/CI_WORKFLOW_COOKBOOK.md`, et/ou `docs/DEPLOIEMENT_VERCEL.md` si déploiement)
 
 ## Risk & Rollback
 

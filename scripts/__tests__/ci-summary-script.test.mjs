@@ -37,6 +37,7 @@ test("enforce-ci-governance-local contains cross-platform policy checks", () => 
   assert.match(governanceLocalContent, /git diff --name-only HEAD~1\.\.\.HEAD/);
   assert.match(governanceLocalContent, /git diff --name-only --cached/);
   assert.match(governanceLocalContent, /git ls-files --others --exclude-standard/);
+  assert.ok(governanceLocalContent.includes("DEPLOIEMENT_VERCEL"));
   assert.match(governanceLocalContent, /Workflow changes require governance docs alignment/);
   assert.match(governanceLocalContent, /scripts\/ci\/write-gate-summary\.sh/);
 });

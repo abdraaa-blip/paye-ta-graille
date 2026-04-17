@@ -34,6 +34,8 @@
     "checks:ci-governance:master": "node scripts/ci/enforce-ci-governance-local.mjs --base master",
     "checks:ci-governance:default": "node scripts/ci/enforce-ci-governance-local.mjs --base-default",
     "checks:ci-governance:auto": "npm run checks:ci-governance:default",
+    "ship": "node scripts/ship.mjs",
+    "ship:dry": "node scripts/ship.mjs --dry-run",
     "deploy:preflight": "node scripts/deploy-preflight.mjs",
     "cron:meal-reminders": "node scripts/trigger-meal-reminders.mjs",
     "test:e2e": "playwright test",

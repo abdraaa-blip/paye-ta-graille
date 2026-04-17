@@ -77,11 +77,15 @@ function main() {
   for (const workflow of changedWorkflows) console.log(workflow);
 
   const docsTouched = changedFiles.some((file) =>
-    /^(docs\/CI_RUNBOOK\.md|docs\/CI_WORKFLOW_COOKBOOK\.md|README\.md|\.github\/pull_request_template\.md)$/.test(file),
+    /^(docs\/CI_RUNBOOK\.md|docs\/CI_WORKFLOW_COOKBOOK\.md|docs\/DEPLOIEMENT_VERCEL\.md|README\.md|\.github\/pull_request_template\.md)$/.test(
+      file,
+    ),
   );
 
   if (!docsTouched) {
-    throw new Error("Workflow changes require governance docs alignment (CI runbook/cookbook/README/PR template).");
+    throw new Error(
+      "Workflow changes require governance docs alignment (CI runbook, cookbook, DEPLOIEMENT_VERCEL, README, PR template).",
+    );
   }
 
   for (const workflow of changedWorkflows) {

@@ -94,6 +94,14 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 6. **Node** : aligner sur `engines` du `package.json` (ex. **20+**).  
 7. Branch **Production** : `main` (ou `master`).
 
+### Automatisation Git → déploiement
+
+Après liaison du repo à **Vercel** : chaque **push** sur la branche configurée en **Production** déclenche un **build + déploiement** automatiques. Les **pull requests** déclenchent des **Preview deployments** (selon les réglages du projet).
+
+Ce dépôt **ne redéploie pas** via un workflow GitHub Actions dédié : l’intégration Git **Vercel** reste la source de déploiement ; la **CI** (`.github/workflows/ci.yml`) sert de **porte qualité** avant merge.
+
+**Flux local (commit + push)** : `npm run ship -- "chore: …"` exécute `verify`, applique le garde-fou governance si des workflows changent, refuse les fichiers sensibles (ex. `.env.local`), puis `git add -A`, commit si besoin, `git push`. Simulation : `npm run ship:dry`. Voir `scripts/ship.mjs`.
+
 ---
 
 ## 4. Fichiers utiles (à ajouter au repo code)
