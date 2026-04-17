@@ -168,7 +168,9 @@ jobs:
       - name: Mobile gate summary
         if: always()
         run: |
-          echo "### Mobile consistency gate" >> $GITHUB_STEP_SUMMARY
-          echo "- Suite: npm run test:e2e:mobile" >> $GITHUB_STEP_SUMMARY
-          echo "- Device profile: Pixel 7 (Playwright mobile config)" >> $GITHUB_STEP_SUMMARY
-          echo "- Failure artifacts: playwright-mobile-report" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Mobile consistency gate"
+            echo "- Suite: npm run test:e2e:mobile"
+            echo "- Device profile: Pixel 7 (Playwright mobile config)"
+            echo "- Failure artifacts: playwright-mobile-report"
+          } >> "$GITHUB_STEP_SUMMARY"
