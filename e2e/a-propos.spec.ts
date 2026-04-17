@@ -22,10 +22,8 @@ test.describe("À propos", () => {
     await page.goto("/a-propos");
     await page.getByRole("button", { name: /Ouvrir le livret/i }).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
-    const next = page.getByRole("button", { name: "Page suivante" });
-    for (let i = 0; i < 6; i += 1) await next.click();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(page.getByText("7 sur 8")).toBeVisible();
+    await expect(page.getByText("1 sur 8")).toBeVisible();
     await expect(page.getByRole("img", { name: /Affiche Paye ta graille/i })).toBeVisible();
     await expect(page.getByText(/affiche officielle du projet/i)).toBeVisible();
   });
@@ -52,7 +50,7 @@ test.describe("À propos", () => {
     await page.goto("/a-propos#livret-univers");
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(page.getByText("7 sur 8")).toBeVisible();
+    await expect(page.getByText("1 sur 8")).toBeVisible();
   });
 
   test("section index des pages visible", async ({ page }) => {
@@ -99,7 +97,7 @@ test.describe("À propos", () => {
     await page.getByRole("button", { name: /Ouvrir le livret à la page affiche/i }).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(page.getByText("7 sur 8")).toBeVisible();
+    await expect(page.getByText("1 sur 8")).toBeVisible();
   });
 
   test("bouton hero « Voir l’affiche du projet » ouvre la page affiche", async ({ page }) => {

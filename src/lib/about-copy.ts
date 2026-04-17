@@ -94,6 +94,15 @@ export const ABOUT_PAGE_KEYWORDS = [
 
 export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
   {
+    id: "univers",
+    title: "L’univers en une image",
+    epigraph: "Partage ta bouffe, régale tes voisins",
+    layout: "poster",
+    paragraphs: [
+      "L’affiche officielle du projet : le même esprit que le site, en une image à garder, à partager ou à imprimer pour ton quartier.",
+    ],
+  },
+  {
     id: "concept",
     title: "À l’entrée : le concept",
     epigraph: "La table avant l’écran",
@@ -151,15 +160,6 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
       "Une table, ce n’est pas une story éphémère : c’est un goût, un rire, un quartier, parfois une voix qu’on reconnaît la fois d’après.",
       "Les expériences fortes ne se commandent pas à la carte des likes. Elles arrivent quand le cadre est sain : intentions claires, lieu réel, présence.",
       "Paye ta graille vise ce genre de moments : petits, sincères, parfois inoubliables, presque toujours meilleurs que de scroller un dimanche soir.",
-    ],
-  },
-  {
-    id: "univers",
-    title: "L’univers en une image",
-    epigraph: "Partage ta bouffe, régale tes voisins",
-    layout: "poster",
-    paragraphs: [
-      "L’affiche officielle du projet : le même esprit que le site, en une image à garder, à partager ou à imprimer pour ton quartier.",
     ],
   },
   {
