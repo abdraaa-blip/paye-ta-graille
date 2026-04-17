@@ -34,6 +34,8 @@ import { PtgLandingDecor } from "@/components/PtgLandingDecor";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 const ROTATE_MS = 6000;
+/** Fermeture auto du détail pilier (souris ou focus), sauf logique « En savoir plus » / livret. */
+const PILLAR_AUTO_CLOSE_MS = 15_000;
 
 export function AProposClient() {
   const reduceMotion = usePrefersReducedMotion();
@@ -41,10 +43,38 @@ export function AProposClient() {
   const [livretIdx, setLivretIdx] = useState(0);
   const [livretOpen, setLivretOpen] = useState(false);
   const [storageSynced, setStorageSynced] = useState(false);
+  const [revealedPillar, setRevealedPillar] = useState<string | null>(null);
   const livretRef = useRef<HTMLElement>(null);
   const savoirPlusRef = useRef<HTMLButtonElement>(null);
+  /** Identifiant `window.setTimeout` (nombre côté navigateur). */
+  const pillarTimerRef = useRef<number | null>(null);
   const livretLabelId = useId();
   const servicesLabelId = useId();
+
+  const clearPillarTimer = useCallback(() => {
+    if (pillarTimerRef.current) {
+      clearTimeout(pillarTimerRef.current);
+      pillarTimerRef.current = null;
+    }
+  }, []);
+
+  const armPillarReveal = useCallback(
+    (title: string) => {
+      clearPillarTimer();
+      setRevealedPillar(title);
+      pillarTimerRef.current = window.setTimeout(() => {
+        setRevealedPillar(null);
+        pillarTimerRef.current = null;
+        const ae = document.activeElement;
+        if (ae instanceof HTMLElement && ae.classList.contains("ptg-about-pillar")) {
+          ae.blur();
+        }
+      }, PILLAR_AUTO_CLOSE_MS);
+    },
+    [clearPillarTimer],
+  );
+
+  useEffect(() => () => clearPillarTimer(), [clearPillarTimer]);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -195,7 +225,7 @@ export function AProposClient() {
               aria-controls={livretOpen ? ABOUT_LIVRET_SECTION_ID : undefined}
               title="Ouvre le livret du concept (même action qu’« En savoir plus »)"
             >
-              <span className="ptg-kicker-pill__hero-text">{ABOUT_KICKER}</span>
+              {ABOUT_KICKER}
             </button>
             <div className="ptg-accent-rule ptg-accent-rule--hero" />
             <h1 id="apropos-title" className="ptg-type-display ptg-type-display--hero" style={{ margin: "0 0 0.65rem" }}>
@@ -225,7 +255,23 @@ export function AProposClient() {
                 <li
                   key={p.title}
                   tabIndex={0}
-                  className="ptg-surface ptg-surface--static ptg-card ptg-card--compact ptg-about-pillar"
+                  className={[
+                    "ptg-surface ptg-surface--static ptg-card ptg-card--compact ptg-about-pillar",
+                    revealedPillar === p.title ? "ptg-about-pillar--revealed" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  onMouseEnter={() => armPillarReveal(p.title)}
+                  onMouseLeave={() => {
+                    clearPillarTimer();
+                    setRevealedPillar(null);
+                  }}
+                  onFocus={() => armPillarReveal(p.title)}
+                  onBlur={(e) => {
+                    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+                    clearPillarTimer();
+                    setRevealedPillar(null);
+                  }}
                 >
                   <p className="ptg-card-title" style={{ fontSize: "var(--ptg-text-md-sm)", marginBottom: "0.35rem" }}>
                     {p.title}

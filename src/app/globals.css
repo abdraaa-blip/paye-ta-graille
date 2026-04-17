@@ -1251,11 +1251,17 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   color: var(--ptg-surface);
   box-shadow: 0 10px 26px color-mix(in srgb, var(--ptg-accent-deep) 22%, transparent);
   text-decoration: none;
+  transition:
+    transform var(--ptg-duration-fast) var(--ptg-ease-out),
+    filter var(--ptg-duration-fast) var(--ptg-ease-out),
+    box-shadow var(--ptg-duration-fast) var(--ptg-ease-out);
 }
 
 .ptg-link-savoir-plus--about-cta:hover {
   color: var(--ptg-surface);
   filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--ptg-accent-deep) 26%, transparent);
 }
 
 .ptg-link-savoir-plus--about-cta:focus-visible {
@@ -1885,21 +1891,7 @@ button.ptg-kicker-pill--about-trigger {
   text-align: left;
 }
 
-/* Texte du kicker : même dégradé que le H1 hero (lisible « bleu » / sauge + encre). */
-button.ptg-kicker-pill--about-trigger .ptg-kicker-pill__hero-text {
-  background: linear-gradient(
-    118deg,
-    var(--ptg-ink-display) 0%,
-    color-mix(in srgb, var(--ptg-accent-deep) 82%, var(--ptg-olive)) 38%,
-    var(--ptg-accent-deep) 62%,
-    color-mix(in srgb, var(--ptg-accent) 55%, var(--ptg-olive)) 88%,
-    color-mix(in srgb, var(--ptg-olive) 42%, var(--ptg-ink-display)) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
+/* Couleur du texte = même pilule que le kicker lien sur l’accueil (`.ptg-kicker-pill--hero`, pas de dégradé clip). */
 button.ptg-kicker-pill--about-trigger:hover {
   transform: translateY(-1px);
   box-shadow: var(--ptg-shadow-soft);
@@ -1942,13 +1934,12 @@ button.ptg-kicker-pill--about-trigger:focus-visible {
 }
 
 @media (hover: hover) {
-  .ptg-about-pillar:hover {
+  .ptg-about-pillar--revealed {
     cursor: help;
   }
 }
 
-.ptg-about-pillar:hover .ptg-about-pillar__detail,
-.ptg-about-pillar:focus-within .ptg-about-pillar__detail {
+.ptg-about-pillar--revealed .ptg-about-pillar__detail {
   max-height: 8rem;
   margin-top: 0.5rem;
   padding-top: 0.45rem;
@@ -1961,6 +1952,14 @@ button.ptg-kicker-pill--about-trigger:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .ptg-about-pillar__detail {
     transition: none;
+  }
+
+  .ptg-link-savoir-plus--about-cta {
+    transition: none;
+  }
+
+  .ptg-link-savoir-plus--about-cta:hover {
+    transform: none;
   }
 }
 
