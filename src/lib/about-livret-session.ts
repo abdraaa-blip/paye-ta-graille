@@ -1,7 +1,10 @@
-import { ABOUT_LIVRET_HASH_ALIASES, ABOUT_LIVRET_SESSION_KEY } from "@/lib/about-copy";
+import { ABOUT_LIVRET_HASH_ALIASES, ABOUT_LIVRET_POSTER_HASH_ALIASES, ABOUT_LIVRET_SESSION_KEY } from "@/lib/about-copy";
 
 export const ABOUT_LIVRET_SECTION_ID = "livret-payetagraille";
 export const ABOUT_SERVICES_SECTION_ID = "apropos-services";
+
+/** Même seuil que `@media (max-width: 720px)` dans `globals.css` (index replié sur mobile uniquement). */
+export const ABOUT_SERVICES_INDEX_NARROW_MQ = "(max-width: 720px)";
 
 export type LivretPersisted = { open: boolean; page: number };
 
@@ -42,10 +45,18 @@ export function servicesHashMatches(hash: string): boolean {
   return normalizeHash(hash) === ABOUT_SERVICES_SECTION_ID;
 }
 
+export function posterHashMatches(hash: string): boolean {
+  return (ABOUT_LIVRET_POSTER_HASH_ALIASES as readonly string[]).includes(normalizeHash(hash));
+}
+
 export function stripOurLivretHash(): void {
   if (typeof window === "undefined") return;
   const h = window.location.hash.slice(1);
-  if (h === ABOUT_LIVRET_SECTION_ID || (ABOUT_LIVRET_HASH_ALIASES as readonly string[]).includes(h)) {
+  if (
+    h === ABOUT_LIVRET_SECTION_ID ||
+    (ABOUT_LIVRET_HASH_ALIASES as readonly string[]).includes(h) ||
+    (ABOUT_LIVRET_POSTER_HASH_ALIASES as readonly string[]).includes(h)
+  ) {
     window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
   }
 }
@@ -53,7 +64,12 @@ export function stripOurLivretHash(): void {
 export function setLivretHashIfAllowed(): void {
   if (typeof window === "undefined") return;
   const cur = window.location.hash.slice(1);
-  if (!cur || cur === ABOUT_LIVRET_SECTION_ID || (ABOUT_LIVRET_HASH_ALIASES as readonly string[]).includes(cur)) {
+  if (
+    !cur ||
+    cur === ABOUT_LIVRET_SECTION_ID ||
+    (ABOUT_LIVRET_HASH_ALIASES as readonly string[]).includes(cur) ||
+    (ABOUT_LIVRET_POSTER_HASH_ALIASES as readonly string[]).includes(cur)
+  ) {
     window.history.replaceState(null, "", `#${ABOUT_LIVRET_SECTION_ID}`);
   }
 }

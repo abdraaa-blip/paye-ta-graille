@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type TouchEvent } from "react";
 import {
   ABOUT_BRAND_NAME,
   ABOUT_HERO_ORBIT_LABELS,
@@ -9,16 +9,21 @@ import {
   ABOUT_LEAD,
   ABOUT_LIVRET_INTRO,
   ABOUT_LIVRET_PAGES,
+  ABOUT_LIVRET_POSTER_ALT,
   ABOUT_PILLARS,
   ABOUT_ROTATING_LINES,
   ABOUT_SERVICE_LINKS,
+  ABOUT_SERVICES_INDEX_COLLAPSE,
+  ABOUT_SERVICES_INDEX_EXPAND,
   ABOUT_SERVICES_SECTION_INTRO,
   ABOUT_SERVICES_SECTION_TITLE,
 } from "@/lib/about-copy";
 import {
   ABOUT_LIVRET_SECTION_ID,
+  ABOUT_SERVICES_INDEX_NARROW_MQ,
   ABOUT_SERVICES_SECTION_ID,
   livretHashWantsOpen,
+  posterHashMatches,
   readLivretSession,
   scrollToAboutServices,
   servicesHashMatches,
@@ -26,10 +31,11 @@ import {
   stripOurLivretHash,
   writeLivretSession,
 } from "@/lib/about-livret-session";
+import { aboutLivretPosterLocalFallback, aboutLivretPosterSrc, heroBrandDecorEnabled } from "@/lib/env-public";
 import { UX_HOME } from "@/lib/ux-copy";
+import { AboutBrandStageDecor } from "@/components/AboutBrandStageDecor";
 import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
-import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop";
 import { HeroOrbitLabels } from "@/components/HeroOrbitLabels";
 import { PtgLandingDecor } from "@/components/PtgLandingDecor";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
@@ -37,6 +43,54 @@ import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 const ROTATE_MS = 6000;
 /** Fermeture auto du détail pilier (souris ou focus), sauf logique « En savoir plus » / livret. */
 const PILLAR_AUTO_CLOSE_MS = 15_000;
+const LIVRET_SWIPE_MIN_X = 54;
+const LIVRET_SWIPE_MAX_Y = 40;
+const LIVRET_SWIPE_MAX_MS = 800;
+const SWIPE_NUDGE_MS = 2200;
+const SWIPE_NUDGE_SESSION_KEY = "ptg.about.livret.swipe-nudge.seen.v1";
+
+function AboutLivretPosterImg() {
+  const primary = aboutLivretPosterSrc();
+  const [src, setSrc] = useState(primary);
+
+  useEffect(() => {
+    setSrc(primary);
+  }, [primary]);
+
+  return (
+    // `img` natif : pas d’optimiseur `/_next/image` (évite 404 WebP si `optimize:hero` non lancé) + repli PNG local.
+    // eslint-disable-next-line @next/next/no-img-element -- repli `onError` et URL `public/` fiables sans pipeline sharp
+    <img
+      src={src}
+      alt={ABOUT_LIVRET_POSTER_ALT}
+      width={572}
+      height={1024}
+      className="ptg-about-livret__poster-img"
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        const fb = aboutLivretPosterLocalFallback(src);
+        if (fb && fb !== src) setSrc(fb);
+      }}
+    />
+  );
+}
+
+type AboutLivretPosterButtonProps = {
+  onOpen: () => void;
+  ariaLabel?: string;
+};
+
+function AboutLivretPosterButton({ onOpen, ariaLabel = "Agrandir l’affiche" }: AboutLivretPosterButtonProps) {
+  return (
+    <button type="button" className="ptg-about-poster-open" onClick={onOpen} aria-label={ariaLabel}>
+      <span className="ptg-about-poster-open__media" aria-hidden>
+        <AboutLivretPosterImg />
+      </span>
+      <span className="ptg-about-poster-open__cta">Agrandir</span>
+    </button>
+  );
+}
 
 export function AProposClient() {
   const reduceMotion = usePrefersReducedMotion();
@@ -49,8 +103,19 @@ export function AProposClient() {
   const savoirPlusRef = useRef<HTMLButtonElement>(null);
   /** Identifiant `window.setTimeout` (nombre côté navigateur). */
   const pillarTimerRef = useRef<number | null>(null);
+  const livretTouchStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
   const livretLabelId = useId();
   const servicesLabelId = useId();
+  const servicesPanelId = useId();
+  /** Index « Ce qu’on propose » : replié par défaut sur ≤720px ; sur grand écran toujours déplié (découvrabilité, pas de clic en plus). */
+  const [servicesNarrow, setServicesNarrow] = useState(false);
+  const [servicesIndexOpen, setServicesIndexOpen] = useState(false);
+  const [posterLightboxOpen, setPosterLightboxOpen] = useState(false);
+  const [showSwipeNudge, setShowSwipeNudge] = useState(false);
+  const universPageIdx = Math.max(
+    0,
+    ABOUT_LIVRET_PAGES.findIndex((p) => p.id === "univers"),
+  );
 
   const clearPillarTimer = useCallback(() => {
     if (pillarTimerRef.current) {
@@ -89,13 +154,17 @@ export function AProposClient() {
     const hash = window.location.hash;
     const fromHashLivret = livretHashWantsOpen(hash);
     const fromHashServices = servicesHashMatches(hash);
+    const fromHashPoster = posterHashMatches(hash);
 
     const saved = readLivretSession();
     let page = saved?.page ?? 0;
     if (page < 0 || page >= ABOUT_LIVRET_PAGES.length) page = 0;
     setLivretIdx(page);
 
-    if (fromHashLivret) {
+    if (fromHashPoster) {
+      setLivretIdx(universPageIdx);
+      setLivretOpen(true);
+    } else if (fromHashLivret) {
       setLivretOpen(true);
     } else if (fromHashServices) {
       setLivretOpen(false);
@@ -108,17 +177,40 @@ export function AProposClient() {
     }
 
     setStorageSynced(true);
-  }, []);
+  }, [universPageIdx]);
 
   useEffect(() => {
     const onHash = () => {
-      setLivretOpen(livretHashWantsOpen(window.location.hash));
+      const hash = window.location.hash;
+      if (posterHashMatches(hash)) {
+        setLivretIdx(universPageIdx);
+        setLivretOpen(true);
+        return;
+      }
+      setLivretOpen(livretHashWantsOpen(hash));
       if (servicesHashMatches(window.location.hash)) {
+        setServicesIndexOpen(true);
         window.requestAnimationFrame(() => scrollToAboutServices());
+      } else if (window.matchMedia(ABOUT_SERVICES_INDEX_NARROW_MQ).matches) {
+        setServicesIndexOpen(false);
       }
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
+  }, [universPageIdx]);
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(ABOUT_SERVICES_INDEX_NARROW_MQ);
+    const sync = () => {
+      const narrow = mq.matches;
+      setServicesNarrow(narrow);
+      const wantsServices = servicesHashMatches(window.location.hash);
+      if (!narrow || wantsServices) setServicesIndexOpen(true);
+      else setServicesIndexOpen(false);
+    };
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
@@ -147,6 +239,31 @@ export function AProposClient() {
     setLivretIdx((i) => Math.min(last, i + 1));
   }, [last]);
 
+  const onLivretTouchStart = useCallback((e: TouchEvent<HTMLElement>) => {
+    const t = e.changedTouches[0];
+    if (!t) return;
+    livretTouchStartRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
+  }, []);
+
+  const onLivretTouchEnd = useCallback(
+    (e: TouchEvent<HTMLElement>) => {
+      const start = livretTouchStartRef.current;
+      livretTouchStartRef.current = null;
+      if (!start) return;
+      const t = e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      const dt = Date.now() - start.t;
+      if (dt > LIVRET_SWIPE_MAX_MS) return;
+      if (Math.abs(dy) > LIVRET_SWIPE_MAX_Y) return;
+      if (Math.abs(dx) < LIVRET_SWIPE_MIN_X) return;
+      if (dx < 0) goLivretNext();
+      else goLivretPrev();
+    },
+    [goLivretNext, goLivretPrev],
+  );
+
   useEffect(() => {
     if (!livretOpen) return;
     const t = window.setTimeout(() => {
@@ -167,6 +284,22 @@ export function AProposClient() {
     document.addEventListener("keydown", onDocKey);
     return () => document.removeEventListener("keydown", onDocKey);
   }, [livretOpen]);
+
+  useEffect(() => {
+    if (!livretOpen || reduceMotion) return;
+    if (typeof window === "undefined") return;
+    const mobile = window.matchMedia("(max-width: 720px)").matches;
+    if (!mobile) return;
+    try {
+      if (sessionStorage.getItem(SWIPE_NUDGE_SESSION_KEY) === "1") return;
+      sessionStorage.setItem(SWIPE_NUDGE_SESSION_KEY, "1");
+    } catch {
+      /* sessionStorage indisponible (mode privé / quota) : on conserve un comportement dégradé sans bloquer l’UX. */
+    }
+    setShowSwipeNudge(true);
+    const t = window.setTimeout(() => setShowSwipeNudge(false), SWIPE_NUDGE_MS);
+    return () => window.clearTimeout(t);
+  }, [livretOpen, reduceMotion]);
 
   const toggleLivret = useCallback(() => {
     setLivretOpen((prev) => {
@@ -190,6 +323,14 @@ export function AProposClient() {
     setLivretOpen(true);
   }, [livretOpen, reduceMotion]);
 
+  /** Teaser affiche depuis l’index : ouvre le livret directement sur la page visuelle. */
+  const openPosterFromServices = useCallback(() => {
+    setLivretIdx(universPageIdx);
+    setLivretOpen(true);
+  }, [universPageIdx]);
+  const openPosterLightbox = useCallback(() => setPosterLightboxOpen(true), []);
+  const closePosterLightbox = useCallback(() => setPosterLightboxOpen(false), []);
+
   useEffect(() => {
     const el = livretRef.current;
     if (!el) return;
@@ -209,10 +350,20 @@ export function AProposClient() {
     return () => el.removeEventListener("keydown", onKey);
   }, [goLivretNext, goLivretPrev, livretOpen]);
 
+  useEffect(() => {
+    if (!posterLightboxOpen) return;
+    const onDocKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setPosterLightboxOpen(false);
+    };
+    document.addEventListener("keydown", onDocKey);
+    return () => document.removeEventListener("keydown", onDocKey);
+  }, [posterLightboxOpen]);
+
   return (
     <>
-      <section className="ptg-hero-shell ptg-hero-shell--tall ptg-hero-shell--illus-brand" aria-labelledby="apropos-title">
-        <HeroIllustrationBackdrop variant="brand" priority={false} />
+      <section className="ptg-hero-shell ptg-hero-shell--tall" aria-labelledby="apropos-title">
         <HeroAtmosphere />
         <BrandScribbleBackdrop />
         <PtgLandingDecor variant="full" />
@@ -323,6 +474,14 @@ export function AProposClient() {
                 .
               </p>
             ) : null}
+            <button
+              type="button"
+              className="ptg-about-poster-quicklink"
+              onClick={openPosterFromServices}
+              aria-label="Ouvrir l’affiche dans le livret"
+            >
+              Voir l’affiche du projet
+            </button>
             <div className="ptg-stack ptg-stack--roomy">
               <Link href="/commencer" className="ptg-btn-primary" style={{ textAlign: "center" }}>
                 {UX_HOME.ctaPrimary}
@@ -343,6 +502,8 @@ export function AProposClient() {
           tabIndex={0}
           role="region"
           aria-labelledby={livretLabelId}
+          onTouchStart={onLivretTouchStart}
+          onTouchEnd={onLivretTouchEnd}
         >
           <h2 id={livretLabelId} className="ptg-section-heading ptg-section-heading--signature" style={{ textAlign: "center", marginBottom: "0.5rem" }}>
             Le livret
@@ -357,7 +518,17 @@ export function AProposClient() {
             <p className="ptg-visually-hidden" aria-live="polite" aria-atomic="true">
               {page.title}. Page {livretIdx + 1} sur {ABOUT_LIVRET_PAGES.length}.
             </p>
-            <div key={page.id} className="ptg-about-livret__sheet">
+            <div
+              key={page.id}
+              className={["ptg-about-livret__sheet", page.layout === "poster" ? "ptg-about-livret__sheet--poster" : ""]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {page.layout === "poster" ? (
+                <div className="ptg-about-livret__poster">
+                  <AboutLivretPosterButton onOpen={openPosterLightbox} ariaLabel="Agrandir l’affiche depuis le livret" />
+                </div>
+              ) : null}
               {page.paragraphs.map((para, pi) => (
                 <p key={`${page.id}-${pi}`}>{para}</p>
               ))}
@@ -373,6 +544,9 @@ export function AProposClient() {
                 Tourner →
               </button>
             </div>
+            <p className={["ptg-about-livret__swipe-hint", showSwipeNudge ? "ptg-about-livret__swipe-hint--nudge" : ""].join(" ")} aria-hidden="true">
+              ↔ Swipe pour tourner les pages
+            </p>
             <p className="ptg-about-livret__hint">
               Astuce : sélectionne cette zone (Tab) puis utilise ← → pour tourner les pages. Échap replie le livret.
             </p>
@@ -391,20 +565,92 @@ export function AProposClient() {
         </h2>
         <p className="ptg-type-body ptg-about-services-intro">{ABOUT_SERVICES_SECTION_INTRO}</p>
 
-        <div className="ptg-about-services-livret">
-          <div className="ptg-about-livret__notch" aria-hidden />
-          <ul className="ptg-about-services-grid ptg-list-plain">
-            {ABOUT_SERVICE_LINKS.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="ptg-about-service-link" prefetch={false}>
-                  <span className="ptg-about-service-link__label">{item.label}</span>
-                  <span className="ptg-about-service-link__blurb">{item.blurb}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <button
+          type="button"
+          className="ptg-about-services-fold-btn ptg-link-savoir-plus ptg-link-savoir-plus--about-cta"
+          aria-expanded={servicesIndexOpen}
+          aria-controls={servicesPanelId}
+          aria-label={
+            servicesIndexOpen
+              ? `Replier l’index : ${ABOUT_SERVICES_SECTION_TITLE.toLowerCase()}`
+              : `Afficher l’index : ${ABOUT_SERVICES_SECTION_TITLE.toLowerCase()}`
+          }
+          onClick={() => setServicesIndexOpen((v) => !v)}
+        >
+          {servicesIndexOpen ? (
+            <>
+              {ABOUT_SERVICES_INDEX_COLLAPSE}
+              <span aria-hidden>{" \u2191"}</span>
+            </>
+          ) : (
+            <>
+              {ABOUT_SERVICES_INDEX_EXPAND}
+              <span aria-hidden>{" \u2193"}</span>
+            </>
+          )}
+        </button>
+
+        <div
+          id={servicesPanelId}
+          className={["ptg-about-services-panel", servicesIndexOpen ? "ptg-about-services-panel--open" : ""].filter(Boolean).join(" ")}
+          role="region"
+          aria-label={ABOUT_SERVICES_SECTION_TITLE}
+        >
+          <div className="ptg-about-services-panel__inner" inert={servicesNarrow && !servicesIndexOpen ? true : undefined}>
+            <div className="ptg-about-services-livret">
+              <div className="ptg-about-livret__notch" aria-hidden />
+              <button
+                type="button"
+                className="ptg-about-services-poster-teaser"
+                onClick={openPosterFromServices}
+                aria-label="Ouvrir le livret à la page affiche « L’univers en une image »"
+              >
+                <span className="ptg-about-services-poster-teaser__media" aria-hidden>
+                  <AboutLivretPosterImg />
+                </span>
+                <span className="ptg-about-services-poster-teaser__copy">
+                  <span className="ptg-about-services-poster-teaser__title">L’univers en une image</span>
+                  <span className="ptg-about-services-poster-teaser__blurb">
+                    Voir l’affiche directement dans le livret.
+                  </span>
+                </span>
+              </button>
+              <ul className="ptg-about-services-grid ptg-list-plain">
+                {ABOUT_SERVICE_LINKS.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="ptg-about-service-link" prefetch={false}>
+                      <span className="ptg-about-service-link__label">{item.label}</span>
+                      <span className="ptg-about-service-link__blurb">{item.blurb}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
+
+      {heroBrandDecorEnabled() ? (
+        <div className="ptg-about-brand-stage-wrap">
+          <AboutBrandStageDecor />
+        </div>
+      ) : null}
+      {posterLightboxOpen ? (
+        <div
+          className="ptg-about-poster-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Affiche Paye ta graille en grand format"
+          onClick={closePosterLightbox}
+        >
+          <div className="ptg-about-poster-lightbox__sheet" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="ptg-about-poster-lightbox__close" onClick={closePosterLightbox} aria-label="Fermer l’affiche">
+              Fermer ×
+            </button>
+            <AboutLivretPosterImg />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

@@ -48,6 +48,7 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `NEXT_PUBLIC_PTG_HERO_ART_NIGHT_MOBILE` | Optionnel : recadrage mobile pour le bandeau nuit ; absent = pas de source séparée |
 | `NEXT_PUBLIC_PTG_HERO_ART_BRAND` | Optionnel : fond illustré « marque » (ex. À propos) ; défaut `brand-marketplace.webp` |
 | `NEXT_PUBLIC_PTG_HERO_ART_BRAND_MOBILE` | Optionnel : recadrage mobile pour ce fond ; absent = une seule image |
+| `NEXT_PUBLIC_PTG_ABOUT_LIVRET_POSTER` | Optionnel : affiche page livret « L’univers en une image » ; défaut `/hero/brand-poster.png` ; WebP : `/hero/brand-poster.webp` après `optimize:hero` |
 | `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION` | `0` / `false` pour désactiver l’illustration locale |
 
 **Images en URL distante** : chaque hostname utilisé doit être connu au **build** — la liste exacte des variables est dans **`config/public-hero-image-url-env-keys.json`** (lue par `next.config.ts` et `deploy-preflight`). **Changer de CDN ou d’hôte → nouveau déploiement** pour régénérer `remotePatterns`.
@@ -98,7 +99,8 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `src/app/global-error.tsx` | Fallback si erreur au niveau root layout (évite écran blanc brut) |
 | `public/hero/landing-watercolor.png` | Source PNG du fond d’accueil ; `npm run optimize:hero` produit `landing-watercolor.webp` (largeur max **1920px**) — versionner le WebP dans Git. |
 | `public/hero/landing-watercolor-{night,mobile,night-mobile}.png` | Optionnels : mêmes noms en `.webp` générés par `optimize:hero` si les PNG existent ; à relier via `.env` (`NEXT_PUBLIC_PTG_HERO_ART_*`) si tu n’utilises pas les chemins par défaut. |
-| `public/hero/brand-marketplace.png` | Optionnel : composition « marché » pour pages marque ; `optimize:hero` → `brand-marketplace.webp` |
+| `public/hero/brand-marketplace.png` | Optionnel : composition « marché » À propos ; `optimize:hero` → `brand-marketplace.webp` |
+| `public/hero/brand-poster.png` | Optionnel : autre affiche ; `optimize:hero` → `brand-poster.webp` + `public/og/paye-ta-graille-share.webp` (OG, si tu pointes `NEXT_PUBLIC_PTG_OG_IMAGE` ou `…_HERO_ART_BRAND` vers ces fichiers) |
 | `config/public-hero-image-url-env-keys.json` | Source unique des clés d’URL images pour `remotePatterns` + preflight — à mettre à jour si tu ajoutes une nouvelle variable `NEXT_PUBLIC_*` pointant vers une image distante. |
 
 **Headers sécurité** : définis dans **`next.config.ts`** (`/:path*`) — le `middleware` ne fait que la session Supabase, pour éviter de dupliquer les mêmes en-têtes. En **production Vercel** (`VERCEL_ENV=production`), **HSTS** est ajouté automatiquement. La **CSP** tourne en report-only par défaut (`PTG_CSP_REPORT_ONLY=1`) pour un rollout sans casse; passer à `0` après vérification des rapports.

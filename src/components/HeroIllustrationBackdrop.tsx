@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import {
+  heroBrandDecorEnabled,
   heroBrandIllustrationMobileSrc,
   heroBrandIllustrationSrc,
   heroIllustrationEnabled,
@@ -15,7 +16,7 @@ import {
 const PICTURE_MOBILE_MQ = "(max-width: 639px)";
 
 export type HeroIllustrationBackdropProps = {
-  /** Accueil : `hero`. Bandeaux sombres : `night`. Fond « marque » riche : `brand` (`NEXT_PUBLIC_PTG_HERO_ART_BRAND` ou défaut marketplace). */
+  /** Accueil : `hero`. Bandeaux sombres : `night`. Marque À propos : `brand` (`NEXT_PUBLIC_PTG_HERO_ART_BRAND` ou défaut `brand-marketplace.webp`). */
   variant?: "hero" | "night" | "brand";
   /** Accueil / LCP : true. Bandeaux secondaires : false (lazy, moins de concurrence réseau). */
   priority?: boolean;
@@ -32,6 +33,11 @@ function resolveSources(variant: "hero" | "night" | "brand"): { main: string; mo
   return { main: heroIllustrationSrc(), mobile: heroIllustrationMobileSrc() };
 }
 
+function rasterAllowed(variant: "hero" | "night" | "brand"): boolean {
+  if (variant === "brand") return heroBrandDecorEnabled();
+  return heroIllustrationEnabled();
+}
+
 /**
  * Illustration raster derrière les lavis (accueil). Défaut : WebP généré par `npm run optimize:hero`.
  * Variantes `picture` optionnelles via `NEXT_PUBLIC_PTG_HERO_ART_MOBILE` / `…_NIGHT_MOBILE` / `…_BRAND_MOBILE`.
@@ -42,7 +48,7 @@ export function HeroIllustrationBackdrop({
   sizes = "100vw",
 }: HeroIllustrationBackdropProps) {
   const [loadFailed, setLoadFailed] = useState(false);
-  if (!heroIllustrationEnabled() || loadFailed) return null;
+  if (!rasterAllowed(variant) || loadFailed) return null;
 
   const { main, mobile } = resolveSources(variant);
 
@@ -60,8 +66,10 @@ export function HeroIllustrationBackdrop({
     />
   );
 
+  const rootClass = ["ptg-hero-illustration", variant === "brand" ? "ptg-hero-illustration--brand" : ""].filter(Boolean).join(" ");
+
   return (
-    <div className="ptg-hero-illustration" aria-hidden>
+    <div className={rootClass} aria-hidden>
       {mobile ? (
         <picture className="ptg-hero-illustration__picture">
           <source media={PICTURE_MOBILE_MQ} srcSet={mobile} />
@@ -71,6 +79,11 @@ export function HeroIllustrationBackdrop({
         img
       )}
       <div className="ptg-hero-illustration__veil" />
+      <div className="ptg-hero-illustration__steam">
+        <span className="ptg-hero-illustration__steam-wisp ptg-hero-illustration__steam-wisp--1" />
+        <span className="ptg-hero-illustration__steam-wisp ptg-hero-illustration__steam-wisp--2" />
+        <span className="ptg-hero-illustration__steam-wisp ptg-hero-illustration__steam-wisp--3" />
+      </div>
     </div>
   );
 }

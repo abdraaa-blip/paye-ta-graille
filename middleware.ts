@@ -37,6 +37,7 @@ export const config = {
     /*
      * Pas de refresh session sur statiques / favicon / métadonnées (moins de charge Supabase & crawlers).
      */
-    "/((?!_next/static|_next/image|favicon.ico|icon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.webmanifest|api/cron/).*)",
+    /* Pas de session Supabase sur les assets `public/` (images, polices…) : moins de charge et moins de risques si la requête statique échoue en edge. */
+    "/((?!_next/static|_next/image|favicon.ico|icon\\.svg|robots\\.txt|sitemap\\.xml|manifest\\.webmanifest|api/cron/|.*\\.(?:png|jpe?g|gif|webp|svg|ico|woff2?)$).*)",
   ],
 };

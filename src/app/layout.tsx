@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: sharePreviewImageUrl,
-        alt: "Paye ta graille — illustration du repas partagé",
+        alt: "Paye ta graille, illustration du repas partagé",
       },
     ],
   },

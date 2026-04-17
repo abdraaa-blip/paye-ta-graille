@@ -18,15 +18,24 @@ export function isSupabaseConfigured(): boolean {
 }
 
 /**
- * Fond illustré raster sur l’accueil. Désactiver : `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION=0`.
+ * Fond illustré raster sur l’accueil et variantes `hero` / `night` du composant d’illustration.
+ * Désactiver : `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION=0`. Ne contrôle pas le cadre « marque » À propos (`heroBrandDecorEnabled`).
  */
 export function heroIllustrationEnabled(): boolean {
   return !isNegativePublicFlag(process.env.NEXT_PUBLIC_PTG_HERO_ILLUSTRATION);
 }
 
+/**
+ * Cadre illustration marque en bas de page À propos. Indépendant de `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION`.
+ * Désactiver uniquement ce bloc : `NEXT_PUBLIC_PTG_HERO_BRAND_DECOR=0`.
+ */
+export function heroBrandDecorEnabled(): boolean {
+  return !isNegativePublicFlag(process.env.NEXT_PUBLIC_PTG_HERO_BRAND_DECOR);
+}
+
 /** WebP hero versionné dans `public/hero/` (généré par `npm run optimize:hero`). */
 export const DEFAULT_HERO_WEBP_PATH = "/hero/landing-watercolor.webp" as const;
-/** Illustration « marché / marque » (pages type À propos). WebP généré par `optimize:hero` si le PNG est présent. */
+/** Illustration « marque » page À propos : défaut `brand-marketplace.webp` (voir `optimize:hero`). */
 export const DEFAULT_HERO_BRAND_WEBP_PATH = "/hero/brand-marketplace.webp" as const;
 
 /**
@@ -50,8 +59,8 @@ export function heroNightIllustrationSrc(): string {
 }
 
 /**
- * Fond illustré « marque » (composition riche). Défaut : `brand-marketplace.webp`.
- * Surcharge : `NEXT_PUBLIC_PTG_HERO_ART_BRAND`.
+ * Fond illustré « marque » (composition À propos). Défaut : `brand-marketplace.webp`.
+ * Surcharge : `NEXT_PUBLIC_PTG_HERO_ART_BRAND` (ex. `/hero/brand-poster.webp` si tu veux l’affiche).
  */
 export function heroBrandIllustrationSrc(): string {
   const custom = process.env.NEXT_PUBLIC_PTG_HERO_ART_BRAND?.trim();
@@ -63,6 +72,28 @@ export function heroBrandIllustrationSrc(): string {
 export function heroBrandIllustrationMobileSrc(): string | null {
   const m = process.env.NEXT_PUBLIC_PTG_HERO_ART_BRAND_MOBILE?.trim();
   return m || null;
+}
+
+/** Affiche livret : PNG par défaut (présent dès que `brand-poster.png` est dans `public/hero/`). */
+export const DEFAULT_ABOUT_LIVRET_POSTER_PNG_PATH = "/hero/brand-poster.png" as const;
+/** Variante WebP après `npm run optimize:hero` — ex. `NEXT_PUBLIC_PTG_ABOUT_LIVRET_POSTER=/hero/brand-poster.webp`. */
+export const DEFAULT_ABOUT_LIVRET_POSTER_WEBP_PATH = "/hero/brand-poster.webp" as const;
+
+/**
+ * Illustration page livret « L’univers en une image ». Indépendante du bandeau marque (`heroBrandIllustrationSrc`).
+ * Surcharge : `NEXT_PUBLIC_PTG_ABOUT_LIVRET_POSTER`.
+ */
+export function aboutLivretPosterSrc(): string {
+  const custom = process.env.NEXT_PUBLIC_PTG_ABOUT_LIVRET_POSTER?.trim();
+  if (custom) return custom;
+  return DEFAULT_ABOUT_LIVRET_POSTER_PNG_PATH;
+}
+
+/** Repli local si une URL `.webp` sous `public/` est absente (fichier non généré). */
+export function aboutLivretPosterLocalFallback(src: string): string | null {
+  if (src.startsWith("http://") || src.startsWith("https://")) return null;
+  if (src.endsWith(".webp")) return DEFAULT_ABOUT_LIVRET_POSTER_PNG_PATH;
+  return null;
 }
 
 /**
@@ -85,6 +116,7 @@ export function heroNightIllustrationMobileSrc(): string | null {
 /**
  * Image Open Graph / Twitter (carte de partage). Dédiée : `NEXT_PUBLIC_PTG_OG_IMAGE` (1200×630 recommandé).
  * Sinon : même source que `heroIllustrationSrc()` (défaut ou `NEXT_PUBLIC_PTG_HERO_ART`).
+ * Pour une carte dédiée type affiche : `NEXT_PUBLIC_PTG_OG_IMAGE=/og/paye-ta-graille-share.webp` après `optimize:hero`.
  */
 export function shareSocialPreviewImageUrl(): string {
   const og = process.env.NEXT_PUBLIC_PTG_OG_IMAGE?.trim();

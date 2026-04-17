@@ -48,7 +48,7 @@ export const ABOUT_PILLARS: readonly AboutPillar[] = [
     title: "Chaleur",
     body: "Une interface qui donne faim, sans te presser.",
     detail:
-      "Tamisé, humain, un ton qui ressemble à une conversation : on laisse la pression du profil parfait dehors — le repas reste le prétexte naturel.",
+      "Tamisé, humain, un ton qui ressemble à une conversation : on laisse la pression du profil parfait dehors. Le repas reste le prétexte naturel.",
   },
 ];
 
@@ -58,20 +58,28 @@ export type AboutLivretPage = {
   title: string;
   epigraph: string;
   paragraphs: readonly string[];
+  /** `poster` : affiche verticale (`aboutLivretPosterSrc`) + paragraphes optionnels sous l’image. */
+  layout?: "text" | "poster";
 };
 
 export const ABOUT_LIVRET_INTRO =
   "Comme une carte qu’on retourne : chaque page raconte un morceau de Paye ta graille, du pourquoi au comment, sans jargon.";
 
+/** Texte alternatif de l’affiche (page livret « L’univers en une image »). */
+export const ABOUT_LIVRET_POSTER_ALT =
+  "Affiche Paye ta graille : logo, slogan « Partage ta bouffe, régale tes voisins », plats et nuages en style aquarelle.";
+
 /** Persistance session (page + ouverture), clé versionnée si le format change. */
-export const ABOUT_LIVRET_SESSION_KEY = "ptg.about.livret.v1";
+export const ABOUT_LIVRET_SESSION_KEY = "ptg.about.livret.v2";
 
 /** Ancres reconnues : `#livret-payetagraille` (id section) ou raccourci `#livret`. */
 export const ABOUT_LIVRET_HASH_ALIASES = ["livret"] as const;
+/** Raccourci ciblé : ouvre directement la page « L’univers en une image ». */
+export const ABOUT_LIVRET_POSTER_HASH_ALIASES = ["livret-univers", "affiche"] as const;
 
 /** Description courte pour métadonnées et partage social. */
 export const ABOUT_PAGE_SHARE_DESCRIPTION =
-  "Concept Paye ta graille : repas réel, intentions à table (j’invite, on partage, je me fais inviter), livret interactif et index des pages de l’app.";
+  "Concept Paye ta graille : repas réel, intentions à table (j’invite, on partage, je me fais inviter), livret interactif avec affiche marque et index des pages de l’app.";
 
 /** Mots-clés SEO (page À propos). */
 export const ABOUT_PAGE_KEYWORDS = [
@@ -146,6 +154,15 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
     ],
   },
   {
+    id: "univers",
+    title: "L’univers en une image",
+    epigraph: "Partage ta bouffe, régale tes voisins",
+    layout: "poster",
+    paragraphs: [
+      "L’affiche officielle du projet : le même esprit que le site, en une image à garder, à partager ou à imprimer pour ton quartier.",
+    ],
+  },
+  {
     id: "vision",
     title: "Notre cap",
     epigraph: "Vision",
@@ -162,6 +179,10 @@ export const ABOUT_SERVICES_SECTION_TITLE = "Ce qu’on propose";
 
 export const ABOUT_SERVICES_SECTION_INTRO =
   "Un index cliquable : chaque carte mène à une partie du site. Les modules Graille+ ou repas ouverts peuvent être en « à venir » selon ton espace ; la page t’expliquera toujours où tu en es.";
+
+/** Index des pages : replié par défaut sur petit écran (voir styles `ptg-about-services-fold`). */
+export const ABOUT_SERVICES_INDEX_EXPAND = "Voir l’index des pages";
+export const ABOUT_SERVICES_INDEX_COLLAPSE = "Replier l’index";
 
 export type AboutServiceLink = {
   href: string;

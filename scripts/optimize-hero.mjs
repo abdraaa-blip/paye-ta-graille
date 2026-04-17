@@ -1,10 +1,11 @@
 /**
  * Génère des WebP sous `public/hero/` à partir de PNG sources (même recette : largeur max, sans agrandir).
  * - Obligatoire : `landing-watercolor.png` → `landing-watercolor.webp`
- * - Optionnels si le PNG existe : `landing-watercolor-night`, `-mobile`, `-night-mobile`, `brand-marketplace`
+ * - Optionnels si le PNG existe : nuit / mobile / affiche marque `brand-poster` / legacy `brand-marketplace`
+ * - Si `brand-poster.png` existe : `public/og/paye-ta-graille-share.webp` (1200×630, cover haut) pour Open Graph
  * Usage : `npm run optimize:hero`
  */
-import { existsSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -12,10 +13,14 @@ import sharp from "sharp";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const heroDir = path.join(root, "public/hero");
+const ogDir = path.join(root, "public/og");
 
 /** Largeur max côté client raisonnable (évite PNG 4K+ lourds pour le LCP). */
 const HERO_MAX_WIDTH = 1920;
 const WEBP_QUALITY = 82;
+
+const OG_WIDTH = 1200;
+const OG_HEIGHT = 630;
 
 /** Paires [fichier PNG sans chemin, WebP de sortie]. La première est exigée. */
 const VARIANTS = [
@@ -23,6 +28,7 @@ const VARIANTS = [
   { png: "landing-watercolor-night.png", webp: "landing-watercolor-night.webp", required: false },
   { png: "landing-watercolor-mobile.png", webp: "landing-watercolor-mobile.webp", required: false },
   { png: "landing-watercolor-night-mobile.png", webp: "landing-watercolor-night-mobile.webp", required: false },
+  { png: "brand-poster.png", webp: "brand-poster.webp", required: false },
   { png: "brand-marketplace.png", webp: "brand-marketplace.webp", required: false },
 ];
 
@@ -74,3 +80,28 @@ for (const { png, webp, required } of VARIANTS) {
 }
 
 if (failed) process.exit(1);
+
+const brandPosterPng = path.join(heroDir, "brand-poster.png");
+const ogOut = path.join(ogDir, "paye-ta-graille-share.webp");
+if (existsSync(brandPosterPng)) {
+  try {
+    mkdirSync(ogDir, { recursive: true });
+    await sharp(brandPosterPng)
+      .rotate()
+      .resize(OG_WIDTH, OG_HEIGHT, { fit: "cover", position: "top" })
+      .webp({ quality: WEBP_QUALITY, effort: 4 })
+      .toFile(ogOut);
+    const out = statSync(ogOut);
+    const kb = (out.size / 1024).toFixed(1);
+    console.log(
+      "OK:",
+      path.relative(root, ogOut),
+      `(${kb} KB) Open Graph ${OG_WIDTH}×${OG_HEIGHT}, cover top depuis brand-poster.png`,
+    );
+  } catch (e) {
+    console.error("Échec OG share :", e instanceof Error ? e.message : e);
+    process.exit(1);
+  }
+} else {
+  console.log("Skip OG :", path.relative(root, brandPosterPng), "(PNG absent)");
+}

@@ -141,65 +141,183 @@ body::before {
   position: relative;
   margin-top: 0.9rem;
   /*
-   * Ratio fixe 3:2 : même proportion mobile / desktop. Image 3:2 + object-fit: contain = pas de bandes.
-   * Export conseillé : 1200×800 ou 816×544 (voir .env.example).
+   * Ratio fixe 3:2. Illustration en cover = tout le cadre est rempli (évite bandes noires avec contain).
+   * Export conseillé : 3:2 ex. 1200×800 (voir .env.example).
    */
   aspect-ratio: 3 / 2;
   width: 100%;
   border-radius: var(--ptg-radius-card);
   border: 1px solid color-mix(in srgb, var(--ptg-line) 28%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, #0f1115 95%, black), color-mix(in srgb, #171a22 92%, black));
+  /* Fond moins « trou noir » : laisse respirer les mids de l’aquarelle tout en restant nocturne. */
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #1c2028 88%, var(--ptg-bg) 6%),
+    color-mix(in srgb, #252a34 85%, var(--ptg-bg) 5%)
+  );
   overflow: hidden;
+  transition: border-color var(--ptg-duration) var(--ptg-ease-out), box-shadow var(--ptg-duration) var(--ptg-ease-out);
 }
 
-/* Même asset que le hero : voile sombre pour garder le cadre « night » lisible. */
+.ptg-night-stage:hover {
+  border-color: color-mix(in srgb, var(--ptg-line) 42%, var(--ptg-accent) 12%);
+  box-shadow: 0 10px 36px color-mix(in srgb, #0a0c10 45%, transparent);
+}
+
+.ptg-night-stage:hover .ptg-night-stage__beam,
+.ptg-night-stage:focus-within .ptg-night-stage__beam {
+  opacity: 0.55;
+}
+
+/* Illustration plein cadre + voile plus clair au centre (le dessin se lit vraiment, pas un zoom filtré). */
 .ptg-night-stage .ptg-hero-illustration__img {
-  opacity: 0.4;
-  object-fit: contain;
+  opacity: 0.88;
+  object-fit: cover;
+  object-position: 50% 42%;
+  transition: opacity 0.35s var(--ptg-ease-out);
+}
+
+/* Variante brand : même cadrage que le bandeau nuit (évite zoom différent si asset horizontal type marketplace). */
+.ptg-night-stage .ptg-hero-illustration--brand .ptg-hero-illustration__img {
   object-position: 50% 50%;
 }
 
 .ptg-night-stage .ptg-hero-illustration__veil {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, #0f1115 82%, transparent) 0%,
-    color-mix(in srgb, #171a22 62%, transparent) 42%,
-    color-mix(in srgb, #0f1115 78%, transparent) 100%
-  );
-  opacity: 0.93;
+  background:
+    radial-gradient(ellipse 92% 88% at 50% 44%, transparent 0%, transparent 28%, color-mix(in srgb, #1a1f28 45%, transparent) 72%),
+    linear-gradient(180deg, color-mix(in srgb, #12151c 35%, transparent) 0%, transparent 40%, transparent 65%, color-mix(in srgb, #12151c 40%, transparent) 100%);
+  opacity: 0.42;
+  transition: opacity 0.35s var(--ptg-ease-out);
+}
+
+.ptg-night-stage:hover .ptg-hero-illustration__img,
+.ptg-night-stage:focus-within .ptg-hero-illustration__img {
+  opacity: 1;
+}
+
+.ptg-night-stage:hover .ptg-hero-illustration__veil,
+.ptg-night-stage:focus-within .ptg-hero-illustration__veil {
+  opacity: 0.18;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ptg-night-stage .ptg-hero-illustration__img,
+  .ptg-night-stage .ptg-hero-illustration__veil,
+  .ptg-night-stage {
+    transition: none;
+  }
+
   .ptg-night-stage .ptg-hero-illustration__img {
-    opacity: 0.32;
+    opacity: 0.82;
+  }
+
+  .ptg-night-stage:hover .ptg-hero-illustration__img,
+  .ptg-night-stage:focus-within .ptg-hero-illustration__img {
+    opacity: 0.94;
+  }
+
+  .ptg-night-stage .ptg-hero-illustration__veil {
+    opacity: 0.5;
+  }
+
+  .ptg-night-stage:hover .ptg-hero-illustration__veil,
+  .ptg-night-stage:focus-within .ptg-hero-illustration__veil {
+    opacity: 0.28;
   }
 }
 
 @media (prefers-contrast: more) {
   .ptg-night-stage .ptg-hero-illustration__img {
-    opacity: 0.26;
+    opacity: 0.72;
   }
+
+  .ptg-night-stage:hover .ptg-hero-illustration__img,
+  .ptg-night-stage:focus-within .ptg-hero-illustration__img {
+    opacity: 0.88;
+  }
+
   .ptg-night-stage .ptg-hero-illustration__veil {
-    opacity: 0.96;
+    opacity: 0.58;
+  }
+
+  .ptg-night-stage:hover .ptg-hero-illustration__veil,
+  .ptg-night-stage:focus-within .ptg-hero-illustration__veil {
+    opacity: 0.38;
   }
 }
 
 .ptg-night-stage__beam {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   top: -20%;
   width: 44%;
   height: 130%;
-  opacity: 0.28;
+  opacity: 0.32;
+  pointer-events: none;
+  /* Pivot en haut : le cône balaie la scène sans envoyer le halo hors du cadre. */
+  transform-origin: 50% 0;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, #fff 76%, var(--ptg-accent) 24%) 0%,
-    color-mix(in srgb, var(--ptg-accent) 20%, transparent) 38%,
+    color-mix(in srgb, #fff 88%, var(--ptg-accent) 12%) 0%,
+    color-mix(in srgb, #fff 22%, var(--ptg-accent) 18%) 18%,
+    color-mix(in srgb, var(--ptg-accent) 24%, transparent) 40%,
     transparent 100%
   );
   clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
-  filter: blur(2px);
+  /* Pas de filter ici : blur + clip-path peut faire disparaître le calque sur certains GPU (Chrome/Edge Windows). */
   animation: ptg-night-beam 9s ease-in-out infinite;
+  transition: opacity 0.35s var(--ptg-ease-out);
+}
+
+/*
+ * Partenaires / Expériences : halo rentré dans le cadre + mode fusion = projecteur lisible sur fond sombre.
+ * (Le sommet du dégradé n’est plus surtout au-dessus de la zone clipée par overflow:hidden.)
+ */
+.ptg-night-stage > .ptg-night-stage__beam {
+  top: 0;
+  height: 118%;
+  opacity: 0.62;
+  /* Mobile : screen = projecteur bien perceptible sur l’aquarelle sombre. */
+  mix-blend-mode: screen;
+}
+
+/*
+ * Grand écran : pas de clip-path / mix-blend (souci GPU bureau) ; effet volontairement **très lisible**
+ * (large, lumineux, léger halo en box-shadow ; jamais de filter sur le calque).
+ */
+@media (min-width: 640px) {
+  .ptg-night-stage > .ptg-night-stage__beam {
+    z-index: 6;
+    width: 52%;
+    mix-blend-mode: normal;
+    opacity: 0.92;
+    clip-path: none;
+    border-radius: 4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 245, 228, 0.78) 0%,
+      rgba(255, 238, 210, 0.45) 18%,
+      rgba(255, 228, 190, 0.2) 42%,
+      rgba(255, 255, 255, 0) 76%
+    );
+    box-shadow: 0 0 70px 36px rgba(255, 220, 185, 0.28);
+    animation-duration: 5.5s;
+  }
+
+  .ptg-night-stage > .ptg-night-stage__beam--1 {
+    left: 3%;
+  }
+
+  .ptg-night-stage > .ptg-night-stage__beam--2 {
+    right: 3%;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ptg-night-stage > .ptg-night-stage__beam {
+    opacity: 0.98;
+    mix-blend-mode: normal;
+    box-shadow: 0 0 60px 28px rgba(255, 230, 200, 0.35);
+  }
 }
 
 .ptg-night-stage__beam--1 {
@@ -208,17 +326,29 @@ body::before {
 
 .ptg-night-stage__beam--2 {
   right: 8%;
-  animation-delay: -4.5s;
+  animation-delay: -2.75s;
 }
 
 @keyframes ptg-night-beam {
   0%,
   100% {
-    transform: rotate(-9deg) translateX(0);
+    transform: rotate(-12deg) translateZ(0);
   }
   50% {
-    transform: rotate(8deg) translateX(10%);
+    transform: rotate(12deg) translateZ(0);
   }
+}
+
+/* À propos : conteneur du bandeau marque (même `.ptg-night-stage` à l’intérieur que Partenaires). */
+.ptg-about-brand-stage-wrap {
+  padding: 0 1.25rem 2.5rem;
+  max-width: min(42rem, 100%);
+  margin-inline: auto;
+}
+
+.ptg-about-brand-stage-wrap .ptg-night-stage {
+  margin-top: 0.35rem;
+  min-height: clamp(11rem, 56vw, 26rem);
 }
 
 /* Page Partenaires : espacements via classes (évite styles inline). */
@@ -903,9 +1033,76 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   filter: saturate(1.06) contrast(1.03);
 }
 
+/* Vapeur : au-dessus du voile sinon elle était invisible (voile ~0,88). Masque pour fondre vers le haut. */
+.ptg-hero-illustration__steam {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+  mask-image: linear-gradient(to top, #000 0%, #000 45%, transparent 88%);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 45%, transparent 88%);
+}
+
+.ptg-hero-illustration__steam-wisp {
+  position: absolute;
+  bottom: -4%;
+  width: min(46%, 14rem);
+  height: min(44%, 10rem);
+  border-radius: 55% 45% 52% 48%;
+  opacity: 0.48;
+  filter: blur(22px);
+  background: radial-gradient(
+    ellipse 70% 64% at 50% 70%,
+    rgba(255, 252, 245, 0.85) 0%,
+    color-mix(in srgb, var(--ptg-butter) 55%, transparent) 42%,
+    transparent 72%
+  );
+  animation: ptg-illus-steam-rise 14s ease-in-out infinite;
+}
+
+.ptg-hero-illustration__steam-wisp--1 {
+  left: 8%;
+  animation-delay: 0s;
+}
+
+.ptg-hero-illustration__steam-wisp--2 {
+  left: 34%;
+  width: min(40%, 12rem);
+  height: min(40%, 9rem);
+  opacity: 0.38;
+  animation-delay: -4.6s;
+}
+
+.ptg-hero-illustration__steam-wisp--3 {
+  right: 10%;
+  animation-delay: -9.2s;
+}
+
+.ptg-night-stage .ptg-hero-illustration__steam-wisp {
+  opacity: 0.55;
+  background: radial-gradient(
+    ellipse 70% 64% at 50% 70%,
+    rgba(255, 245, 232, 0.75) 0%,
+    rgba(230, 220, 210, 0.35) 45%,
+    transparent 74%
+  );
+}
+
+@keyframes ptg-illus-steam-rise {
+  0%,
+  100% {
+    transform: translate3d(-2%, 10px, 0) scale(0.94);
+  }
+  50% {
+    transform: translate3d(2.5%, -52px, 0) scale(1.08);
+  }
+}
+
 .ptg-hero-illustration__veil {
   position: absolute;
   inset: 0;
+  z-index: 2;
   background: linear-gradient(
     168deg,
     color-mix(in srgb, var(--ptg-bg) 72%, transparent) 0%,
@@ -964,53 +1161,6 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 
 .ptg-hero-shell--illus-hero::after {
   opacity: 0.32;
-}
-
-/* Fond « marque » (composition dense) : image plus lisible au centre, voile radial + carte déjà givrée pour le texte. */
-.ptg-hero-shell--illus-brand .ptg-hero-illustration__img {
-  opacity: 0.54;
-  object-fit: cover;
-  object-position: 50% 32%;
-  filter: saturate(1.04) contrast(1.02);
-}
-
-.ptg-hero-shell--illus-brand .ptg-hero-illustration__veil {
-  opacity: 0.58;
-  background:
-    radial-gradient(ellipse 92% 78% at 50% 36%, transparent 0%, transparent 38%, color-mix(in srgb, var(--ptg-bg) 52%, transparent) 88%),
-    linear-gradient(
-      168deg,
-      color-mix(in srgb, var(--ptg-bg) 58%, transparent) 0%,
-      transparent 34%,
-      transparent 62%,
-      color-mix(in srgb, var(--ptg-sand) 48%, transparent) 100%
-    );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ptg-hero-shell--illus-brand .ptg-hero-illustration__img {
-    opacity: 0.44;
-  }
-}
-
-@media (prefers-contrast: more) {
-  .ptg-hero-shell--illus-brand .ptg-hero-illustration__img {
-    opacity: 0.34;
-  }
-
-  .ptg-hero-shell--illus-brand .ptg-hero-illustration__veil {
-    opacity: 0.78;
-  }
-}
-
-.ptg-hero-shell--illus-brand .ptg-hero-orbits {
-  opacity: 0.5;
-}
-
-.ptg-hero-shell--illus-brand .ptg-hero-card {
-  background: color-mix(in srgb, var(--ptg-surface) 93%, var(--ptg-butter));
-  backdrop-filter: blur(18px) saturate(1.06);
-  -webkit-backdrop-filter: blur(18px) saturate(1.06);
 }
 
 .ptg-hero-atmosphere {
@@ -1291,6 +1441,62 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   animation: ptg-livret-page-in 0.42s var(--ptg-ease-out) both;
 }
 
+.ptg-about-livret__sheet--poster {
+  min-height: 0;
+}
+
+.ptg-about-livret__poster {
+  margin: 0 auto 0.85rem;
+  max-width: min(14.5rem, 72vw);
+  border-radius: var(--ptg-radius-card);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 50%, var(--ptg-accent) 12%);
+  box-shadow: var(--ptg-shadow-lift);
+  background: color-mix(in srgb, var(--ptg-surface) 92%, var(--ptg-butter));
+}
+
+.ptg-about-livret__poster-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.ptg-about-poster-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.ptg-about-poster-open__media {
+  display: block;
+}
+
+.ptg-about-poster-open__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.4rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: var(--ptg-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 48%, var(--ptg-accent) 16%);
+  background: color-mix(in srgb, var(--ptg-surface) 95%, var(--ptg-butter));
+  color: color-mix(in srgb, var(--ptg-accent-deep) 86%, var(--ptg-text));
+  font-size: var(--ptg-text-2xs);
+  font-weight: 700;
+}
+
+.ptg-about-poster-open:focus-visible {
+  outline: none;
+}
+
+.ptg-about-poster-open:focus-visible .ptg-about-poster-open__cta {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ptg-accent) 35%, transparent);
+}
+
 .ptg-about-livret__sheet p {
   margin: 0 0 0.65rem;
   font-size: var(--ptg-text-ui-sm);
@@ -1341,6 +1547,35 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   font-size: var(--ptg-text-2xs);
   text-align: center;
   color: var(--ptg-text-muted);
+}
+
+.ptg-about-livret__swipe-hint {
+  display: none;
+  margin: 0.5rem 0 0;
+  font-size: var(--ptg-text-2xs);
+  text-align: center;
+  color: color-mix(in srgb, var(--ptg-accent-deep) 70%, var(--ptg-text-muted));
+  letter-spacing: 0.01em;
+}
+
+.ptg-about-livret__swipe-hint--nudge {
+  animation: ptg-swipe-nudge 0.9s var(--ptg-ease-out) 2;
+}
+
+@keyframes ptg-swipe-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.82;
+  }
+  25% {
+    transform: translateX(-5px);
+    opacity: 1;
+  }
+  75% {
+    transform: translateX(5px);
+    opacity: 1;
+  }
 }
 
 .ptg-btn-livret {
@@ -1440,6 +1675,84 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   color: var(--ptg-accent-deep);
 }
 
+.ptg-about-poster-quicklink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 1rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--ptg-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 52%, var(--ptg-accent) 18%);
+  background: color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-butter));
+  color: color-mix(in srgb, var(--ptg-accent-deep) 84%, var(--ptg-text));
+  font: inherit;
+  font-size: var(--ptg-text-ui-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--ptg-duration-fast) var(--ptg-ease-out),
+    border-color var(--ptg-duration-fast) var(--ptg-ease-out),
+    transform var(--ptg-duration-fast) var(--ptg-ease-out);
+}
+
+.ptg-about-poster-quicklink:hover {
+  background: color-mix(in srgb, var(--ptg-accent) 8%, var(--ptg-surface));
+  border-color: color-mix(in srgb, var(--ptg-accent) 40%, var(--ptg-line));
+  transform: translateY(-1px);
+}
+
+.ptg-about-poster-quicklink:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ptg-accent) 60%, transparent);
+  outline-offset: 2px;
+}
+
+.ptg-about-poster-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, #0b0f14 78%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.ptg-about-poster-lightbox__sheet {
+  position: relative;
+  width: min(27rem, 94vw);
+  max-height: 92vh;
+  padding: 0.7rem;
+  border-radius: calc(var(--ptg-radius-card) + 4px);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 45%, var(--ptg-accent) 18%);
+  background: color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-butter));
+  box-shadow: var(--ptg-shadow-lift);
+  overflow: auto;
+}
+
+.ptg-about-poster-lightbox__sheet .ptg-about-livret__poster-img {
+  border-radius: calc(var(--ptg-radius-card) - 2px);
+}
+
+.ptg-about-poster-lightbox__close {
+  position: sticky;
+  top: 0;
+  margin-left: auto;
+  margin-bottom: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.66rem;
+  border-radius: var(--ptg-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 52%, var(--ptg-accent) 16%);
+  background: color-mix(in srgb, var(--ptg-surface) 94%, var(--ptg-butter));
+  color: var(--ptg-text);
+  font: inherit;
+  font-size: var(--ptg-text-2xs);
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .ptg-about-livret__to-services {
   margin: 0.65rem 0 0;
   padding-top: 0.65rem;
@@ -1477,6 +1790,78 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   color: var(--ptg-text-muted);
 }
 
+/* Mobile : index des pages replié par défaut (bouton type « En savoir plus »).
+   Seuil aligné avec ABOUT_SERVICES_INDEX_NARROW_MQ dans about-livret-session.ts */
+.ptg-about-services-fold-btn {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .ptg-about-livret__swipe-hint {
+    display: block;
+  }
+
+  .ptg-about-services-fold-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0.15rem auto 0.85rem;
+  }
+
+  .ptg-about-services-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.42s var(--ptg-ease-out);
+  }
+
+  .ptg-about-services-panel--open {
+    grid-template-rows: 1fr;
+  }
+
+  .ptg-about-services-panel__inner {
+    min-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s var(--ptg-ease-out);
+  }
+
+  /* Replié : masquage explicite (évite faux « visible » pendant transition opacity). */
+  .ptg-about-services-panel:not(.ptg-about-services-panel--open) .ptg-about-services-panel__inner {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ptg-about-services-panel--open .ptg-about-services-panel__inner {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-about-livret__swipe-hint--nudge {
+    animation: none;
+  }
+}
+
+@media (min-width: 721px) {
+  .ptg-about-services-panel {
+    display: block;
+  }
+
+  .ptg-about-services-panel__inner {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  .ptg-about-services-panel,
+  .ptg-about-services-panel__inner {
+    transition: none;
+  }
+}
+
 .ptg-about-services-livret {
   position: relative;
   border-radius: calc(var(--ptg-radius-card) + 4px);
@@ -1488,6 +1873,68 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   );
   box-shadow: var(--ptg-shadow-lift), 0 1px 0 color-mix(in srgb, #fff 65%, transparent) inset;
   padding: 1.15rem 1.2rem 1rem;
+}
+
+.ptg-about-services-poster-teaser {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(4rem, 4.8rem) 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0 0 0.85rem;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 48%, var(--ptg-accent) 18%);
+  border-radius: var(--ptg-radius-card);
+  background: color-mix(in srgb, var(--ptg-surface) 95%, var(--ptg-butter));
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background var(--ptg-duration-fast) var(--ptg-ease-out),
+    border-color var(--ptg-duration-fast) var(--ptg-ease-out),
+    box-shadow var(--ptg-duration-fast) var(--ptg-ease-out);
+}
+
+.ptg-about-services-poster-teaser:hover {
+  background: color-mix(in srgb, var(--ptg-accent) 7%, var(--ptg-surface));
+  border-color: color-mix(in srgb, var(--ptg-accent) 42%, var(--ptg-line));
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 60%, transparent) inset;
+}
+
+.ptg-about-services-poster-teaser:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ptg-accent) 35%, transparent);
+}
+
+.ptg-about-services-poster-teaser__media {
+  width: 100%;
+  max-width: 4.8rem;
+  justify-self: center;
+}
+
+.ptg-about-services-poster-teaser__media .ptg-about-livret__poster-img {
+  border-radius: 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 48%, var(--ptg-accent) 14%);
+}
+
+.ptg-about-services-poster-teaser__copy {
+  min-width: 0;
+}
+
+.ptg-about-services-poster-teaser__title {
+  display: block;
+  font-family: var(--ptg-font-display);
+  font-size: var(--ptg-text-md-sm);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ptg-ink-display);
+}
+
+.ptg-about-services-poster-teaser__blurb {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--ptg-text-2xs);
+  line-height: 1.45;
+  color: var(--ptg-text-muted);
 }
 
 .ptg-about-services-grid {
@@ -2802,6 +3249,18 @@ a.ptg-kicker-pill--link:focus-visible {
   .ptg-ambient__beam,
   .ptg-night-stage__beam {
     animation: none;
+    transition: none;
+    transform: rotate(-6deg) translateZ(0);
+  }
+
+  .ptg-hero-illustration__steam-wisp {
+    animation: none;
+    transform: translate3d(0, -20px, 0);
+    opacity: 0.28;
+  }
+
+  .ptg-night-stage .ptg-hero-illustration__steam-wisp {
+    opacity: 0.34;
   }
 
   .ptg-hero-atmosphere__wash {
