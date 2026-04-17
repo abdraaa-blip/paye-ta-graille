@@ -8,7 +8,7 @@ Pour ajouter/modifier un job CI en respectant les conventions, voir aussi `docs/
 
 - `workflow-lint`: validation syntaxe/bonnes pratiques des workflows GitHub Actions.
 - `ci-governance`: bloque les PRs qui modifient des workflows CI sans alignement docs/garde-fous.
-- `verify`: lint + typecheck + build + Playwright desktop.
+- `verify`: `npm run verify` (lint, types, `test:scripts`, `assert:tracked-safe`) + preflight + build + Playwright desktop.
 - `mobile-consistency`: Playwright mobile (cadrage, continuité fond, stress viewport/orientation).
 - `beta-seo`: build en mode bêta publique + tests SEO bêta.
 - `nightly-release-gate` (non bloquant PR): exécution planifiée de `npm run verify:release` via `.github/workflows/nightly-release-gate.yml`.

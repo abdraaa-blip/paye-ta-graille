@@ -5,6 +5,7 @@
 ## Validation
 
 - [ ] `npm run verify`
+- [ ] Optionnel avant push : `npm run ship:dry` (pré-vol `verify` + governance si workflows modifiés, sans commit/push — voir `docs/DEPLOIEMENT_VERCEL.md`)
 - [ ] `npm run test:e2e:mobile` (obligatoire si UI/CSS/layout/hero/background/mobile)
 - [ ] `npm run test:e2e` (si parcours desktop ou routes publiques touchées)
 - [ ] Captures ou notes de preuve ajoutées si comportement visuel modifié

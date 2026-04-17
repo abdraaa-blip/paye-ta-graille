@@ -27,6 +27,7 @@
 | `npm run lint:fix` | ESLint avec corrections auto quand possible. |
 | `npm run typecheck` | TypeScript sans émettre de fichiers. |
 | `npm run verify` | Lint + typecheck + tests scripts (`test:scripts`) + garde fichiers sensibles versionnés (`assert:tracked-safe`) ; même base que la CI avant le `build`. |
+| `npm run assert:tracked-safe` | Échoue si un secret / `.env*.local` / clé type PEM est **suivi** par git (déjà inclus dans `verify`). |
 | `npm run verify:full` | `verify` + `build:clean` (purge `.next` puis build). |
 | `npm run verify:ship` | `verify` + `build:clean` + **Playwright desktop + mobile** (`test:e2e` puis `test:e2e:mobile`, Chromium requis : `npm run test:e2e:install`). |
 | `npm run verify:release` | `verify:ship` + `test:e2e:beta-seo` (validation release la plus stricte). |
