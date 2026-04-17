@@ -14,6 +14,8 @@ import {
   partnersCtrPercent,
   partnersCtaTotal,
 } from "@/lib/growth-kpi-data";
+import { maybeCreateGrowthFeedbackAlert } from "@/lib/growth-kpi-alerts";
+import { getGrowthKpiThresholds } from "@/lib/growth-kpi-thresholds";
 
 export async function GET(request: Request) {
   if (!growthKpiAuthConfigured()) {
@@ -54,6 +56,8 @@ export async function GET(request: Request) {
     partners_cta_total: partnersCtaTotal(r),
     partners_ctr_percent: partnersCtrPercent(r),
   }));
+  const thresholds = getGrowthKpiThresholds();
+  await maybeCreateGrowthFeedbackAlert(result.rows, thresholds);
 
-  return NextResponse.json({ days, rows }, { status: 200 });
+  return NextResponse.json({ days, rows, thresholds }, { status: 200 });
 }

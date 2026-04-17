@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { notifyUserMealReminder } from "@/lib/email/meal-reminder-notify";
+import { maybeCreateGrowthDailyDigest, maybeCreateGrowthWeeklyDigest } from "@/lib/growth-kpi-alerts";
+import { loadGrowthKpiDaily } from "@/lib/growth-kpi-data";
+import { getGrowthKpiThresholds } from "@/lib/growth-kpi-thresholds";
 import {
   isMealAutoCompleteEnabled,
   isMissingAutoCompleteRpc,
   mealAutoCompleteGraceHours,
   mealClosingReferenceMs,
 } from "@/lib/meals/meal-auto-complete";
+import { createInAppNotifications } from "@/lib/notifications/in-app";
 import { createServiceRoleClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -81,6 +85,7 @@ export async function GET(request: Request) {
       if (upErr || !claimed) continue;
 
       claimed24 += 1;
+      const path = `/repas/${raw.id}`;
       const p24 = [
         notifyUserMealReminder({
           userId: raw.host_user_id,
@@ -100,6 +105,27 @@ export async function GET(request: Request) {
         );
       }
       await Promise.all(p24);
+      const inApp24 = [
+        {
+          userId: raw.host_user_id,
+          kind: "meal_reminder_24h" as const,
+          title: "Rappel repas demain",
+          body: `Ton repas est prévu ${whenLabel}.`,
+          ctaHref: path,
+          metadata: { meal_id: raw.id, kind: "24h" },
+        },
+      ];
+      if (raw.guest_user_id) {
+        inApp24.push({
+          userId: raw.guest_user_id,
+          kind: "meal_reminder_24h",
+          title: "Rappel repas demain",
+          body: `Ton repas est prévu ${whenLabel}.`,
+          ctaHref: path,
+          metadata: { meal_id: raw.id, kind: "24h" },
+        });
+      }
+      await createInAppNotifications(inApp24);
     }
 
     if (!raw.reminder_2h_sent_at && hoursUntil > 1 && hoursUntil <= 3) {
@@ -114,6 +140,7 @@ export async function GET(request: Request) {
       if (upErr || !claimed) continue;
 
       claimed2 += 1;
+      const path = `/repas/${raw.id}`;
       const p2 = [
         notifyUserMealReminder({
           userId: raw.host_user_id,
@@ -133,6 +160,27 @@ export async function GET(request: Request) {
         );
       }
       await Promise.all(p2);
+      const inApp2 = [
+        {
+          userId: raw.host_user_id,
+          kind: "meal_reminder_2h" as const,
+          title: "Rappel repas bientôt",
+          body: `Ton repas commence bientôt (${whenLabel}).`,
+          ctaHref: path,
+          metadata: { meal_id: raw.id, kind: "2h" },
+        },
+      ];
+      if (raw.guest_user_id) {
+        inApp2.push({
+          userId: raw.guest_user_id,
+          kind: "meal_reminder_2h",
+          title: "Rappel repas bientôt",
+          body: `Ton repas commence bientôt (${whenLabel}).`,
+          ctaHref: path,
+          metadata: { meal_id: raw.id, kind: "2h" },
+        });
+      }
+      await createInAppNotifications(inApp2);
     }
   }
 
@@ -178,6 +226,34 @@ export async function GET(request: Request) {
             .maybeSingle();
 
           if (!upErr && updated) autoCompleted += 1;
+          if (!upErr && updated) {
+            const { data: parties } = await admin
+              .from("meals")
+              .select("host_user_id, guest_user_id")
+              .eq("id", row.id)
+              .maybeSingle();
+            const inAppCompleted = [
+              {
+                userId: parties?.host_user_id ?? "",
+                kind: "meal_auto_completed" as const,
+                title: "Repas clôturé automatiquement",
+                body: "Ce repas est passé en statut terminé automatiquement.",
+                ctaHref: `/repas/${row.id}`,
+                metadata: { meal_id: row.id },
+              },
+            ].filter((n) => Boolean(n.userId));
+            if (parties?.guest_user_id) {
+              inAppCompleted.push({
+                userId: parties.guest_user_id,
+                kind: "meal_auto_completed",
+                title: "Repas clôturé automatiquement",
+                body: "Ce repas est passé en statut terminé automatiquement.",
+                ctaHref: `/repas/${row.id}`,
+                metadata: { meal_id: row.id },
+              });
+            }
+            await createInAppNotifications(inAppCompleted);
+          }
         }
       }
     } else {
@@ -188,6 +264,15 @@ export async function GET(request: Request) {
     }
   }
 
+  let growthDigestSent = false;
+  let growthWeeklyDigestSent = false;
+  const growth = await loadGrowthKpiDaily(30);
+  if (growth.ok) {
+    const thresholds = getGrowthKpiThresholds();
+    growthDigestSent = await maybeCreateGrowthDailyDigest(growth.rows, thresholds);
+    growthWeeklyDigestSent = await maybeCreateGrowthWeeklyDigest(growth.rows, thresholds);
+  }
+
   return NextResponse.json({
     ok: true,
     scanned: meals?.length ?? 0,
@@ -196,5 +281,7 @@ export async function GET(request: Request) {
     auto_completed: autoCompleted,
     auto_complete_error: autoCompleteError,
     auto_complete_used_fallback: autoCompleteUsedFallback,
+    growth_digest_sent: growthDigestSent,
+    growth_weekly_digest_sent: growthWeeklyDigestSent,
   });
 }

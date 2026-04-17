@@ -10,7 +10,7 @@
 |---------|--------|
 | **Stack** | Next.js 15 (App Router) · React 19 · TypeScript strict · Supabase (`@supabase/ssr`) |
 | **Scripts** | Voir § ci-dessous : **toujours** `npm run <nom>` pour les scripts du `package.json` (c’est la forme fiable). |
-| **Config** | `.env.example` · `.nvmrc` (Node 20) · `next.config.ts` (en-têtes sécurité, **HSTS** si `VERCEL_ENV=production`) · `vercel.json` (cron horaire `GET /api/cron/meal-reminders` : rappels e-mail + clôture auto `confirmed`→`completed`, `CRON_SECRET` sur Vercel ; vars optionnelles `PTG_MEAL_AUTO_COMPLETE*`) · `middleware.ts` (session Supabase ; hors statiques, métadonnées crawl & **`/api/cron/*`**) · `robots.ts` / `sitemap.ts` (SEO ; désactivés en bêta publique) · `not-found` / `error` / `global-error` · `/api/health` + `version` (`src/lib/app-version.ts`) · CI `.github/workflows/ci.yml` (lint, types, build, **Playwright** smoke HTTP + navigateur, job **bêta SEO** Playwright) |
+| **Config** | `.env.example` · `.nvmrc` (Node 20) · `next.config.ts` (en-têtes sécurité, **HSTS** si `VERCEL_ENV=production`) · `vercel.json` (cron horaire `GET /api/cron/meal-reminders` : rappels e-mail + clôture auto `confirmed`→`completed`, `CRON_SECRET` sur Vercel ; vars optionnelles `PTG_MEAL_AUTO_COMPLETE*`) · `middleware.ts` (session Supabase ; hors statiques, métadonnées crawl & **`/api/cron/*`**) · `robots.ts` / `sitemap.ts` (SEO ; désactivés en bêta publique) · `not-found` / `error` / `global-error` · `/api/health` + `version` (`src/lib/app-version.ts`) · CI `.github/workflows/ci.yml` (job `workflow-lint` fail-fast, puis lint/types/build + **Playwright** desktop, **mobile-consistency**, **bêta SEO**) |
 | **DB** | Migrations dans `supabase/migrations/` : noyau `20260412120000_core_profiles_meals.sql` + **Graille+** `20260418140000_graille_plus_share_rescue_payments.sql` (partage, seconde graille, `payment_ledger`) + instrumentation growth `20260420100000_growth_events.sql` (`growth_events`) + vues KPI `20260420103000_growth_kpi_views.sql` → `20260426120000_growth_kpi_partners.sql` → **`20260427100000_growth_kpi_funnel.sql`** (`growth_kpi_daily` : partenaires + funnel produit) + préférences notif `20260416093000_user_settings_notification_prefs.sql` + compteur e-mail jour `20260428100000_user_settings_email_nudge_counter.sql` + RPC atomique `20260429103000_reserve_meal_email_nudge_rpc.sql` (`user_settings`) + rappels repas `20260430100000_meals_reminder_columns.sql` + clôture auto `20260430200000_auto_complete_meals_rpc.sql` (`meals`). **Ordre** : appliquer toutes les migrations sur la base distante après chaque release qui touche le schéma. |
 | **Dev** | `docs/ONBOARDING_DEVELOPPEUR.md` · **UI** : `docs/DESIGN_SYSTEM.md` (tokens : `src/app/ptg-tokens.css`) · sécurité : `docs/SECURITE_CHECKLIST_CODE.md` · RLS : `docs/RLS_SCENARIOS_CHECKLIST.md` · API : `docs/API_CONTRATS_V1.md` · **Stripe** (plus tard) : `docs/NOTE_PAIEMENT_STRIPE.md` · bêta : `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` (bandeau + **noindex** + robots/sitemap fermés) |
 
@@ -26,19 +26,23 @@
 | `npm run lint:fix` | ESLint avec corrections auto quand possible. |
 | `npm run typecheck` | TypeScript sans émettre de fichiers. |
 | `npm run verify` | Lint + typecheck (même base que la CI avant le `build`). |
-| `npm run verify:full` | `verify` + `build`. |
-| `npm run verify:ship` | `verify` + `build` + **Playwright** (`test:e2e`, Chromium requis : `npm run test:e2e:install`). |
+| `npm run verify:full` | `verify` + `build:clean` (purge `.next` puis build). |
+| `npm run verify:ship` | `verify` + `build:clean` + **Playwright desktop + mobile** (`test:e2e` puis `test:e2e:mobile`, Chromium requis : `npm run test:e2e:install`). |
+| `npm run verify:release` | `verify:ship` + `test:e2e:beta-seo` (validation release la plus stricte). |
+| `npm run verify:mobile` | `verify` + suite Playwright mobile (`test:e2e:mobile`) pour gate anti-régression responsive. |
 | `npm run assert:beta-seo` | Vérifie `robots.txt` + `sitemap.xml` en mode bêta public (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`). |
 | `npm run wait:health` | Attend que `/api/health` réponde 200 (utile CI / scripts d’orchestration locale). |
 | `npm run checks:prod-local` | Lance `next start` (`-p` via `PTG_CHECK_PORT` ou `PORT`, défaut 3000), propage `PTG_BASE_URL` aux smoke, puis coupe le serveur. Si **EADDRINUSE** sur 3000 : `PTG_CHECK_PORT=3010` et `PTG_BASE_URL=http://127.0.0.1:3010`. |
 | `npm run checks:prod-local:beta-seo` | Enchaîne **`build`** avec `NEXT_PUBLIC_PTG_PUBLIC_BETA=1`, `start`, smoke, puis `assert:beta-seo` (flux bêta bout en bout). |
 | `npm run deploy:preflight` | Contrôle `.env.local` + hero / vars avant déploiement (voir `docs/DEPLOIEMENT_VERCEL.md`). |
-| `npm run optimize:hero` | Convertit le PNG hero en WebP (largeur max 1920px). Génère aussi `landing-watercolor-{night,mobile,night-mobile}.webp`, `brand-marketplace.webp`, optionnel `brand-poster.webp` + `public/og/paye-ta-graille-share.webp` si les PNG existent. Voir `.env.example` / `DEPLOIEMENT_VERCEL.md`. |
+| `npm run optimize:hero` | Convertit le PNG hero en WebP (largeur max 1920px). Génère aussi `landing-watercolor-{night,mobile,night-mobile}.webp`, `brand-marketplace.webp`, les assets homogènes `brand-stage-*.webp` (focal points via `config/brand-stage-focal-points.json`), optionnel `brand-poster.webp` + `public/og/paye-ta-graille-share.webp` si les PNG existent. Voir `.env.example` / `DEPLOIEMENT_VERCEL.md`. |
+| `npm run optimize:hero:dry` | Prévisualise les transformations de `optimize:hero` (sources, dimensions, crop focal point, sorties) sans écrire de fichiers. |
 | `npm run cron:meal-reminders` | Appelle `GET /api/cron/meal-reminders` (variables `CRON_SECRET` + `PTG_BASE_URL`, serveur déjà lancé). |
 | `npm run smoke:public` | Smoke HTTP des routes publiques + invariants HTML (accueil, bandeau `ptg-night-stage` sur Partenaires / Expériences / Repas ouverts) — serveur requis. |
-| `npm run test:e2e` | Playwright : smoke HTTP + accueil navigateur (`e2e/`, `webServer` `next start`, `PTG_BASE_URL` défaut `http://127.0.0.1:3000`). |
+| `npm run test:e2e` | Playwright : smoke HTTP + accueil navigateur (`e2e/`, `webServer` `next start`, `PTG_E2E_BASE_URL` défaut `http://127.0.0.1:4010`). |
+| `npm run test:e2e:mobile` | Playwright mobile dédié (`playwright.mobile.config.ts`, profil Pixel 7) : cadrage image, continuité fond, stress viewport/orientation. |
 | `npm run test:e2e:beta-seo` | Playwright uniquement `e2e/beta-seo.spec.ts` (build avec `NEXT_PUBLIC_PTG_PUBLIC_BETA=1` requis). |
-| `npm run test:e2e:full` | `build` puis `test:e2e`. |
+| `npm run test:e2e:full` | `build:clean` puis `test:e2e`. |
 | `npm run test:e2e:install` | Télécharge Chromium pour Playwright (une fois par machine / CI). |
 
 **Config** : `config/public-hero-image-url-env-keys.json` liste les variables d’environnement dont les valeurs peuvent être des URL d’images distantes (alignement `next.config` / preflight).
@@ -53,6 +57,7 @@ npm run dev
 ```
 
 **Déploiement** : `docs/DEPLOIEMENT_VERCEL.md` : en prod, renseigner de préférence **`NEXT_PUBLIC_SITE_URL`** (Open Graph / `metadataBase`) et les redirect URLs Supabase.
+**CI** : `docs/CI_RUNBOOK.md` : réaction rapide en cas d’échec (`verify`, `mobile-consistency`, `beta-seo`).
 
 ---
 

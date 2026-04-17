@@ -17,6 +17,8 @@ export type GrowthKpiDailyRow = {
   funnel_onboarding_done: number;
   funnel_accueil_views: number;
   active_users: number;
+  feedback_answers: number;
+  feedback_avg_score: number | null;
 };
 
 const DEFAULT_DAYS = 30;
@@ -73,8 +75,32 @@ export async function loadGrowthKpiDaily(days: number): Promise<
     return { ok: false, reason: "query_failed", detail: error.message };
   }
 
+  const { data: feedbackData, error: feedbackError } = await admin
+    .from("user_feedback")
+    .select("created_at, score")
+    .gte("created_at", `${sinceDay}T00:00:00.000Z`);
+
+  if (feedbackError && feedbackError.code !== "42P01") {
+    return { ok: false, reason: "query_failed", detail: feedbackError.message };
+  }
+
+  const feedbackByDay = new Map<string, { count: number; sum: number }>();
+  for (const row of feedbackData ?? []) {
+    const raw = row as unknown as Record<string, unknown>;
+    const createdAt = String(raw.created_at ?? "");
+    const day = createdAt.slice(0, 10);
+    if (!day) continue;
+    const score = Number(raw.score ?? 0);
+    if (!Number.isFinite(score) || score <= 0) continue;
+    const prev = feedbackByDay.get(day) ?? { count: 0, sum: 0 };
+    prev.count += 1;
+    prev.sum += score;
+    feedbackByDay.set(day, prev);
+  }
+
   const rows = (data ?? []).map((r) => {
     const row = r as unknown as Record<string, unknown>;
+    const feedback = feedbackByDay.get(String(row.day ?? ""));
     return {
       day: String(row.day ?? ""),
       events_total: Number(row.events_total ?? 0),
@@ -92,6 +118,8 @@ export async function loadGrowthKpiDaily(days: number): Promise<
       funnel_onboarding_done: Number(row.funnel_onboarding_done ?? 0),
       funnel_accueil_views: Number(row.funnel_accueil_views ?? 0),
       active_users: Number(row.active_users ?? 0),
+      feedback_answers: feedback?.count ?? 0,
+      feedback_avg_score: feedback && feedback.count > 0 ? Math.round((feedback.sum / feedback.count) * 100) / 100 : null,
     };
   });
   return { ok: true, rows };

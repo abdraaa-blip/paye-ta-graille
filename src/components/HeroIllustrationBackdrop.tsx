@@ -21,6 +21,14 @@ export type HeroIllustrationBackdropProps = {
   /** Accueil / LCP : true. Bandeaux secondaires : false (lazy, moins de concurrence réseau). */
   priority?: boolean;
   sizes?: string;
+  /** Source principale optionnelle (ex. rotation côté composant parent). */
+  overrideMainSrc?: string;
+  /** Source mobile optionnelle ; `null` force une seule image. */
+  overrideMobileSrc?: string | null;
+  /** Classe additionnelle sur la racine (`.ptg-hero-illustration`). */
+  className?: string;
+  /** Callback d'erreur image (en complément du fallback local). */
+  onLoadError?: () => void;
 };
 
 function resolveSources(variant: "hero" | "night" | "brand"): { main: string; mobile: string | null } {
@@ -46,15 +54,21 @@ export function HeroIllustrationBackdrop({
   variant = "hero",
   priority = true,
   sizes = "100vw",
+  overrideMainSrc,
+  overrideMobileSrc,
+  className,
+  onLoadError,
 }: HeroIllustrationBackdropProps) {
   const [loadFailed, setLoadFailed] = useState(false);
   if (!rasterAllowed(variant) || loadFailed) return null;
 
   const { main, mobile } = resolveSources(variant);
+  const effectiveMain = overrideMainSrc ?? main;
+  const effectiveMobile = overrideMobileSrc === undefined ? mobile : overrideMobileSrc;
 
   const img = (
     <Image
-      src={main}
+      src={effectiveMain}
       alt=""
       fill
       priority={priority}
@@ -62,17 +76,20 @@ export function HeroIllustrationBackdrop({
       sizes={sizes}
       quality={82}
       className="ptg-hero-illustration__img"
-      onError={() => setLoadFailed(true)}
+      onError={() => {
+        setLoadFailed(true);
+        onLoadError?.();
+      }}
     />
   );
 
-  const rootClass = ["ptg-hero-illustration", variant === "brand" ? "ptg-hero-illustration--brand" : ""].filter(Boolean).join(" ");
+  const rootClass = ["ptg-hero-illustration", variant === "brand" ? "ptg-hero-illustration--brand" : "", className].filter(Boolean).join(" ");
 
   return (
     <div className={rootClass} aria-hidden>
-      {mobile ? (
+      {effectiveMobile ? (
         <picture className="ptg-hero-illustration__picture">
-          <source media={PICTURE_MOBILE_MQ} srcSet={mobile} />
+          <source media={PICTURE_MOBILE_MQ} srcSet={effectiveMobile} />
           {img}
         </picture>
       ) : (

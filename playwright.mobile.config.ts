@@ -2,19 +2,15 @@ import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.PTG_E2E_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:4010";
 const basePort = Number(new URL(baseURL).port || 4010);
-
 const webServerOff = process.env.PTG_PLAYWRIGHT_NO_WEBSERVER === "1";
-
-/** Hors job CI « beta-seo » : évite d’exiger un build NEXT_PUBLIC_PTG_PUBLIC_BETA. Voir `npm run test:e2e:beta-seo`. */
-const runBetaE2E = process.env.PTG_RUN_BETA_E2E === "1";
 
 export default defineConfig({
   testDir: "./e2e",
-  testIgnore: runBetaE2E ? undefined : ["**/beta-seo.spec.ts"],
-  fullyParallel: true,
+  testMatch: ["**/mobile-illustration-consistency.spec.ts"],
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: process.env.CI ? "line" : "list",
   ...(webServerOff
     ? {}
@@ -26,11 +22,10 @@ export default defineConfig({
           timeout: 120_000,
         },
       }),
-  /* Smoke HTTP : beaucoup de routes ; le navigateur reste sur smoke.spec uniquement. */
   timeout: 60_000,
   use: {
     baseURL,
     trace: "on-first-retry",
-    ...devices["Desktop Chrome"],
+    ...devices["Pixel 7"],
   },
 });

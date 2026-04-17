@@ -46,8 +46,12 @@ const PILLAR_AUTO_CLOSE_MS = 15_000;
 const LIVRET_SWIPE_MIN_X = 54;
 const LIVRET_SWIPE_MAX_Y = 40;
 const LIVRET_SWIPE_MAX_MS = 800;
+const LIVRET_AUTO_TURN_IDLE_MS_MOBILE = 15_000;
+const LIVRET_AUTO_TURN_IDLE_MS_DESKTOP = 18_000;
+const SERVICES_GUIDE_PRESS_MS = 2_600;
 const SWIPE_NUDGE_MS = 2200;
 const SWIPE_NUDGE_SESSION_KEY = "ptg.about.livret.swipe-nudge.seen.v1";
+const LIVRET_AUTO_SESSION_KEY = "ptg.about.livret.auto.enabled.v1";
 
 function AboutLivretPosterImg({ src, alt }: { src?: string; alt?: string }) {
   const primary = src ?? aboutLivretPosterSrc();
@@ -112,8 +116,13 @@ export function AProposClient() {
   /** Index « Ce qu’on propose » : replié par défaut sur ≤720px ; sur grand écran toujours déplié (découvrabilité, pas de clic en plus). */
   const [servicesNarrow, setServicesNarrow] = useState(false);
   const [servicesIndexOpen, setServicesIndexOpen] = useState(false);
+  const [servicesGuideIdx, setServicesGuideIdx] = useState(0);
   const [posterLightboxOpen, setPosterLightboxOpen] = useState(false);
   const [showSwipeNudge, setShowSwipeNudge] = useState(false);
+  const [livretAutoEnabled, setLivretAutoEnabled] = useState(true);
+  const [livretAutoDir, setLivretAutoDir] = useState<1 | -1>(1);
+  const [livretLastInteractionAt, setLivretLastInteractionAt] = useState(() => Date.now());
+  const [livretAutoIdleMs, setLivretAutoIdleMs] = useState(LIVRET_AUTO_TURN_IDLE_MS_DESKTOP);
   const universPageIdx = Math.max(
     0,
     ABOUT_LIVRET_PAGES.findIndex((p) => p.id === "univers"),
@@ -170,8 +179,10 @@ export function AProposClient() {
       setLivretOpen(true);
     } else if (fromHashServices) {
       setLivretOpen(false);
-    } else if (saved && typeof saved.open === "boolean") {
-      setLivretOpen(saved.open);
+    } else {
+      // UX volontaire: en revenant sur À propos après navigation, le livret reste replié
+      // (sauf hash explicite), pour éviter une réouverture inattendue.
+      setLivretOpen(false);
     }
 
     if (fromHashServices) {
@@ -180,6 +191,17 @@ export function AProposClient() {
 
     setStorageSynced(true);
   }, [universPageIdx]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 720px)");
+    const sync = () =>
+      setLivretAutoIdleMs(
+        mq.matches ? LIVRET_AUTO_TURN_IDLE_MS_MOBILE : LIVRET_AUTO_TURN_IDLE_MS_DESKTOP,
+      );
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     const onHash = () => {
@@ -220,6 +242,32 @@ export function AProposClient() {
     writeLivretSession({ open: livretOpen, page: livretIdx });
   }, [storageSynced, livretOpen, livretIdx]);
 
+  useEffect(
+    () => () => {
+      // Ne pas conserver "open=true" quand on quitte la page.
+      writeLivretSession({ open: false, page: livretIdx });
+    },
+    [livretIdx],
+  );
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(LIVRET_AUTO_SESSION_KEY);
+      if (raw === "0") setLivretAutoEnabled(false);
+      else if (raw === "1") setLivretAutoEnabled(true);
+    } catch {
+      /* sessionStorage indisponible: comportement par défaut (Auto ON). */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(LIVRET_AUTO_SESSION_KEY, livretAutoEnabled ? "1" : "0");
+    } catch {
+      /* sessionStorage indisponible: ne bloque jamais l'UI. */
+    }
+  }, [livretAutoEnabled]);
+
   useEffect(() => {
     if (!storageSynced) return;
     if (livretOpen) {
@@ -229,23 +277,65 @@ export function AProposClient() {
     }
   }, [storageSynced, livretOpen]);
 
+  useEffect(() => {
+    if (reduceMotion || !servicesIndexOpen) return;
+    const targetCount = ABOUT_SERVICE_LINKS.length + 1; // teaser + liens index
+    if (targetCount <= 1) return;
+    const id = window.setInterval(() => {
+      setServicesGuideIdx((i) => (i + 1) % targetCount);
+    }, SERVICES_GUIDE_PRESS_MS);
+    return () => window.clearInterval(id);
+  }, [reduceMotion, servicesIndexOpen]);
+
   const line = ABOUT_ROTATING_LINES[lineIdx] ?? ABOUT_ROTATING_LINES[0];
   const page = ABOUT_LIVRET_PAGES[livretIdx] ?? ABOUT_LIVRET_PAGES[0];
   const last = ABOUT_LIVRET_PAGES.length - 1;
 
-  const goLivretPrev = useCallback(() => {
-    setLivretIdx((i) => Math.max(0, i - 1));
+  const markLivretInteraction = useCallback(() => {
+    setLivretLastInteractionAt(Date.now());
   }, []);
+
+  const turnLivret = useCallback(
+    (direction: 1 | -1, manual: boolean) => {
+      if (manual) {
+        setLivretAutoDir(direction);
+        markLivretInteraction();
+      }
+      setLivretIdx((i) => {
+        const next = i + direction;
+        if (next > last) {
+          if (last <= 0) return 0;
+          setLivretAutoDir(-1);
+          return last - 1;
+        }
+        if (next < 0) {
+          if (last <= 0) return 0;
+          setLivretAutoDir(1);
+          return 1;
+        }
+        return next;
+      });
+    },
+    [last, markLivretInteraction],
+  );
+
+  const goLivretPrev = useCallback(() => {
+    turnLivret(-1, true);
+  }, [turnLivret]);
 
   const goLivretNext = useCallback(() => {
-    setLivretIdx((i) => Math.min(last, i + 1));
-  }, [last]);
+    turnLivret(1, true);
+  }, [turnLivret]);
 
-  const onLivretTouchStart = useCallback((e: TouchEvent<HTMLElement>) => {
-    const t = e.changedTouches[0];
-    if (!t) return;
-    livretTouchStartRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
-  }, []);
+  const onLivretTouchStart = useCallback(
+    (e: TouchEvent<HTMLElement>) => {
+      const t = e.changedTouches[0];
+      if (!t) return;
+      markLivretInteraction();
+      livretTouchStartRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
+    },
+    [markLivretInteraction],
+  );
 
   const onLivretTouchEnd = useCallback(
     (e: TouchEvent<HTMLElement>) => {
@@ -268,12 +358,25 @@ export function AProposClient() {
 
   useEffect(() => {
     if (!livretOpen) return;
+    markLivretInteraction();
     const t = window.setTimeout(() => {
       document.getElementById(ABOUT_LIVRET_SECTION_ID)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
       livretRef.current?.focus({ preventScroll: true });
     }, 0);
     return () => window.clearTimeout(t);
-  }, [livretOpen, reduceMotion]);
+  }, [livretOpen, reduceMotion, markLivretInteraction]);
+
+  useEffect(() => {
+    if (!livretOpen || posterLightboxOpen || reduceMotion || !livretAutoEnabled) return;
+    if (ABOUT_LIVRET_PAGES.length <= 1) return;
+    const elapsed = Date.now() - livretLastInteractionAt;
+    const waitMs = Math.max(0, livretAutoIdleMs - elapsed);
+    const id = window.setTimeout(() => {
+      turnLivret(livretAutoDir, false);
+      setLivretLastInteractionAt(Date.now());
+    }, waitMs);
+    return () => window.clearTimeout(id);
+  }, [livretAutoDir, livretAutoEnabled, livretAutoIdleMs, livretLastInteractionAt, livretOpen, posterLightboxOpen, reduceMotion, turnLivret]);
 
   useEffect(() => {
     if (!livretOpen) return;
@@ -311,6 +414,19 @@ export function AProposClient() {
       return !prev;
     });
   }, []);
+
+  const closeLivretFromBottom = useCallback(() => {
+    setLivretOpen(false);
+    requestAnimationFrame(() => savoirPlusRef.current?.focus());
+  }, []);
+
+  const jumpToLivretToggle = useCallback(() => {
+    document.getElementById(ABOUT_LIVRET_SECTION_ID)?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+    window.setTimeout(() => savoirPlusRef.current?.focus(), reduceMotion ? 0 : 120);
+  }, [reduceMotion]);
 
   /** Kicker « Notre façon… » : ouvre le livret ou y ramène si déjà ouvert. */
   const openLivretFromKicker = useCallback(() => {
@@ -551,17 +667,52 @@ export function AProposClient() {
                 Tourner →
               </button>
             </div>
+            <div className="ptg-about-livret__nav" style={{ marginTop: "0.4rem" }}>
+              <button
+                type="button"
+                className="ptg-btn-livret"
+                aria-pressed={livretAutoEnabled}
+                onClick={() => {
+                  setLivretAutoEnabled((v) => !v);
+                  markLivretInteraction();
+                }}
+                aria-label={livretAutoEnabled ? "Désactiver le défilement automatique du livret" : "Activer le défilement automatique du livret"}
+                title={livretAutoEnabled ? "Auto activé (15s mobile / 18s desktop)" : "Auto désactivé"}
+              >
+                Auto {livretAutoEnabled ? "ON" : "OFF"}
+              </button>
+            </div>
             <p className={["ptg-about-livret__swipe-hint", showSwipeNudge ? "ptg-about-livret__swipe-hint--nudge" : ""].join(" ")} aria-hidden="true">
               ↔ Swipe pour tourner les pages
             </p>
             <p className="ptg-about-livret__hint">
-              Astuce : sélectionne cette zone (Tab) puis utilise ← → pour tourner les pages. Échap replie le livret.
+              Astuce : sélectionne cette zone (Tab) puis utilise ← → pour tourner les pages. Échap replie le livret. Sans interaction, les pages défilent
+              automatiquement (15s sur mobile, 18s sur desktop) quand Auto est activé.
             </p>
             <p className="ptg-about-livret__to-services">
               <Link href={`#${ABOUT_SERVICES_SECTION_ID}`} className="ptg-about-livret__to-services-link">
                 Index des pages du site
               </Link>
             </p>
+            <div className="ptg-about-livret__nav" style={{ marginTop: "0.4rem" }}>
+              <button
+                type="button"
+                className="ptg-btn-livret"
+                onClick={closeLivretFromBottom}
+                aria-label="Fermer le livret"
+              >
+                Fermer le livret ↑
+              </button>
+              <button
+                type="button"
+                className="ptg-btn-livret"
+                onClick={jumpToLivretToggle}
+                aria-label="Remonter au bouton fermer le livret"
+                title="Remonter en haut du livret"
+              >
+                ↑ Remonter
+              </button>
+            </div>
           </div>
         </section>
       ) : null}
@@ -604,11 +755,13 @@ export function AProposClient() {
           aria-label={ABOUT_SERVICES_SECTION_TITLE}
         >
           <div className="ptg-about-services-panel__inner" inert={servicesNarrow && !servicesIndexOpen ? true : undefined}>
-            <div className="ptg-about-services-livret">
+            <div className="ptg-about-services-livret ptg-motion-profile-guided">
               <div className="ptg-about-livret__notch" aria-hidden />
               <button
                 type="button"
-                className="ptg-about-services-poster-teaser"
+                className={["ptg-about-services-poster-teaser", !reduceMotion && servicesGuideIdx === 0 ? "ptg-about-guide-press" : ""]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={openPosterFromServices}
                 aria-label="Ouvrir le livret à la page affiche « L’univers en une image »"
               >
@@ -623,9 +776,20 @@ export function AProposClient() {
                 </span>
               </button>
               <ul className="ptg-about-services-grid ptg-list-plain">
-                {ABOUT_SERVICE_LINKS.map((item) => (
+                {ABOUT_SERVICE_LINKS.map((item, itemIdx) => (
                   <li key={item.href}>
-                    <Link href={item.href} className="ptg-about-service-link" prefetch={false}>
+                    <Link
+                      href={item.href}
+                      className={[
+                        "ptg-about-service-link",
+                        !reduceMotion && servicesGuideIdx === itemIdx + 1
+                          ? "ptg-guide-press"
+                          : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      prefetch={false}
+                    >
                       <span className="ptg-about-service-link__label">{item.label}</span>
                       <span className="ptg-about-service-link__blurb">{item.blurb}</span>
                     </Link>

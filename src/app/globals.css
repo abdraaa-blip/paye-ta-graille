@@ -35,6 +35,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@supports (min-height: 100svh) {
+  body {
+    min-height: 100svh;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Mobile/tablette: `fixed` peut créer des coupures de fond (surtout Safari/Chrome Android). */
+  body {
+    background-attachment: scroll;
+    background-size: auto, auto, auto, 320px 320px, 180px 180px, auto;
+  }
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -156,6 +170,34 @@ body::before {
   );
   overflow: hidden;
   transition: border-color var(--ptg-duration) var(--ptg-ease-out), box-shadow var(--ptg-duration) var(--ptg-ease-out);
+}
+
+/* Mobile portrait safety: évite un cadre qui s'écrase (notamment sur Partenaires/Expériences). */
+@media (max-width: 640px) {
+  .ptg-night-stage {
+    min-height: clamp(11rem, 52vw, 16rem);
+    height: clamp(11rem, 52vw, 16rem);
+    max-height: 16rem;
+  }
+
+  /* Mobile portrait: évite le recadrage agressif des illustrations de scène. */
+  .ptg-night-stage .ptg-hero-illustration__img,
+  .ptg-about-brand-stage__backdrop .ptg-hero-illustration__img {
+    object-fit: contain;
+    object-position: 50% 50%;
+  }
+
+  .ptg-night-stage .ptg-hero-illustration__veil {
+    opacity: 0.34;
+  }
+}
+
+@media (max-width: 390px) {
+  .ptg-night-stage {
+    min-height: clamp(10rem, 54vw, 13.5rem);
+    height: clamp(10rem, 54vw, 13.5rem);
+    max-height: 13.5rem;
+  }
 }
 
 .ptg-night-stage:hover {
@@ -348,7 +390,28 @@ body::before {
 
 .ptg-about-brand-stage-wrap .ptg-night-stage {
   margin-top: 0.35rem;
+  aspect-ratio: 3 / 2;
   min-height: clamp(11rem, 56vw, 26rem);
+  height: auto;
+}
+
+.ptg-about-brand-stage__backdrop {
+  animation: ptg-brand-stage-fade-in 1.15s var(--ptg-ease-out) both;
+}
+
+/* À propos (cadre marque) : toujours montrer l'image complète, sans recadrage agressif. */
+.ptg-about-brand-stage__backdrop .ptg-hero-illustration__img {
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+@keyframes ptg-brand-stage-fade-in {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Page Partenaires : espacements via classes (évite styles inline). */
@@ -909,7 +972,14 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--ptg-bg);
+  /* Le fond global body continue jusqu'au bas (évite les ruptures visuelles de section). */
+  background: transparent;
+}
+
+@supports (min-height: 100svh) {
+  .ptg-page {
+    min-height: 100svh;
+  }
 }
 
 .ptg-page-inner {
@@ -1354,6 +1424,12 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 .ptg-hero-shell--tall {
   min-height: min(100dvh, 56rem);
   padding-bottom: 2.5rem;
+}
+
+@supports (min-height: 100svh) {
+  .ptg-hero-shell--tall {
+    min-height: min(100svh, 56rem);
+  }
 }
 
 .ptg-hero-stage {
@@ -1911,6 +1987,53 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   );
   box-shadow: var(--ptg-shadow-lift), 0 1px 0 color-mix(in srgb, #fff 65%, transparent) inset;
   padding: 1.15rem 1.2rem 1rem;
+  overflow: hidden;
+}
+
+/* Index des pages: même lumière "touch" qui descend puis remonte automatiquement. */
+.ptg-about-services-livret::before {
+  content: "";
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  top: 0;
+  height: 48%;
+  pointer-events: none;
+  opacity: 0.22;
+  background: radial-gradient(
+    ellipse 70% 100% at 50% 0%,
+    color-mix(in srgb, #fff 86%, var(--ptg-butter)) 0%,
+    color-mix(in srgb, var(--ptg-accent) 24%, transparent) 42%,
+    transparent 76%
+  );
+  transform: translate3d(0, -130%, 0);
+  animation: ptg-services-touch-light 8.8s var(--ptg-ease-out) infinite;
+}
+
+/* Quand on appuie/interaction, on reprend la même lumière mais plus présente. */
+.ptg-about-services-livret:active::before,
+.ptg-about-services-livret:focus-within::before {
+  opacity: 0.36;
+  animation-duration: 3.1s;
+}
+
+@keyframes ptg-services-touch-light {
+  0% {
+    transform: translate3d(0, -130%, 0);
+    opacity: 0.12;
+  }
+  38% {
+    transform: translate3d(0, 98%, 0);
+    opacity: 0.3;
+  }
+  54% {
+    transform: translate3d(0, 118%, 0);
+    opacity: 0.18;
+  }
+  100% {
+    transform: translate3d(0, -130%, 0);
+    opacity: 0.12;
+  }
 }
 
 .ptg-about-services-poster-teaser {
@@ -2001,7 +2124,8 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   transition:
     background var(--ptg-duration-fast) var(--ptg-ease-out),
     border-color var(--ptg-duration-fast) var(--ptg-ease-out),
-    box-shadow var(--ptg-duration-fast) var(--ptg-ease-out);
+    box-shadow var(--ptg-duration-fast) var(--ptg-ease-out),
+    transform var(--ptg-duration-fast) var(--ptg-ease-out);
 }
 
 .ptg-about-service-link:hover {
@@ -2013,6 +2137,95 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 .ptg-about-service-link:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ptg-accent) 35%, transparent);
+}
+
+/* Guide indicatif "appui": utilitaire global pour mettre en lumière un CTA. */
+.ptg-guide-press,
+.ptg-about-guide-press {
+  animation: ptg-about-guide-press 0.72s var(--ptg-ease-out) both;
+}
+
+/* Intensité par défaut (peut être surchargée par section). */
+:where(.ptg-guide-press, .ptg-about-guide-press) {
+  --ptg-guide-press-scale-pressed: var(--ptg-motion-guide-press-scale);
+  --ptg-guide-press-ring-size: var(--ptg-motion-guide-press-ring-size);
+  --ptg-guide-press-ring-alpha: var(--ptg-motion-guide-press-ring-alpha);
+  --ptg-guide-press-glow-y: var(--ptg-motion-guide-press-glow-y);
+  --ptg-guide-press-glow-blur: var(--ptg-motion-guide-press-glow-blur);
+  --ptg-guide-press-glow-alpha: var(--ptg-motion-guide-press-glow-alpha);
+  --ptg-guide-press-brightness: var(--ptg-motion-guide-press-brightness);
+  --ptg-guide-press-cycle-ms: var(--ptg-motion-guide-press-cycle-ms);
+}
+
+/* Motion profiles: pilotage simple par section sans toucher aux keyframes. */
+.ptg-motion-profile-subtle :where(.ptg-guide-press, .ptg-about-guide-press) {
+  --ptg-guide-press-ring-size: 4px;
+  --ptg-guide-press-ring-alpha: 24%;
+  --ptg-guide-press-glow-y: 10px;
+  --ptg-guide-press-glow-blur: 24px;
+  --ptg-guide-press-glow-alpha: 20%;
+  --ptg-guide-press-brightness: 1.06;
+  --ptg-guide-press-cycle-ms: 5400ms;
+}
+
+.ptg-motion-profile-guided :where(.ptg-guide-press, .ptg-about-guide-press) {
+  --ptg-guide-press-ring-size: 6px;
+  --ptg-guide-press-ring-alpha: 34%;
+  --ptg-guide-press-glow-y: 13px;
+  --ptg-guide-press-glow-blur: 34px;
+  --ptg-guide-press-glow-alpha: 30%;
+  --ptg-guide-press-brightness: 1.12;
+  --ptg-guide-press-cycle-ms: 5200ms;
+}
+
+.ptg-motion-profile-hero :where(.ptg-guide-press, .ptg-about-guide-press) {
+  --ptg-guide-press-ring-size: 5px;
+  --ptg-guide-press-ring-alpha: 28%;
+  --ptg-guide-press-glow-y: 12px;
+  --ptg-guide-press-glow-blur: 28px;
+  --ptg-guide-press-glow-alpha: 24%;
+  --ptg-guide-press-brightness: 1.08;
+  --ptg-guide-press-cycle-ms: 5300ms;
+}
+
+/* Alterne automatiquement l'effet d'appui entre enfants (ex: 2 CTA). */
+.ptg-guide-press-cycle > .ptg-guide-press {
+  animation-duration: var(--ptg-guide-press-cycle-ms);
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--ptg-ease-out);
+}
+
+.ptg-guide-press-cycle > .ptg-guide-press:nth-child(2) {
+  animation-delay: calc(var(--ptg-guide-press-cycle-ms) / 2);
+}
+
+@keyframes ptg-about-guide-press {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ptg-accent) 0%, transparent);
+    filter: brightness(1);
+  }
+  36% {
+    transform: translateY(1px) scale(var(--ptg-guide-press-scale-pressed));
+    box-shadow:
+      0 0 0 var(--ptg-guide-press-ring-size) color-mix(in srgb, var(--ptg-accent) var(--ptg-guide-press-ring-alpha), transparent),
+      0 var(--ptg-guide-press-glow-y) var(--ptg-guide-press-glow-blur) color-mix(in srgb, var(--ptg-accent) var(--ptg-guide-press-glow-alpha), transparent),
+      0 1px 0 color-mix(in srgb, #fff 60%, transparent) inset;
+    filter: brightness(var(--ptg-guide-press-brightness));
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ptg-accent) 0%, transparent);
+    filter: brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-guide-press,
+  .ptg-about-guide-press,
+  .ptg-guide-press-cycle > .ptg-guide-press {
+    animation: none;
+  }
 }
 
 .ptg-about-service-link__label {
@@ -3053,6 +3266,7 @@ a.ptg-kicker-pill--link:focus-visible {
   display: inline-flex;
   align-items: center;
   border-radius: var(--ptg-radius-sm);
+  gap: 0.35rem;
   transition: color var(--ptg-duration) var(--ptg-ease-out), background var(--ptg-duration) var(--ptg-ease-out),
     transform 0.15s var(--ptg-ease-out);
 }
@@ -3082,6 +3296,26 @@ a.ptg-kicker-pill--link:focus-visible {
   opacity: 0.85;
   transform: rotate(-0.6deg);
   pointer-events: none;
+}
+
+.ptg-nav-notif-badge {
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ptg-radius-pill);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--ptg-accent) 85%, #b33b19),
+    color-mix(in srgb, var(--ptg-accent-deep) 78%, #8a2d16)
+  );
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--ptg-accent-deep) 35%, transparent);
 }
 
 .ptg-label {
@@ -3296,6 +3530,10 @@ a.ptg-kicker-pill--link:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ptg-about-brand-stage__backdrop {
+    animation: none;
+  }
+
   .ptg-ambient__smoke,
   .ptg-ambient__beam,
   .ptg-night-stage__beam {
@@ -3433,10 +3671,44 @@ a.ptg-kicker-pill--link:focus-visible {
 }
 
 @media (max-width: 720px) {
+  /* Mobile portrait: priorise l'image entière (évite le recadrage agressif du hero). */
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+    object-fit: contain;
+    object-position: 50% 50%;
+    opacity: 0.5;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__veil {
+    opacity: 0.8;
+  }
+
   .ptg-nav-brand {
     width: 100%;
     justify-content: center;
     margin: 0 0 0.2rem;
+  }
+
+  /* Plus d'espace vertical utile en portrait pour afficher l'image d'accueil en entier. */
+  .ptg-hero-shell {
+    min-height: 100dvh;
+    padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
+  }
+
+  @supports (min-height: 100svh) {
+    .ptg-hero-shell {
+      min-height: 100svh;
+    }
+  }
+
+  .ptg-hero-stage {
+    max-width: min(30rem, 100%);
+  }
+
+  /* Déclaré en fin de feuille mobile pour battre les règles `cover` plus haut. */
+  .ptg-night-stage .ptg-hero-illustration__img,
+  .ptg-about-brand-stage__backdrop .ptg-hero-illustration__img {
+    object-fit: contain;
+    object-position: 50% 50%;
   }
 
   .ptg-hero-orbits {

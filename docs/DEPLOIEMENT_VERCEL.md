@@ -61,13 +61,21 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `DATABASE_URL` | Si connexion directe Postgres (optionnel si tout via Supabase) |
 | `RESEND_API_KEY` | Emails transactionnels (ex. **repas proposé** → invité·e, si clé + domaine / expéditeur valides) |
 | `RESEND_FROM_EMAIL` | Expéditeur Resend vérifié, ex. `Paye ta graille <notifications@ton-domaine.tld>` ; défaut dev `onboarding@resend.dev` |
+| `REPORT_ALERT_EMAIL` | Destinataires des alertes signalement (`/api/report`) ; un ou plusieurs e-mails séparés par virgule |
 | `GOOGLE_PLACES_API_KEY` | Places API **côté serveur** (`/api/places/*`) |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Paiements si `NEXT_PUBLIC_PTG_MODULE_PAYMENTS` actif |
 | `PTG_MODULE_REQUIRE_VERIFIED_EMAIL` | Modules Graille+ : exiger email vérifié (`0` pour désactiver en dev) |
 | `PTG_BASE_URL` | Scripts smoke / `wait-for-health` — base HTTP (défaut `http://127.0.0.1:3000` côté scripts) |
+| `PTG_E2E_BASE_URL` | Base HTTP dédiée aux suites Playwright E2E (`test:e2e`, `test:e2e:mobile`) ; défaut local `http://127.0.0.1:4010` |
 | `PTG_CHECK_PORT` | Optionnel : port pour `npm run checks:prod-local` (`next start -p …`) si **3000** est déjà utilisé |
 | `PTG_GROWTH_ADMIN_USER_IDS` | UUIDs Supabase (séparés par virgule ou espace) autorisés sur `/interne/croissance` et `GET /api/growth/kpi` sans secret |
 | `PTG_GROWTH_KPI_SECRET` | Secret optionnel pour `GET /api/growth/kpi` (en-tête `x-ptg-growth-kpi-secret`) — scripts / outils externes |
+| `PTG_GROWTH_FEEDBACK_THRESHOLD_PROFILE` | Profil seuils feedback (`strict`, `normal`, `lenient`) pour `/interne/croissance` et `GET /api/growth/kpi` |
+| `PTG_GROWTH_FEEDBACK_DELTA_WARN` / `PTG_GROWTH_FEEDBACK_VOLUME_WARN` / `PTG_GROWTH_FEEDBACK_BASELINE_GAP_WARN` | Seuils optionnels (nombres) pour badges d’alerte feedback dans `/interne/croissance` + `GET /api/growth/kpi` |
+| `PTG_GROWTH_ALERT_USER_IDS` | UUIDs admins (séparés par virgule/espace) recevant une notif in-app auto si baseline feedback passe sous le seuil critique (anti-spam: max 1/jour) |
+| `PTG_GROWTH_DIGEST_HOUR_PARIS` | Heure du digest quotidien croissance (fuseau Europe/Paris, 0-23), émis via cron horaire (anti-spam: max 1/jour) |
+| `PTG_GROWTH_WEEKLY_DIGEST_ISO_DAY` / `PTG_GROWTH_WEEKLY_DIGEST_HOUR_PARIS` | Digest hebdo comparatif (jour ISO 1-7 + heure Paris), émis via cron horaire (anti-spam: max 1/semaine) |
+| `PTG_GROWTH_DECISION_MAKER_USER_IDS` | UUIDs décideurs (séparés par virgule/espace) notifiés en plus si le digest hebdo est classé risque **critical** |
 | `NEXT_DEV_ALLOWED_ORIGINS` | Dev : IP/host LAN pour `next dev` multi-appareils (voir `next.config`) |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Rate-limit distribué (recommandé prod multi-instance) |
 | `PTG_CSP_REPORT_ONLY` / `PTG_CSP_REPORT_URI` | Durcissement CSP progressif (report-only puis enforce) |
@@ -94,7 +102,7 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 |---------|--------|
 | `vercel.json` | **Cron** : `GET /api/cron/meal-reminders` chaque heure (rappels e-mail + clôture auto repas) ; headers/rewrites restent optionnels selon besoin |
 | `.env.example` | Liste des clés **sans valeurs** pour onboarding dev |
-| `.github/workflows/ci.yml` | `lint` + `typecheck` + `build` + **Playwright** (smoke HTTP + navigateur) + job **beta-seo** Playwright (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`) ; `smoke:public` reste disponible hors CI |
+| `.github/workflows/ci.yml` | job `workflow-lint` (fail-fast) puis `lint` + `typecheck` + `build` + **Playwright** desktop (smoke HTTP + navigateur) + job **mobile-consistency** dédié + job **beta-seo** (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`) ; annulation auto des runs obsolètes (`concurrency`) + artefacts Playwright en cas d’échec |
 | `.github/dependabot.yml` | PR hebdomadaires **npm** (dépendances) — à merger après `verify` / build |
 | `src/app/global-error.tsx` | Fallback si erreur au niveau root layout (évite écran blanc brut) |
 | `public/hero/landing-watercolor.png` | Source PNG du fond d’accueil ; `npm run optimize:hero` produit `landing-watercolor.webp` (largeur max **1920px**) — versionner le WebP dans Git. |
@@ -112,6 +120,8 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 ## 5. Supabase + Vercel
 
 - **Migrations** : après chaque release qui modifie le schéma, appliquer les fichiers du dossier `supabase/migrations/` sur le projet cible (CLI `supabase db push` ou exécution manuelle dans le SQL Editor). Sans cela, les vues KPI (`growth_kpi_daily`), colonnes `user_settings` (préférences + compteur e-mail jour), colonnes rappels repas sur `meals`, ou tables métier peuvent être désynchronisées du code Next.
+- **Feedback in-app (MVP)** : la route `GET/POST /api/feedback` dépend de `public.user_feedback` (migration `20260501120000_user_feedback.sql`). Si non appliquée, l’API retourne `503 feedback_unavailable` (dégradation contrôlée côté UI).
+- **ACK alertes in-app (audit)** : la route `PATCH /api/notifications` (champ `acknowledge_ids`) dépend des colonnes `acknowledged_at` et `acknowledged_by_user_id` sur `public.user_notifications` (migration `20260501124000_user_notifications_ack.sql`).
 - **Cron (rappels repas J-24 / J-2h + clôture auto)** : `vercel.json` déclenche chaque heure `GET /api/cron/meal-reminders`. Même route : après les rappels, les repas **`confirmed`** dont la fin de créneau + **`PTG_MEAL_AUTO_COMPLETE_GRACE_HOURS`** (défaut 24) est dépassée passent en **`completed`** (sauf si **`PTG_MEAL_AUTO_COMPLETE=off`**). Sur Vercel, définir **`CRON_SECRET`** : la plateforme envoie `Authorization: Bearer <CRON_SECRET>`. Sans secret, la route répond 503. Pour les mails de rappel : **`RESEND_API_KEY`** ; pour lecture / update repas : **`SUPABASE_SERVICE_ROLE_KEY`** ; migrations `20260430100000_meals_reminder_columns.sql` et `20260430200000_auto_complete_meals_rpc.sql`. Vérifie que ton **plan Vercel** inclut les tâches planifiées (Cron Jobs).
 - Activer **RLS** sur toutes les tables exposées.  
 - **Ne pas** exposer la `service_role` au client.  
@@ -154,7 +164,8 @@ Sans cela, le **magic link** / **échange de code** après le mail échoue.
 - [ ] Page d’accueil **200**  
 - [ ] `GET /api/health` → **200**, JSON `ok: true` et `version` (champ `version` du `package.json`)  
 - [ ] Local / preview rapide : `npm run checks:prod-local` (start + wait health + smoke + stop serveur)  
-- [ ] Après déploiement : `PTG_BASE_URL=https://<ton-domaine> npm run test:e2e` (smoke Playwright) ou `npm run smoke:public` si `next start` déjà actif — routes listées + kicker hero → `/a-propos`  
+- [ ] Après déploiement : `PTG_E2E_BASE_URL=https://<ton-domaine> npm run test:e2e` (smoke Playwright) ou `PTG_BASE_URL=https://<ton-domaine> npm run smoke:public` si `next start` déjà actif — routes listées + kicker hero → `/a-propos`  
+- [ ] Contrôle mobile critique : `PTG_E2E_BASE_URL=https://<ton-domaine> npm run test:e2e:mobile` (cadrage/continuité/stress viewport+orientation)  
 - [ ] Si mode bêta public: `PTG_BASE_URL=https://<ton-domaine> npm run assert:beta-seo`  
 - [ ] Seconde graille : vérifier anonymat public (donneur affiché “Membre vérifié” avant claim), puis déverrouillage identité seulement après claim confirmé  
 - [ ] Auth (inscription / magic link) **fonctionne**  
