@@ -84,7 +84,7 @@ Interlignes : `--ptg-leading-tight` … `--ptg-leading-relaxed`.
 ## 5. Espacements & layout
 
 - Échelle **4px** : `--ptg-space-1` … `--ptg-space-10`
-- Colonnes : `--ptg-content-max` (28rem), `--ptg-content-wide`
+- Colonnes : `--ptg-content-max` / `--ptg-content-wide` — **mobile-first** (28rem par défaut) puis élargissement par breakpoints (`480px` → `720px` → `1024px` → `1280px`, voir `ptg-tokens.css`)
 - Rythme vertical : `.ptg-stack`, `.ptg-prose` / `.ptg-prose-wide`
 - Modificateurs de gap (à composer **avec** `.ptg-stack`) : `.ptg-stack--tight` (~0,75rem), `.ptg-stack--dense` (~0,65rem), `.ptg-stack--compact` (~0,5rem), `.ptg-stack--roomy` (~0,85rem)
 
@@ -96,7 +96,7 @@ Interlignes : `--ptg-leading-tight` … `--ptg-leading-relaxed`.
 | Classe | Usage |
 |--------|--------|
 | `.ptg-btn-primary` | Action principale (min `--ptg-btn-height-lg`) |
-| `.ptg-btn-primary--compact` | Barres d’actions dans cartes |
+| `.ptg-btn-primary--compact` | Barres d’actions dans cartes (sur viewport ≤720px, hauteur tactile alignée sur `--ptg-btn-height-md`) |
 | `.ptg-btn-secondary` | Action secondaire outline |
 | `.ptg-btn-secondary--compact` | Paire avec primary compact |
 | `.ptg-btn-ghost` | Tertiaire, lien discret |
@@ -138,7 +138,7 @@ Liens : `a.ptg-btn-primary` sans soulignement.
 | `.ptg-prose-list--sm` / `--xs` / `--md` | Tailles de texte alignées sur l’échelle typo |
 
 ### Navigation & filtres
-- `.ptg-nav`, `.ptg-nav-link`, `.ptg-nav-link--active` (soulignement gradient)
+- `.ptg-nav`, `.ptg-nav-link`, `.ptg-nav-link--active` (soulignement gradient ; liens ≥ `--ptg-btn-height-md` pour le tactile)
 - `.ptg-filter-chip`, `.ptg-filter-chip--active`
 - `.ptg-chip` (sélection multiple)
 
