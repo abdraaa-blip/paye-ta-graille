@@ -58,6 +58,7 @@ my-job:
 
 ## 4) Anti-régression
 
+- Le workflow `CI Governance Guard` (`.github/workflows/ci-governance.yml`) expose un job dont l’**id YAML** doit rester **`ci-governance`** : c’est le nom du statut attendu par la branch protection sur `main` / `master`.
 - Lancer `workflow-lint` dans le pipeline principal.
 - Le garde-fou `ci-governance` exige docs CI alignées si un workflow est modifié.
 - Vérifier localement les scripts partagés (`npm run test:scripts`).
