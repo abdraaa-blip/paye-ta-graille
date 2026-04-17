@@ -195,7 +195,7 @@ export function AProposClient() {
               aria-controls={livretOpen ? ABOUT_LIVRET_SECTION_ID : undefined}
               title="Ouvre le livret du concept (même action qu’« En savoir plus »)"
             >
-              {ABOUT_KICKER}
+              <span className="ptg-kicker-pill__hero-text">{ABOUT_KICKER}</span>
             </button>
             <div className="ptg-accent-rule ptg-accent-rule--hero" />
             <h1 id="apropos-title" className="ptg-type-display ptg-type-display--hero" style={{ margin: "0 0 0.65rem" }}>
@@ -220,15 +220,20 @@ export function AProposClient() {
             <p className="ptg-type-body" style={{ margin: "0 0 1rem", maxWidth: "none" }}>
               {ABOUT_LEAD}
             </p>
-            <ul className="ptg-list-plain" style={{ margin: "0 0 1rem" }}>
+            <ul className="ptg-list-plain ptg-about-pillars" style={{ margin: "0 0 1rem" }}>
               {ABOUT_PILLARS.map((p) => (
-                <li key={p.title} className="ptg-surface ptg-surface--static ptg-card ptg-card--compact">
+                <li
+                  key={p.title}
+                  tabIndex={0}
+                  className="ptg-surface ptg-surface--static ptg-card ptg-card--compact ptg-about-pillar"
+                >
                   <p className="ptg-card-title" style={{ fontSize: "var(--ptg-text-md-sm)", marginBottom: "0.35rem" }}>
                     {p.title}
                   </p>
-                  <p className="ptg-type-body" style={{ margin: 0, fontSize: "var(--ptg-text-ui-sm)", maxWidth: "none" }}>
+                  <p className="ptg-type-body ptg-about-pillar__lede" style={{ margin: 0, fontSize: "var(--ptg-text-ui-sm)", maxWidth: "none" }}>
                     {p.body}
                   </p>
+                  <p className="ptg-type-body ptg-about-pillar__detail">{p.detail}</p>
                 </li>
               ))}
             </ul>

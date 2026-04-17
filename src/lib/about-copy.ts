@@ -24,20 +24,33 @@ export const ABOUT_ROTATING_LINES = [
 export const ABOUT_LEAD =
   "On croit qu’un bon moment autour d’une assiette vaut mieux qu’une promesse en l’air. Paye ta graille aide à oser proposer, oser dire comment tu vois l’addition, et retrouver du lien réel.";
 
-export const ABOUT_PILLARS = [
+export type AboutPillar = {
+  title: string;
+  body: string;
+  /** Détail discret au survol / focus (carte tabbable, pas un second CTA coloré). */
+  detail: string;
+};
+
+export const ABOUT_PILLARS: readonly AboutPillar[] = [
   {
     title: "Clarté",
     body: "Intentions repas visibles tôt : moins de gêne, plus de respect.",
+    detail:
+      "Invite, partage ou « je me fais inviter » : tu vois tôt comment la personne nomme l’addition, avant le jour J. Moins de sous-entendus quand les couverts touchent l’assiette.",
   },
   {
     title: "Proximité",
     body: "Autour de toi, au bon moment. Pas une scène de dating forcée.",
+    detail:
+      "Quartier et créneau d’abord : on vise des trajets simples et des tables réelles, pas une carte du monde où tout le monde te « matche » sans jamais manger.",
   },
   {
     title: "Chaleur",
     body: "Une interface qui donne faim, sans te presser.",
+    detail:
+      "Tamisé, humain, un ton qui ressemble à une conversation : on laisse la pression du profil parfait dehors — le repas reste le prétexte naturel.",
   },
-] as const;
+];
 
 /** Livret « carte de restaurant » : une page = un volet du concept (ordre de lecture). */
 export type AboutLivretPage = {

@@ -1885,6 +1885,21 @@ button.ptg-kicker-pill--about-trigger {
   text-align: left;
 }
 
+/* Texte du kicker : même dégradé que le H1 hero (lisible « bleu » / sauge + encre). */
+button.ptg-kicker-pill--about-trigger .ptg-kicker-pill__hero-text {
+  background: linear-gradient(
+    118deg,
+    var(--ptg-ink-display) 0%,
+    color-mix(in srgb, var(--ptg-accent-deep) 82%, var(--ptg-olive)) 38%,
+    var(--ptg-accent-deep) 62%,
+    color-mix(in srgb, var(--ptg-accent) 55%, var(--ptg-olive)) 88%,
+    color-mix(in srgb, var(--ptg-olive) 42%, var(--ptg-ink-display)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 button.ptg-kicker-pill--about-trigger:hover {
   transform: translateY(-1px);
   box-shadow: var(--ptg-shadow-soft);
@@ -1893,6 +1908,60 @@ button.ptg-kicker-pill--about-trigger:hover {
 button.ptg-kicker-pill--about-trigger:focus-visible {
   outline: 2px solid var(--ptg-accent);
   outline-offset: 3px;
+}
+
+/* Piliers À propos : détail discret au survol / focus (carte tabbable, pas de CTA coloré). */
+.ptg-about-pillar {
+  outline: none;
+  cursor: default;
+  transition: box-shadow var(--ptg-duration-fast) var(--ptg-ease-out);
+}
+
+.ptg-about-pillar:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ptg-line) 70%, var(--ptg-accent) 22%);
+}
+
+.ptg-about-pillar__detail {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: var(--ptg-text-xs);
+  line-height: 1.5;
+  color: var(--ptg-text-muted);
+  border-top: 1px solid transparent;
+  opacity: 0;
+  transition:
+    max-height 0.38s var(--ptg-ease-out),
+    opacity 0.26s ease,
+    margin-top 0.26s ease,
+    padding-top 0.26s ease,
+    border-color 0.2s ease,
+    visibility 0s linear 0.2s;
+}
+
+@media (hover: hover) {
+  .ptg-about-pillar:hover {
+    cursor: help;
+  }
+}
+
+.ptg-about-pillar:hover .ptg-about-pillar__detail,
+.ptg-about-pillar:focus-within .ptg-about-pillar__detail {
+  max-height: 8rem;
+  margin-top: 0.5rem;
+  padding-top: 0.45rem;
+  border-top-color: color-mix(in srgb, var(--ptg-line) 48%, transparent);
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptg-about-pillar__detail {
+    transition: none;
+  }
 }
 
 .ptg-accent-rule {
