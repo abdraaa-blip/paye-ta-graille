@@ -1,24 +1,29 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("À propos", () => {
-  test("le livret est visible sous le hero", async ({ page }) => {
+  test("kicker « Notre façon… » ouvre le livret", async ({ page }) => {
     await page.goto("/a-propos");
-    await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toHaveCount(0);
+    await page.getByRole("button", { name: /Notre façon de voir les choses/i }).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
   });
 
-  test("En savoir plus amène le livret dans la vue", async ({ page }) => {
+  test("livret se déploie et se replie", async ({ page }) => {
     await page.goto("/a-propos");
-    await page.getByRole("button", { name: /En savoir plus/i }).click();
-    await expect(page.getByRole("region", { name: "Le livret" })).toBeInViewport();
+    await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toHaveCount(0);
+    await page.getByRole("button", { name: /Ouvrir le livret/i }).click();
+    await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toBeVisible();
+    await page.getByRole("button", { name: /Replier le livret/i }).click();
+    await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toHaveCount(0);
   });
 
-  test("ancre #livret-payetagraille amène le livret", async ({ page }) => {
+  test("ancre #livret-payetagraille ouvre le livret", async ({ page }) => {
     await page.goto("/a-propos#livret-payetagraille");
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
   });
 
-  test("ancre courte #livret amène le livret", async ({ page }) => {
+  test("ancre courte #livret ouvre le livret", async ({ page }) => {
     await page.goto("/a-propos#livret");
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
   });
@@ -29,9 +34,9 @@ test.describe("À propos", () => {
     await expect(page.locator('a.ptg-about-service-link[href="/auth"]')).toBeVisible();
   });
 
-  test("ancre #apropos-services affiche l’index dans la vue", async ({ page }) => {
+  test("ancre #apropos-services laisse le livret fermé et affiche l’index", async ({ page }) => {
     await page.goto("/a-propos#apropos-services");
-    await expect(page.getByRole("region", { name: "Le livret" })).toBeAttached();
+    await expect(page.getByRole("region", { name: "Le livret" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: /Ce qu.*propose/i })).toBeInViewport();
   });
 });

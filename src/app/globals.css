@@ -1238,6 +1238,31 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   color: var(--ptg-accent-deep);
 }
 
+/* À propos : « En savoir plus » lisible (contraste fort sur fond hero clair). */
+.ptg-link-savoir-plus--about-cta {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--ptg-radius-pill);
+  border: 1px solid color-mix(in srgb, var(--ptg-accent-deep) 42%, var(--ptg-line));
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--ptg-accent-deep) 88%, #142010) 0%,
+    color-mix(in srgb, var(--ptg-accent-deep) 72%, var(--ptg-olive)) 100%
+  );
+  color: var(--ptg-surface);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--ptg-accent-deep) 22%, transparent);
+  text-decoration: none;
+}
+
+.ptg-link-savoir-plus--about-cta:hover {
+  color: var(--ptg-surface);
+  filter: brightness(1.06);
+}
+
+.ptg-link-savoir-plus--about-cta:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ptg-accent) 65%, transparent);
+  outline-offset: 3px;
+}
+
 .ptg-about-livret-teaser {
   margin: 0 0 1rem;
   max-width: none;
@@ -1849,6 +1874,23 @@ a.ptg-kicker-pill--link:hover {
 }
 
 a.ptg-kicker-pill--link:focus-visible {
+  outline: 2px solid var(--ptg-accent);
+  outline-offset: 3px;
+}
+
+/* À propos : kicker = entrée livret (même intention qu’« En savoir plus »). */
+button.ptg-kicker-pill--about-trigger {
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+button.ptg-kicker-pill--about-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ptg-shadow-soft);
+}
+
+button.ptg-kicker-pill--about-trigger:focus-visible {
   outline: 2px solid var(--ptg-accent);
   outline-offset: 3px;
 }

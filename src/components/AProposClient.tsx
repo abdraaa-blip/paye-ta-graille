@@ -22,6 +22,8 @@ import {
   readLivretSession,
   scrollToAboutServices,
   servicesHashMatches,
+  setLivretHashIfAllowed,
+  stripOurLivretHash,
   writeLivretSession,
 } from "@/lib/about-livret-session";
 import { UX_HOME } from "@/lib/ux-copy";
@@ -37,8 +39,10 @@ export function AProposClient() {
   const reduceMotion = usePrefersReducedMotion();
   const [lineIdx, setLineIdx] = useState(0);
   const [livretIdx, setLivretIdx] = useState(0);
+  const [livretOpen, setLivretOpen] = useState(false);
   const [storageSynced, setStorageSynced] = useState(false);
   const livretRef = useRef<HTMLElement>(null);
+  const savoirPlusRef = useRef<HTMLButtonElement>(null);
   const livretLabelId = useId();
   const servicesLabelId = useId();
 
@@ -48,14 +52,6 @@ export function AProposClient() {
       setLineIdx((j) => (j + 1) % ABOUT_ROTATING_LINES.length);
     }, ROTATE_MS);
     return () => window.clearInterval(id);
-  }, [reduceMotion]);
-
-  const scrollToLivret = useCallback(() => {
-    document.getElementById(ABOUT_LIVRET_SECTION_ID)?.scrollIntoView({
-      behavior: reduceMotion ? "auto" : "smooth",
-      block: "start",
-    });
-    window.setTimeout(() => livretRef.current?.focus({ preventScroll: true }), reduceMotion ? 0 : 380);
   }, [reduceMotion]);
 
   useEffect(() => {
@@ -69,44 +65,44 @@ export function AProposClient() {
     setLivretIdx(page);
 
     if (fromHashLivret) {
-      window.requestAnimationFrame(() => {
-        document.getElementById(ABOUT_LIVRET_SECTION_ID)?.scrollIntoView({
-          behavior: reduceMotion ? "auto" : "smooth",
-          block: "start",
-        });
-        window.setTimeout(() => livretRef.current?.focus({ preventScroll: true }), reduceMotion ? 0 : 380);
-      });
+      setLivretOpen(true);
     } else if (fromHashServices) {
+      setLivretOpen(false);
+    } else if (saved && typeof saved.open === "boolean") {
+      setLivretOpen(saved.open);
+    }
+
+    if (fromHashServices) {
       window.requestAnimationFrame(() => scrollToAboutServices());
     }
 
     setStorageSynced(true);
-  }, [reduceMotion]);
+  }, []);
 
   useEffect(() => {
     const onHash = () => {
-      const h = window.location.hash;
-      if (livretHashWantsOpen(h)) {
-        window.requestAnimationFrame(() => {
-          document.getElementById(ABOUT_LIVRET_SECTION_ID)?.scrollIntoView({
-            behavior: reduceMotion ? "auto" : "smooth",
-            block: "start",
-          });
-          window.setTimeout(() => livretRef.current?.focus({ preventScroll: true }), reduceMotion ? 0 : 380);
-        });
-      }
-      if (servicesHashMatches(h)) {
+      setLivretOpen(livretHashWantsOpen(window.location.hash));
+      if (servicesHashMatches(window.location.hash)) {
         window.requestAnimationFrame(() => scrollToAboutServices());
       }
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
-  }, [reduceMotion]);
+  }, []);
 
   useEffect(() => {
     if (!storageSynced) return;
-    writeLivretSession({ page: livretIdx });
-  }, [storageSynced, livretIdx]);
+    writeLivretSession({ open: livretOpen, page: livretIdx });
+  }, [storageSynced, livretOpen, livretIdx]);
+
+  useEffect(() => {
+    if (!storageSynced) return;
+    if (livretOpen) {
+      setLivretHashIfAllowed();
+    } else {
+      stripOurLivretHash();
+    }
+  }, [storageSynced, livretOpen]);
 
   const line = ABOUT_ROTATING_LINES[lineIdx] ?? ABOUT_ROTATING_LINES[0];
   const page = ABOUT_LIVRET_PAGES[livretIdx] ?? ABOUT_LIVRET_PAGES[0];
@@ -119,6 +115,49 @@ export function AProposClient() {
   const goLivretNext = useCallback(() => {
     setLivretIdx((i) => Math.min(last, i + 1));
   }, [last]);
+
+  useEffect(() => {
+    if (!livretOpen) return;
+    const t = window.setTimeout(() => {
+      document.getElementById(ABOUT_LIVRET_SECTION_ID)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      livretRef.current?.focus({ preventScroll: true });
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [livretOpen, reduceMotion]);
+
+  useEffect(() => {
+    if (!livretOpen) return;
+    const onDocKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setLivretOpen(false);
+      requestAnimationFrame(() => savoirPlusRef.current?.focus());
+    };
+    document.addEventListener("keydown", onDocKey);
+    return () => document.removeEventListener("keydown", onDocKey);
+  }, [livretOpen]);
+
+  const toggleLivret = useCallback(() => {
+    setLivretOpen((prev) => {
+      if (prev) {
+        requestAnimationFrame(() => savoirPlusRef.current?.focus());
+      }
+      return !prev;
+    });
+  }, []);
+
+  /** Kicker « Notre façon… » : ouvre le livret ou y ramène si déjà ouvert. */
+  const openLivretFromKicker = useCallback(() => {
+    if (livretOpen) {
+      document.getElementById(ABOUT_LIVRET_SECTION_ID)?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+      window.setTimeout(() => livretRef.current?.focus({ preventScroll: true }), reduceMotion ? 0 : 120);
+      return;
+    }
+    setLivretOpen(true);
+  }, [livretOpen, reduceMotion]);
 
   useEffect(() => {
     const el = livretRef.current;
@@ -137,7 +176,7 @@ export function AProposClient() {
     };
     el.addEventListener("keydown", onKey);
     return () => el.removeEventListener("keydown", onKey);
-  }, [goLivretNext, goLivretPrev]);
+  }, [goLivretNext, goLivretPrev, livretOpen]);
 
   return (
     <>
@@ -148,7 +187,16 @@ export function AProposClient() {
         <div className="ptg-hero-stage">
           <HeroOrbitLabels labels={ABOUT_HERO_ORBIT_LABELS} rotateIntervalMs={7800} />
           <div className="ptg-hero-card">
-            <p className="ptg-kicker-pill ptg-kicker-pill--hero">{ABOUT_KICKER}</p>
+            <button
+              type="button"
+              className="ptg-kicker-pill ptg-kicker-pill--hero ptg-kicker-pill--about-trigger"
+              onClick={openLivretFromKicker}
+              aria-expanded={livretOpen}
+              aria-controls={livretOpen ? ABOUT_LIVRET_SECTION_ID : undefined}
+              title="Ouvre le livret du concept (même action qu’« En savoir plus »)"
+            >
+              {ABOUT_KICKER}
+            </button>
             <div className="ptg-accent-rule ptg-accent-rule--hero" />
             <h1 id="apropos-title" className="ptg-type-display ptg-type-display--hero" style={{ margin: "0 0 0.65rem" }}>
               {ABOUT_BRAND_NAME}
@@ -185,22 +233,39 @@ export function AProposClient() {
               ))}
             </ul>
             <button
+              ref={savoirPlusRef}
               type="button"
-              className="ptg-link-savoir-plus"
-              onClick={scrollToLivret}
+              className="ptg-link-savoir-plus ptg-link-savoir-plus--about-cta"
+              onClick={toggleLivret}
+              aria-expanded={livretOpen}
               aria-controls={ABOUT_LIVRET_SECTION_ID}
-              title={`Concept, intentions et vision — section « Le livret » ci-dessous`}
+              aria-label={
+                livretOpen
+                  ? `Replier le livret ${ABOUT_BRAND_NAME}`
+                  : `Ouvrir le livret : concept, intentions et vision de ${ABOUT_BRAND_NAME}`
+              }
             >
-              En savoir plus
-              <span aria-hidden>{" \u2193"}</span>
+              {livretOpen ? (
+                <>
+                  Replier le livret
+                  <span aria-hidden>{" \u2191"}</span>
+                </>
+              ) : (
+                <>
+                  En savoir plus
+                  <span aria-hidden>{" \u2193"}</span>
+                </>
+              )}
             </button>
-            <p className="ptg-about-livret-teaser ptg-type-body">
-              Le livret est juste en dessous : quelques pages pour comprendre le projet sans jargon. Tu peux aussi aller directement à l’
-              <Link href={`#${ABOUT_SERVICES_SECTION_ID}`} className="ptg-about-livret-teaser__link">
-                index « {ABOUT_SERVICES_SECTION_TITLE.toLowerCase()} »
-              </Link>
-              .
-            </p>
+            {!livretOpen ? (
+              <p className="ptg-about-livret-teaser ptg-type-body">
+                Le livret est replié : quelques pages pour comprendre le projet sans jargon. Tu peux aussi descendre directement à l’
+                <Link href={`#${ABOUT_SERVICES_SECTION_ID}`} className="ptg-about-livret-teaser__link">
+                  index « {ABOUT_SERVICES_SECTION_TITLE.toLowerCase()} »
+                </Link>
+                .
+              </p>
+            ) : null}
             <div className="ptg-stack ptg-stack--roomy">
               <Link href="/commencer" className="ptg-btn-primary" style={{ textAlign: "center" }}>
                 {UX_HOME.ctaPrimary}
@@ -213,53 +278,55 @@ export function AProposClient() {
         </div>
       </section>
 
-      <section
-        ref={livretRef}
-        id={ABOUT_LIVRET_SECTION_ID}
-        className="ptg-about-livret-wrap"
-        tabIndex={0}
-        role="region"
-        aria-labelledby={livretLabelId}
-      >
-        <h2 id={livretLabelId} className="ptg-section-heading ptg-section-heading--signature" style={{ textAlign: "center", marginBottom: "0.5rem" }}>
-          Le livret
-        </h2>
-        <p className="ptg-type-body">{ABOUT_LIVRET_INTRO}</p>
+      {livretOpen ? (
+        <section
+          ref={livretRef}
+          id={ABOUT_LIVRET_SECTION_ID}
+          className="ptg-about-livret-wrap"
+          tabIndex={0}
+          role="region"
+          aria-labelledby={livretLabelId}
+        >
+          <h2 id={livretLabelId} className="ptg-section-heading ptg-section-heading--signature" style={{ textAlign: "center", marginBottom: "0.5rem" }}>
+            Le livret
+          </h2>
+          <p className="ptg-type-body">{ABOUT_LIVRET_INTRO}</p>
 
-        <div className="ptg-about-livret">
-          <div className="ptg-about-livret__notch" aria-hidden />
-          <h3 className="ptg-about-livret__heading">{page.title}</h3>
-          <p className="ptg-about-livret__epigraph">{page.epigraph}</p>
-          <hr className="ptg-about-livret__rule" />
-          <p className="ptg-visually-hidden" aria-live="polite" aria-atomic="true">
-            {page.title}. Page {livretIdx + 1} sur {ABOUT_LIVRET_PAGES.length}.
-          </p>
-          <div key={page.id} className="ptg-about-livret__sheet">
-            {page.paragraphs.map((para, pi) => (
-              <p key={`${page.id}-${pi}`}>{para}</p>
-            ))}
+          <div className="ptg-about-livret">
+            <div className="ptg-about-livret__notch" aria-hidden />
+            <h3 className="ptg-about-livret__heading">{page.title}</h3>
+            <p className="ptg-about-livret__epigraph">{page.epigraph}</p>
+            <hr className="ptg-about-livret__rule" />
+            <p className="ptg-visually-hidden" aria-live="polite" aria-atomic="true">
+              {page.title}. Page {livretIdx + 1} sur {ABOUT_LIVRET_PAGES.length}.
+            </p>
+            <div key={page.id} className="ptg-about-livret__sheet">
+              {page.paragraphs.map((para, pi) => (
+                <p key={`${page.id}-${pi}`}>{para}</p>
+              ))}
+            </div>
+            <div className="ptg-about-livret__nav">
+              <button type="button" className="ptg-btn-livret" onClick={goLivretPrev} disabled={livretIdx <= 0} aria-label="Page précédente">
+                ← Tourner
+              </button>
+              <span className="ptg-about-livret__nav-meta" aria-hidden="true">
+                {livretIdx + 1} sur {ABOUT_LIVRET_PAGES.length}
+              </span>
+              <button type="button" className="ptg-btn-livret" onClick={goLivretNext} disabled={livretIdx >= last} aria-label="Page suivante">
+                Tourner →
+              </button>
+            </div>
+            <p className="ptg-about-livret__hint">
+              Astuce : sélectionne cette zone (Tab) puis utilise ← → pour tourner les pages. Échap replie le livret.
+            </p>
+            <p className="ptg-about-livret__to-services">
+              <Link href={`#${ABOUT_SERVICES_SECTION_ID}`} className="ptg-about-livret__to-services-link">
+                Index des pages du site
+              </Link>
+            </p>
           </div>
-          <div className="ptg-about-livret__nav">
-            <button type="button" className="ptg-btn-livret" onClick={goLivretPrev} disabled={livretIdx <= 0} aria-label="Page précédente">
-              ← Tourner
-            </button>
-            <span className="ptg-about-livret__nav-meta" aria-hidden="true">
-              {livretIdx + 1} sur {ABOUT_LIVRET_PAGES.length}
-            </span>
-            <button type="button" className="ptg-btn-livret" onClick={goLivretNext} disabled={livretIdx >= last} aria-label="Page suivante">
-              Tourner →
-            </button>
-          </div>
-          <p className="ptg-about-livret__hint">
-            Astuce : sélectionne cette zone (Tab) puis utilise ← → pour tourner les pages.
-          </p>
-          <p className="ptg-about-livret__to-services">
-            <Link href={`#${ABOUT_SERVICES_SECTION_ID}`} className="ptg-about-livret__to-services-link">
-              Index des pages du site
-            </Link>
-          </p>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <section id={ABOUT_SERVICES_SECTION_ID} className="ptg-about-services-wrap" aria-labelledby={servicesLabelId}>
         <h2 id={servicesLabelId} className="ptg-section-heading ptg-section-heading--signature" style={{ textAlign: "center", marginBottom: "0.5rem" }}>
