@@ -6,7 +6,7 @@ const shipPath = new URL("../ship.mjs", import.meta.url);
 const content = readFileSync(shipPath, "utf8");
 
 test("ship script blocks sensitive paths", () => {
-  assert.ok(content.includes("BLOCKED_STAGED") && content.includes(".env") && content.includes("local"));
+  assert.match(content, /sensitive-path-patterns\.mjs/);
   assert.match(content, /assertStagedSafe/);
 });
 

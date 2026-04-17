@@ -1,12 +1,5 @@
 import { spawnSync } from "node:child_process";
-
-const BLOCKED_STAGED = [
-  /^\.env\.local$/i,
-  /^\.env\.[^/]+\.local$/i,
-  /\.pem$/i,
-  /id_rsa/i,
-  /\.ppk$/i,
-];
+import { SENSITIVE_PATH_REGEXES } from "./lib/sensitive-path-patterns.mjs";
 
 function run(cmd, opts = {}) {
   const res = spawnSync(cmd, {
@@ -45,7 +38,7 @@ function hasWorkflowChanges(statusShort) {
 function assertStagedSafe(stagedFiles) {
   for (const file of stagedFiles) {
     const base = file.split(/[/\\]/).pop() ?? file;
-    for (const re of BLOCKED_STAGED) {
+    for (const re of SENSITIVE_PATH_REGEXES) {
       if (re.test(file) || re.test(base)) {
         throw new Error(`Refus ship: fichier sensible ou interdit en commit (${file}). Retire-le du staging.`);
       }

@@ -1,13 +1,5 @@
 import { spawnSync } from "node:child_process";
-
-/** Aligné sur scripts/ship.mjs — chemins versionnés interdits. */
-const BLOCKED_TRACKED = [
-  /^\.env\.local$/i,
-  /^\.env\.[^/]+\.local$/i,
-  /\.pem$/i,
-  /id_rsa/i,
-  /\.ppk$/i,
-];
+import { SENSITIVE_PATH_REGEXES } from "./lib/sensitive-path-patterns.mjs";
 
 function main() {
   const res = spawnSync("git", ["ls-files", "-z"], { encoding: "utf8" });
@@ -20,7 +12,7 @@ function main() {
   const bad = [];
   for (const file of paths) {
     const base = file.split(/[/\\]/).pop() ?? file;
-    for (const re of BLOCKED_TRACKED) {
+    for (const re of SENSITIVE_PATH_REGEXES) {
       if (re.test(file) || re.test(base)) {
         bad.push(file);
         break;
