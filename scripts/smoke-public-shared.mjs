@@ -19,6 +19,7 @@ export const SMOKE_ROUTES = [
   "/profil",
   "/signaler",
   "/partenaires",
+  "/univers-visuel",
   "/graille-plus",
   "/partage-graille",
   "/seconde-graille",

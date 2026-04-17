@@ -127,6 +127,8 @@ Ce dépôt **ne redéploie pas** via un workflow GitHub Actions dédié : l’in
 
 ## 5. Supabase + Vercel
 
+**Préproduction (branche `staging`, second projet Supabase, auth)** : guide dédié **`docs/STAGING_SUPABASE_AUTH.md`** (enchaînement Git → Vercel Preview → migrations → Redirect URLs).
+
 - **Migrations** : après chaque release qui modifie le schéma, appliquer les fichiers du dossier `supabase/migrations/` sur le projet cible (CLI `supabase db push` ou exécution manuelle dans le SQL Editor). Sans cela, les vues KPI (`growth_kpi_daily`), colonnes `user_settings` (préférences + compteur e-mail jour), colonnes rappels repas sur `meals`, ou tables métier peuvent être désynchronisées du code Next.
 - **Feedback in-app (MVP)** : la route `GET/POST /api/feedback` dépend de `public.user_feedback` (migration `20260501120000_user_feedback.sql`). Si non appliquée, l’API retourne `503 feedback_unavailable` (dégradation contrôlée côté UI).
 - **ACK alertes in-app (audit)** : la route `PATCH /api/notifications` (champ `acknowledge_ids`) dépend des colonnes `acknowledged_at` et `acknowledged_by_user_id` sur `public.user_notifications` (migration `20260501124000_user_notifications_ack.sql`).
