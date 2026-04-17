@@ -1,0 +1,29 @@
+name: CI Governance Guard
+
+on:
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-governance-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce CI workflow governance
+        shell: bash
+        run: >
+          bash scripts/ci/enforce-ci-governance.sh
+          "${{ github.event_name }}"
+          "${{ github.base_ref }}"
