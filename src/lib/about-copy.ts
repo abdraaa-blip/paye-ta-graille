@@ -74,6 +74,10 @@ export const ABOUT_LIVRET_POSTER_ALT =
   "Affiche Paye ta graille : logo, slogan « Partage ta bouffe, régale tes voisins », plats et nuages en style aquarelle.";
 export const ABOUT_LIVRET_LOGO_ALT =
   "Logo Paye ta Graille sur fond clair, avec le picto de localisation et couverts.";
+export const ABOUT_LIVRET_CAMPAIGN_ALT =
+  "Visuel campagne Paye ta Graille avec slogan « Partage ta bouffe, régale tes voisins » et illustrations culinaires.";
+export const ABOUT_LIVRET_MARKET_ALT =
+  "Visuel manifeste Paye ta Graille sur plaque artisanale, ambiance marché et plats partagés.";
 
 /** Persistance session (page + ouverture), clé versionnée si le format change. */
 export const ABOUT_LIVRET_SESSION_KEY = "ptg.about.livret.v2";
@@ -159,6 +163,17 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
     ],
   },
   {
+    id: "campagne-slogan",
+    title: "Notre promesse en une scène",
+    epigraph: "Partage ta bouffe, régale tes voisins",
+    layout: "poster",
+    imageSrc: "/hero/livret-campagne-slogan.png",
+    imageAlt: ABOUT_LIVRET_CAMPAIGN_ALT,
+    paragraphs: [
+      "Un visuel direct pour rappeler le cœur du projet : convivialité, générosité, et plaisir concret autour d’une table.",
+    ],
+  },
+  {
     id: "experiences",
     title: "Des expériences uniques",
     epigraph: "Ce qu’on n’efface pas",
@@ -176,6 +191,17 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
       "On imagine des quartiers où proposer un repas est aussi naturel que prêter une chaise : un réseau de confiance autour de la bouffe, pas un classement de profils.",
       "La vision, c’est une tech au service du tactile : moins de friction pour arriver à « on se retrouve où ? », plus de transparence sur l’addition et les attentes.",
       "Si ce livret te parle, tu sais déjà l’essentiel : à Paye ta graille, on commence par manger. Le reste, si le reste veut venir.",
+    ],
+  },
+  {
+    id: "manifeste-marche",
+    title: "Le manifeste de quartier",
+    epigraph: "La marque, la table, le terrain",
+    layout: "poster",
+    imageSrc: "/hero/livret-manifeste-marche.png",
+    imageAlt: ABOUT_LIVRET_MARKET_ALT,
+    paragraphs: [
+      "Ce visuel ancre la marque dans un décor vivant : échange local, cuisine réelle, et identité assumée.",
     ],
   },
   {

@@ -27,7 +27,7 @@ test.describe("À propos", () => {
     await openLivretCta(page).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(livretCounter(page)).toHaveText("1 sur 9");
+    await expect(livretCounter(page)).toHaveText("1 sur 11");
     await expect(page.locator(".ptg-about-livret__poster-img").first()).toBeVisible();
     await expect(page.getByText(/affiche officielle du projet/i)).toBeVisible();
   });
@@ -54,7 +54,7 @@ test.describe("À propos", () => {
     await page.goto("/a-propos#livret-univers");
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(livretCounter(page)).toHaveText("1 sur 9");
+    await expect(livretCounter(page)).toHaveText("1 sur 11");
   });
 
   test("section index des pages visible", async ({ page }) => {
@@ -101,7 +101,7 @@ test.describe("À propos", () => {
     await page.getByRole("button", { name: /Ouvrir le livret à la page affiche/i }).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(livretCounter(page)).toHaveText("1 sur 9");
+    await expect(livretCounter(page)).toHaveText("1 sur 11");
   });
 
   test("bouton hero « Voir l’affiche du projet » ouvre la page affiche", async ({ page }) => {
@@ -115,9 +115,9 @@ test.describe("À propos", () => {
     await page.goto("/a-propos");
     await openLivretCta(page).click();
     const next = page.getByRole("button", { name: "Page suivante" });
-    for (let i = 0; i < 8; i += 1) await next.click();
+    for (let i = 0; i < 10; i += 1) await next.click();
     await expect(page.getByRole("heading", { name: "Signature", level: 3 })).toBeVisible();
-    await expect(livretCounter(page)).toHaveText("9 sur 9");
+    await expect(livretCounter(page)).toHaveText("11 sur 11");
     await expect(page.locator(".ptg-about-livret__poster-img").first()).toBeVisible();
   });
 });
