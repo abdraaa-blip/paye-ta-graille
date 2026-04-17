@@ -5,8 +5,8 @@ import { useState } from "react";
 import { heroIllustrationEnabled, heroIllustrationSrc } from "@/lib/env-public";
 
 /**
- * Couche illustrative derrière les lavis CSS (landing). Source par défaut : WebP (`optimize:hero`).
- * Lisibilité : `.ptg-hero-card` + voile CSS + lavis. Si l’asset est introuvable (404, CDN), la couche disparaît.
+ * Illustration raster derrière les lavis (accueil). Défaut : WebP généré par `npm run optimize:hero`.
+ * Lisibilité : carte hero + voile + lavis. Si l’asset échoue (404, CDN), la couche disparaît.
  */
 export function HeroIllustrationBackdrop() {
   const [loadFailed, setLoadFailed] = useState(false);
@@ -20,6 +20,7 @@ export function HeroIllustrationBackdrop() {
         alt=""
         fill
         priority
+        fetchPriority="high"
         sizes="100vw"
         quality={82}
         className="ptg-hero-illustration__img"

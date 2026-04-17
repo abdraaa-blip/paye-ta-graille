@@ -55,6 +55,9 @@ export function validateHomeHtml(html) {
   if (missing.length > 0) {
     return `home HTML missing hero kicker markers: ${missing.join(", ")}`;
   }
+  if (!/property\s*=\s*["']og:image["']/i.test(html)) {
+    return "home HTML missing meta property og:image (Open Graph)";
+  }
   return null;
 }
 

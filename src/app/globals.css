@@ -804,7 +804,7 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   );
 }
 
-/* Illustration raster (aquarelle) : sous les lavis, au-dessus du dégradé de fond */
+/* Illustration raster hero : sous les lavis, au-dessus du dégradé de fond */
 .ptg-hero-illustration {
   position: absolute;
   inset: 0;
@@ -846,6 +846,19 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   .ptg-hero-illustration__veil {
     opacity: 0.94;
   }
+}
+
+/* Accueil avec illustration raster : cadre + pastilles plus discrets (évite la saturation visuelle). */
+.ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+  object-position: 50% 44%;
+}
+
+.ptg-hero-shell--illus-hero .ptg-hero-orbits {
+  opacity: 0.58;
+}
+
+.ptg-hero-shell--illus-hero::after {
+  opacity: 0.32;
 }
 
 .ptg-hero-atmosphere {

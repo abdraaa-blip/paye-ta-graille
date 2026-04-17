@@ -109,14 +109,27 @@ if (growthSecret && growthSecret.length < 24) {
   warnings.push("PTG_GROWTH_KPI_SECRET très court : préfère un secret aléatoire d’au moins 32 caractères.");
 }
 
+const DEFAULT_HERO_WEBP = "/hero/landing-watercolor.webp";
+
 const heroIllusOff = isNegativePublicFlag(env.NEXT_PUBLIC_PTG_HERO_ILLUSTRATION);
-const heroSrc = String(env.NEXT_PUBLIC_PTG_HERO_ART ?? "").trim() || "/hero/landing-watercolor.webp";
+const heroSrc = String(env.NEXT_PUBLIC_PTG_HERO_ART ?? "").trim() || DEFAULT_HERO_WEBP;
 if (!heroIllusOff && !heroSrc.startsWith("http")) {
   const rel = heroSrc.replace(/^\//, "");
   const abs = resolve(root, "public", rel);
   if (!existsSync(abs)) {
     warnings.push(
       `Illustration landing absente (public/${rel}). Lance npm run optimize:hero ou mets NEXT_PUBLIC_PTG_HERO_ILLUSTRATION=0.`,
+    );
+  }
+}
+
+const ogSrc = String(env.NEXT_PUBLIC_PTG_OG_IMAGE ?? "").trim();
+if (ogSrc && !ogSrc.startsWith("http")) {
+  const rel = ogSrc.replace(/^\//, "");
+  const abs = resolve(root, "public", rel);
+  if (!existsSync(abs)) {
+    warnings.push(
+      `Image Open Graph absente (public/${rel}). Corrige NEXT_PUBLIC_PTG_OG_IMAGE ou retire la variable.`,
     );
   }
 }
@@ -128,6 +141,11 @@ if (
 ) {
   warnings.push(
     "NEXT_PUBLIC_PTG_HERO_ART est une URL : hostname autorisé au build (remotePatterns) ; rebuild si tu changes de CDN.",
+  );
+}
+if (ogSrc && ogSrc.startsWith("http") && truthy(env.PTG_VERBOSE_PREFLIGHT)) {
+  warnings.push(
+    "NEXT_PUBLIC_PTG_OG_IMAGE en URL : vérifier accessibilité publique (scrapers sans cookie) ; host autorisé au build si utilisé aussi dans <Image />.",
   );
 }
 
@@ -169,7 +187,9 @@ console.log(
   "2) Déployer une preview, puis : PTG_BASE_URL=<preview_url> npm run test:e2e (smoke HTTP + navigateur) ou npm run smoke:public si serveur déjà lancé.",
 );
 console.log("3) Promote to production et répéter le même contrôle sur l’URL prod.");
-console.log("4) Si fond hero local : npm run optimize:hero puis commit public/hero/*.webp (ou désactive l’illus).");
+console.log(
+  "4) Si fond hero local : placer `public/hero/landing-watercolor.png`, `npm run optimize:hero` (WebP, largeur max 1920px), commit le `.webp` (ou `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION=0`).",
+);
 if (!heroIllusOff && heroSrc.startsWith("http")) {
   console.log(
     "5) Hero en URL distante : même NEXT_PUBLIC_PTG_HERO_ART au build qu’en prod ; rebuild si le hostname CDN change (remotePatterns). CI : PTG_VERBOSE_PREFLIGHT=1 pour warning explicite.",

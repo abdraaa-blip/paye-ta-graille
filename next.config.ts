@@ -26,20 +26,34 @@ function devLanHostnames(): string[] {
 
 const allowedDevOrigins = [...new Set([...allowedDevOriginsFromEnv, ...devLanHostnames()])];
 
-/** `NEXT_PUBLIC_PTG_HERO_ART` en URL : autorise le host au build (même valeur requise en prod). */
-function heroArtRemotePatterns(): NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]> {
-  const raw = process.env.NEXT_PUBLIC_PTG_HERO_ART?.trim();
-  if (!raw?.startsWith("http")) return [];
+function remotePatternFromHttpUrl(raw: string | undefined): { protocol: "http" | "https"; hostname: string; pathname: "/**" } | null {
+  const t = raw?.trim();
+  if (!t?.startsWith("http")) return null;
   try {
-    const u = new URL(raw);
+    const u = new URL(t);
     const protocol = u.protocol === "https:" ? "https" : "http";
-    return [{ protocol, hostname: u.hostname, pathname: "/**" }];
+    return { protocol, hostname: u.hostname, pathname: "/**" };
   } catch {
-    return [];
+    return null;
   }
 }
 
-const heroRemotes = heroArtRemotePatterns();
+/** `NEXT_PUBLIC_PTG_HERO_ART` / `NEXT_PUBLIC_PTG_OG_IMAGE` en URL : hosts autorisés pour `<Image />` au build. */
+function publicImageRemotePatterns(): NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]> {
+  const seen = new Set<string>();
+  const out: NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]> = [];
+  for (const raw of [process.env.NEXT_PUBLIC_PTG_HERO_ART, process.env.NEXT_PUBLIC_PTG_OG_IMAGE]) {
+    const p = remotePatternFromHttpUrl(raw);
+    if (!p) continue;
+    const key = `${p.protocol}://${p.hostname}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out;
+}
+
+const heroRemotes = publicImageRemotePatterns();
 
 const cspReportOnly = String(process.env.PTG_CSP_REPORT_ONLY ?? "1").trim();
 const cspReportUri = String(process.env.PTG_CSP_REPORT_URI ?? "").trim();

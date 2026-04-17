@@ -42,6 +42,7 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `NEXT_PUBLIC_PTG_UX_VARIANT` | `b` pour variante copy (voir `ux-variant.ts`) |
 | `NEXT_PUBLIC_PTG_PUBLIC_BETA` | `1` = bandeau bêta + comportement SEO associé |
 | `NEXT_PUBLIC_PTG_HERO_ART` | URL absolue image hero (voir `next.config` `remotePatterns`) |
+| `NEXT_PUBLIC_PTG_OG_IMAGE` | Optionnel : image **Open Graph / Twitter** (ex. 1200×630) ; sinon = même source que le hero |
 | `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION` | `0` / `false` pour désactiver l’illustration locale |
 
 ### Serveur uniquement (sans préfixe public)
@@ -88,6 +89,7 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `.github/workflows/ci.yml` | `lint` + `typecheck` + `build` + **Playwright** (smoke HTTP + navigateur) + job **beta-seo** Playwright (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`) ; `smoke:public` reste disponible hors CI |
 | `.github/dependabot.yml` | PR hebdomadaires **npm** (dépendances) — à merger après `verify` / build |
 | `src/app/global-error.tsx` | Fallback si erreur au niveau root layout (évite écran blanc brut) |
+| `public/hero/landing-watercolor.png` | Source PNG du fond d’accueil ; `npm run optimize:hero` produit `landing-watercolor.webp` (largeur max **1920px**, meilleur **LCP**) — versionner le WebP dans Git. |
 
 **Headers sécurité** : définis dans **`next.config.ts`** (`/:path*`) — le `middleware` ne fait que la session Supabase, pour éviter de dupliquer les mêmes en-têtes. En **production Vercel** (`VERCEL_ENV=production`), **HSTS** est ajouté automatiquement. La **CSP** tourne en report-only par défaut (`PTG_CSP_REPORT_ONLY=1`) pour un rollout sans casse; passer à `0` après vérification des rapports.
 

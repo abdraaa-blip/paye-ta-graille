@@ -18,11 +18,11 @@ import { UX_HOME } from "@/lib/ux-copy";
 export default function HomePage() {
   return (
     <div className="ptg-page">
-      <section className="ptg-hero-shell" aria-labelledby="hero-title">
+      <section className="ptg-hero-shell ptg-hero-shell--illus-hero" aria-labelledby="hero-title">
         <HeroIllustrationBackdrop />
         <HeroAtmosphere />
         <BrandScribbleBackdrop />
-        <PtgLandingDecor variant="full" />
+        <PtgLandingDecor variant="subtle" />
         <div className="ptg-hero-stage">
           <HeroOrbitLabels />
           <div className="ptg-hero-card">

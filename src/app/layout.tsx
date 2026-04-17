@@ -3,10 +3,13 @@ import { Fraunces, Inter } from "next/font/google";
 import { AmbientAppEffects } from "@/components/AmbientAppEffects";
 import { BetaBanner } from "@/components/BetaBanner";
 import { SkipLink } from "@/components/SkipLink";
+import { shareSocialPreviewImageUrl } from "@/lib/env-public";
 import { MARKETING_CORE_PROMISE, MARKETING_HERO_PRIMARY, MARKETING_TAGLINE_GOLDEN } from "@/lib/marketing-copy";
 import { isPublicBeta } from "@/lib/public-beta";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
+
+const sharePreviewImageUrl = shareSocialPreviewImageUrl();
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,11 +38,18 @@ export const metadata: Metadata = {
     siteName: "Paye ta graille",
     title: "Paye ta graille",
     description: `${MARKETING_TAGLINE_GOLDEN} ${MARKETING_CORE_PROMISE} Pas dating-first : repas réel, réseau social IRL.`,
+    images: [
+      {
+        url: sharePreviewImageUrl,
+        alt: "Paye ta graille — illustration du repas partagé",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Paye ta graille",
     description: `${MARKETING_HERO_PRIMARY} ${MARKETING_TAGLINE_GOLDEN} Table d’abord.`,
+    images: [sharePreviewImageUrl],
   },
 };
 
