@@ -49,43 +49,45 @@ const LIVRET_SWIPE_MAX_MS = 800;
 const SWIPE_NUDGE_MS = 2200;
 const SWIPE_NUDGE_SESSION_KEY = "ptg.about.livret.swipe-nudge.seen.v1";
 
-function AboutLivretPosterImg() {
-  const primary = aboutLivretPosterSrc();
-  const [src, setSrc] = useState(primary);
+function AboutLivretPosterImg({ src, alt }: { src?: string; alt?: string }) {
+  const primary = src ?? aboutLivretPosterSrc();
+  const [resolvedSrc, setResolvedSrc] = useState(primary);
 
   useEffect(() => {
-    setSrc(primary);
+    setResolvedSrc(primary);
   }, [primary]);
 
   return (
     // `img` natif : pas d’optimiseur `/_next/image` (évite 404 WebP si `optimize:hero` non lancé) + repli PNG local.
     // eslint-disable-next-line @next/next/no-img-element -- repli `onError` et URL `public/` fiables sans pipeline sharp
     <img
-      src={src}
-      alt={ABOUT_LIVRET_POSTER_ALT}
+      src={resolvedSrc}
+      alt={alt ?? ABOUT_LIVRET_POSTER_ALT}
       width={572}
       height={1024}
       className="ptg-about-livret__poster-img"
       loading="lazy"
       decoding="async"
       onError={() => {
-        const fb = aboutLivretPosterLocalFallback(src);
-        if (fb && fb !== src) setSrc(fb);
+        const fb = aboutLivretPosterLocalFallback(resolvedSrc);
+        if (fb && fb !== resolvedSrc) setResolvedSrc(fb);
       }}
     />
   );
 }
 
 type AboutLivretPosterButtonProps = {
+  src?: string;
+  alt?: string;
   onOpen: () => void;
   ariaLabel?: string;
 };
 
-function AboutLivretPosterButton({ onOpen, ariaLabel = "Agrandir l’affiche" }: AboutLivretPosterButtonProps) {
+function AboutLivretPosterButton({ src, alt, onOpen, ariaLabel = "Agrandir l’affiche" }: AboutLivretPosterButtonProps) {
   return (
     <button type="button" className="ptg-about-poster-open" onClick={onOpen} aria-label={ariaLabel}>
       <span className="ptg-about-poster-open__media" aria-hidden>
-        <AboutLivretPosterImg />
+        <AboutLivretPosterImg src={src} alt={alt} />
       </span>
       <span className="ptg-about-poster-open__cta">Agrandir</span>
     </button>
@@ -526,7 +528,12 @@ export function AProposClient() {
             >
               {page.layout === "poster" ? (
                 <div className="ptg-about-livret__poster">
-                  <AboutLivretPosterButton onOpen={openPosterLightbox} ariaLabel="Agrandir l’affiche depuis le livret" />
+                  <AboutLivretPosterButton
+                    src={page.imageSrc}
+                    alt={page.imageAlt}
+                    onOpen={openPosterLightbox}
+                    ariaLabel={page.id === "signature-logo" ? "Agrandir le logo depuis le livret" : "Agrandir l’affiche depuis le livret"}
+                  />
                 </div>
               ) : null}
               {page.paragraphs.map((para, pi) => (
@@ -640,14 +647,19 @@ export function AProposClient() {
           className="ptg-about-poster-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label="Affiche Paye ta graille en grand format"
+          aria-label={page.id === "signature-logo" ? "Logo Paye ta Graille en grand format" : "Affiche Paye ta graille en grand format"}
           onClick={closePosterLightbox}
         >
           <div className="ptg-about-poster-lightbox__sheet" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="ptg-about-poster-lightbox__close" onClick={closePosterLightbox} aria-label="Fermer l’affiche">
+            <button
+              type="button"
+              className="ptg-about-poster-lightbox__close"
+              onClick={closePosterLightbox}
+              aria-label={page.id === "signature-logo" ? "Fermer le logo" : "Fermer l’affiche"}
+            >
               Fermer ×
             </button>
-            <AboutLivretPosterImg />
+            <AboutLivretPosterImg src={page.imageSrc} alt={page.imageAlt ?? ABOUT_LIVRET_POSTER_ALT} />
           </div>
         </div>
       ) : null}

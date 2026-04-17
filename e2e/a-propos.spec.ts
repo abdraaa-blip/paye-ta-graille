@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("À propos", () => {
+  const openLivretCta = (page: import("@playwright/test").Page) =>
+    page.locator("button.ptg-link-savoir-plus--about-cta").filter({ hasText: "En savoir plus" });
+  const livretCounter = (page: import("@playwright/test").Page) => page.locator(".ptg-about-livret__nav-meta");
+
   test("kicker « Notre façon… » ouvre le livret", async ({ page }) => {
     await page.goto("/a-propos");
     await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toHaveCount(0);
@@ -11,7 +15,7 @@ test.describe("À propos", () => {
   test("livret se déploie et se replie", async ({ page }) => {
     await page.goto("/a-propos");
     await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toHaveCount(0);
-    await page.getByRole("button", { name: /Ouvrir le livret/i }).click();
+    await openLivretCta(page).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Le livret", level: 2 })).toBeVisible();
     await page.getByRole("button", { name: /Replier le livret/i }).click();
@@ -20,11 +24,11 @@ test.describe("À propos", () => {
 
   test("livret : page affiche avec poster et légende", async ({ page }) => {
     await page.goto("/a-propos");
-    await page.getByRole("button", { name: /Ouvrir le livret/i }).click();
+    await openLivretCta(page).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(page.getByText("1 sur 8")).toBeVisible();
-    await expect(page.getByRole("img", { name: /Affiche Paye ta graille/i })).toBeVisible();
+    await expect(livretCounter(page)).toHaveText("1 sur 9");
+    await expect(page.locator(".ptg-about-livret__poster-img").first()).toBeVisible();
     await expect(page.getByText(/affiche officielle du projet/i)).toBeVisible();
   });
 
@@ -50,7 +54,7 @@ test.describe("À propos", () => {
     await page.goto("/a-propos#livret-univers");
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(page.getByText("1 sur 8")).toBeVisible();
+    await expect(livretCounter(page)).toHaveText("1 sur 9");
   });
 
   test("section index des pages visible", async ({ page }) => {
@@ -97,13 +101,23 @@ test.describe("À propos", () => {
     await page.getByRole("button", { name: /Ouvrir le livret à la page affiche/i }).click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
-    await expect(page.getByText("1 sur 8")).toBeVisible();
+    await expect(livretCounter(page)).toHaveText("1 sur 9");
   });
 
   test("bouton hero « Voir l’affiche du projet » ouvre la page affiche", async ({ page }) => {
     await page.goto("/a-propos");
-    await page.getByRole("button", { name: /Voir l’affiche du projet/i }).click();
+    await page.locator(".ptg-about-poster-quicklink").click();
     await expect(page.getByRole("region", { name: "Le livret" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "L’univers en une image", level: 3 })).toBeVisible();
+  });
+
+  test("la dernière page du livret affiche le logo signature", async ({ page }) => {
+    await page.goto("/a-propos");
+    await openLivretCta(page).click();
+    const next = page.getByRole("button", { name: "Page suivante" });
+    for (let i = 0; i < 8; i += 1) await next.click();
+    await expect(page.getByRole("heading", { name: "Signature", level: 3 })).toBeVisible();
+    await expect(livretCounter(page)).toHaveText("9 sur 9");
+    await expect(page.locator(".ptg-about-livret__poster-img").first()).toBeVisible();
   });
 });

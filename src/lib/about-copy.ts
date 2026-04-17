@@ -60,6 +60,10 @@ export type AboutLivretPage = {
   paragraphs: readonly string[];
   /** `poster` : affiche verticale (`aboutLivretPosterSrc`) + paragraphes optionnels sous l’image. */
   layout?: "text" | "poster";
+  /** Source image optionnelle pour une page `poster` (sinon affiche principale du livret). */
+  imageSrc?: string;
+  /** Texte alternatif optionnel pour une page `poster`. */
+  imageAlt?: string;
 };
 
 export const ABOUT_LIVRET_INTRO =
@@ -68,6 +72,8 @@ export const ABOUT_LIVRET_INTRO =
 /** Texte alternatif de l’affiche (page livret « L’univers en une image »). */
 export const ABOUT_LIVRET_POSTER_ALT =
   "Affiche Paye ta graille : logo, slogan « Partage ta bouffe, régale tes voisins », plats et nuages en style aquarelle.";
+export const ABOUT_LIVRET_LOGO_ALT =
+  "Logo Paye ta Graille sur fond clair, avec le picto de localisation et couverts.";
 
 /** Persistance session (page + ouverture), clé versionnée si le format change. */
 export const ABOUT_LIVRET_SESSION_KEY = "ptg.about.livret.v2";
@@ -170,6 +176,17 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
       "On imagine des quartiers où proposer un repas est aussi naturel que prêter une chaise : un réseau de confiance autour de la bouffe, pas un classement de profils.",
       "La vision, c’est une tech au service du tactile : moins de friction pour arriver à « on se retrouve où ? », plus de transparence sur l’addition et les attentes.",
       "Si ce livret te parle, tu sais déjà l’essentiel : à Paye ta graille, on commence par manger. Le reste, si le reste veut venir.",
+    ],
+  },
+  {
+    id: "signature-logo",
+    title: "Signature",
+    epigraph: "Le logo Paye ta Graille",
+    layout: "poster",
+    imageSrc: "/hero/brand-logo-signature.png",
+    imageAlt: ABOUT_LIVRET_LOGO_ALT,
+    paragraphs: [
+      "Notre signature visuelle pour clôturer le livret : simple, claire, et fidèle à l’esprit de la marque.",
     ],
   },
 ] as const;
