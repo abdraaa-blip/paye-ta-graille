@@ -1,6 +1,6 @@
 # Plan test bêta — Paye ta graille
 
-Document opérationnel pour **test utilisateur réel** et revue équipe. Complète `docs/ONBOARDING_DEVELOPPEUR.md` et `docs/DEPLOIEMENT_VERCEL.md`.
+Document opérationnel pour **test utilisateur réel** et revue équipe. Complète `docs/ONBOARDING_DEVELOPPEUR.md`, `docs/DEPLOIEMENT_VERCEL.md` et **`docs/STAGING_SUPABASE_AUTH.md`** (préprod + DB + magic link).
 
 **Scénarios pas à pas (A → E)** : **`TEST_UTILISATEUR_GUIDE.md`**.
 
@@ -31,7 +31,7 @@ npm ci
 npm run verify:ship
 ```
 
-Inclut : ESLint, TypeScript, `next build`, Playwright (routes publiques + rendu accueil).
+Inclut : ESLint, TypeScript, `next build`, Playwright (routes publiques + rendu accueil). Smoke HTTP seul : `npm run smoke:public` (serveur déjà lancé sur `PTG_BASE_URL`) ou `npm run checks:prod-local` pour enchaîner prod locale + smoke.
 
 Bêta SEO : `npm run test:e2e:beta-seo` (après build avec `NEXT_PUBLIC_PTG_PUBLIC_BETA=1`).
 

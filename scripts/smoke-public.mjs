@@ -13,6 +13,18 @@ const base = process.env.PTG_BASE_URL?.trim() || "http://127.0.0.1:3000";
 
 const timeoutMs = 12000;
 let failed = 0;
+/** Échecs probablement dus à l’absence de serveur (connexion refusée, etc.). */
+let likelyNetwork = 0;
+
+function isLikelyNetworkFailure(message) {
+  const m = message.toLowerCase();
+  return (
+    m.includes("fetch failed") ||
+    m.includes("econnrefused") ||
+    m.includes("network error") ||
+    m.includes("aborted")
+  );
+}
 
 async function checkRoute(route) {
   const ctrl = new AbortController();
@@ -81,6 +93,7 @@ async function checkRoute(route) {
   } catch (e) {
     failed += 1;
     const msg = e instanceof Error ? e.message : String(e);
+    if (isLikelyNetworkFailure(msg)) likelyNetwork += 1;
     console.log(`ERR --- ${route} :: ${msg}`);
   } finally {
     clearTimeout(timer);
@@ -94,6 +107,11 @@ for (const route of SMOKE_ROUTES) {
 
 if (failed > 0) {
   console.error(`\nSmoke test failed on ${failed} route(s).`);
+  if (likelyNetwork === failed) {
+    console.error(
+      `\nAstuce : aucune réponse HTTP sur « ${base} ». Lance d'abord l'app (npm run dev, ou npm run build puis npm run start), ou définis PTG_BASE_URL vers une URL joignable. Pour un smoke intégré : npm run checks:prod-local (voir README).`,
+    );
+  }
   process.exit(1);
 }
 

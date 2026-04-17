@@ -47,6 +47,8 @@ Ouvrir `http://localhost:3000` · santé API : `http://localhost:3000/api/health
 
 Check-list, priorités et scénario **2 comptes** : **`docs/PLAN_TEST_BETA.md`**.
 
+**Staging + Supabase + auth** (branche Git, variables Vercel Preview, allow list magic link) : **`docs/STAGING_SUPABASE_AUTH.md`**.
+
 ## Prochaines branches fonctionnelles
 
 Voir `docs/BLUEPRINT_PRODUIT_FINAL_MVP.md` (sprints 0–5).
@@ -59,3 +61,4 @@ Voir `docs/BLUEPRINT_PRODUIT_FINAL_MVP.md` (sprints 0–5).
 - **Windows + `next dev --turbopack`** : après `npm run clean:next`, des erreurs `ENOENT` sur `.next/static/development/_buildManifest.js.tmp.*` peuvent apparaître. Essaie `npm run dev:stable` (Webpack) ou relance `dev` sans nettoyer le cache entre deux runs.
 - **`checks:prod-local` / `checks:prod-local:beta-seo`** : le script vérifie que **le serveur lancé par le script** répond (nonce dans `/api/health`). Si le port est déjà pris par un autre `next dev` / `next start`, ferme-le ou utilise `PTG_CHECK_PORT=3010` avec `PTG_BASE_URL=http://127.0.0.1:3010`.
 - **`deploy:preflight`** sans clés Google : en local uniquement, tu peux définir `PTG_PREFLIGHT_ALLOW_MISSING_PLACES=1` dans l’environnement ou dans `.env.local` pour passer le préflight sans `GOOGLE_PLACES_API_KEY` / `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (un avertissement sera affiché).
+- **`npm run smoke:public`** : le script interroge `PTG_BASE_URL` (défaut `http://127.0.0.1:3000`) — **un serveur doit déjà tourner**, sinon tu verras surtout `fetch failed` et un rappel en fin de sortie. Pour enchaîner build + `next start` + smoke automatiquement : **`npm run checks:prod-local`**.

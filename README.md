@@ -115,6 +115,7 @@ npm run dev
 - `docs/AUDIT_MVP_VALIDATION_2026-04-13.md` : validation MVP / test bêta  
 - `docs/RAPPORT_AUDIT_DOSSIER_MONDE_2026-04-13.md` : audit investisseurs / cohérence globale  
 - `docs/DEPLOIEMENT_VERCEL.md` : Vercel  
+- `docs/STAGING_SUPABASE_AUTH.md` : branche `staging`, Supabase preview, auth (Redirect URLs)  
 - `docs/DECISIONS_PRODUIT_LOG.md` : ADR léger  
 - `docs/ONBOARDING_DEVELOPPEUR.md` : setup dev  
 - `docs/SECURITE_CHECKLIST_CODE.md` : sécurité  
