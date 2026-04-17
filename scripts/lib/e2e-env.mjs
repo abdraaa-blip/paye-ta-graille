@@ -13,6 +13,13 @@ export function withBetaE2EEnv(baseEnv = process.env) {
   };
 }
 
+export function withLocalE2EEnv(baseEnv = process.env) {
+  return {
+    ...baseEnv,
+    PTG_PLAYWRIGHT_NO_WEBSERVER: "0",
+  };
+}
+
 export function shouldSkipBetaBuild(baseEnv = process.env) {
   return String(baseEnv.PTG_SKIP_BETA_BUILD ?? "").trim() === "1";
 }

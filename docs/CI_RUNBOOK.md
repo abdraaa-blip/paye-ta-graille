@@ -50,7 +50,7 @@ Important:
 - `PTG_BASE_URL` reste réservé aux scripts smoke/cron (`smoke:public`, `wait:health`, etc.).
 - Si tu dois cibler un serveur déjà lancé: `PTG_PLAYWRIGHT_NO_WEBSERVER=1` + `PTG_E2E_BASE_URL=http://127.0.0.1:<port>`.
 
-Pour simuler le gate complet:
+Pour simuler le gate complet (`verify:ship` force un webServer local Playwright, meme si `PTG_PLAYWRIGHT_NO_WEBSERVER=1` est exporte dans le shell):
 
 ```bash
 npm run verify:ship

@@ -3,7 +3,12 @@ import { existsSync } from "node:fs";
 import { hasValidBetaBuildArtifacts, shouldSkipBetaBuild, withBetaE2EEnv } from "./lib/e2e-env.mjs";
 
 const env = withBetaE2EEnv(process.env);
-const skipBuild = shouldSkipBetaBuild(process.env);
+const skipRequested = shouldSkipBetaBuild(process.env);
+const skipBuild = skipRequested && process.env.CI === "true";
+
+if (skipRequested && process.env.CI !== "true") {
+  console.warn("PTG_SKIP_BETA_BUILD=1 detecte hors CI: ignore pour garantir un run local fiable.");
+}
 
 if (!skipBuild) {
   const build = spawnSync("npm", ["run", "build:beta"], {

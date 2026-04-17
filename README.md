@@ -30,7 +30,7 @@
 | `npm run assert:tracked-safe` | Échoue si un secret / `.env*.local` / clé type PEM est **suivi** par git (déjà inclus dans `verify`). |
 | `npm run verify:full` | `verify` + `build:clean` (purge `.next` puis build). |
 | `npm run verify:ship` | `verify` + `build:clean` + **Playwright desktop + mobile** (`test:e2e` puis `test:e2e:mobile`, Chromium requis : `npm run test:e2e:install`). |
-| `npm run verify:release` | `verify:ship` + `test:e2e:beta-seo` (validation release la plus stricte). |
+| `npm run verify:release` | `verify:ship` + `test:e2e:beta-seo` (validation release la plus stricte ; en local le build beta est force, le skip-build reste reserve a la CI). |
 | `npm run verify:mobile` | `verify` + suite Playwright mobile (`test:e2e:mobile`) pour gate anti-régression responsive. |
 | `npm run assert:beta-seo` | Vérifie `robots.txt` + `sitemap.xml` en mode bêta public (`NEXT_PUBLIC_PTG_PUBLIC_BETA=1`). |
 | `npm run wait:health` | Attend que `/api/health` réponde 200 (utile CI / scripts d’orchestration locale). |

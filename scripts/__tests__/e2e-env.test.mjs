@@ -4,6 +4,7 @@ import {
   hasValidBetaBuildArtifacts,
   shouldSkipBetaBuild,
   withBetaE2EEnv,
+  withLocalE2EEnv,
   withPublicBetaEnv,
 } from "../lib/e2e-env.mjs";
 
@@ -18,6 +19,12 @@ test("withBetaE2EEnv ajoute les flags E2E beta", () => {
   assert.equal(env.FOO, "bar");
   assert.equal(env.NEXT_PUBLIC_PTG_PUBLIC_BETA, "1");
   assert.equal(env.PTG_RUN_BETA_E2E, "1");
+  assert.equal(env.PTG_PLAYWRIGHT_NO_WEBSERVER, "0");
+});
+
+test("withLocalE2EEnv force PTG_PLAYWRIGHT_NO_WEBSERVER=0", () => {
+  const env = withLocalE2EEnv({ FOO: "bar", PTG_PLAYWRIGHT_NO_WEBSERVER: "1" });
+  assert.equal(env.FOO, "bar");
   assert.equal(env.PTG_PLAYWRIGHT_NO_WEBSERVER, "0");
 });
 
