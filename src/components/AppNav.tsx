@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { extensionsNavVisible } from "@/lib/feature-modules";
 
 export function AppNav({
@@ -10,6 +11,15 @@ export function AppNav({
 
   return (
     <nav className="ptg-nav" aria-label="Navigation principale">
+      <Link href="/" className="ptg-nav-brand" aria-label="Retour à la présentation Paye ta Graille">
+        <Image
+          src="/hero/brand-logo-signature.png"
+          alt="Logo Paye ta Graille"
+          width={112}
+          height={75}
+          className="ptg-nav-brand__img"
+        />
+      </Link>
       <Link
         href="/accueil"
         className={current === "accueil" ? "ptg-nav-link ptg-nav-link--active" : "ptg-nav-link"}

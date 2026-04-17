@@ -1,9 +1,19 @@
 import Link from "next/link";
+import Image from "next/image";
 import { UX_FOOTER } from "@/lib/ux-copy";
 
 export function SiteFooter() {
   return (
     <footer className="ptg-footer">
+      <Link href="/" className="ptg-footer-brand" aria-label="Paye ta Graille · retour présentation">
+        <Image
+          src="/hero/brand-logo-signature.png"
+          alt="Logo Paye ta Graille"
+          width={132}
+          height={88}
+          className="ptg-footer-brand__img"
+        />
+      </Link>
       <nav aria-label="Liens légaux et informations">
         <Link href="/">{UX_FOOTER.presentation}</Link>
         <span className="ptg-footer-sep" aria-hidden>

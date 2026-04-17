@@ -843,6 +843,17 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   text-align: center;
 }
 
+.ptg-footer-brand {
+  display: inline-block;
+  margin: 0 auto 0.8rem;
+}
+
+.ptg-footer-brand__img {
+  width: clamp(5.8rem, 16vw, 8.25rem);
+  height: auto;
+  opacity: 0.92;
+}
+
 .ptg-footer nav {
   display: flex;
   flex-wrap: wrap;
@@ -2975,6 +2986,19 @@ a.ptg-kicker-pill--link:focus-visible {
   position: relative;
 }
 
+.ptg-nav-brand {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.3rem;
+  border-radius: 10px;
+}
+
+.ptg-nav-brand__img {
+  width: clamp(4.1rem, 10vw, 5.4rem);
+  height: auto;
+  opacity: 0.9;
+}
+
 .ptg-nav::after {
   content: "";
   position: absolute;
@@ -3382,6 +3406,12 @@ a.ptg-kicker-pill--link:focus-visible {
 }
 
 @media (max-width: 720px) {
+  .ptg-nav-brand {
+    width: 100%;
+    justify-content: center;
+    margin: 0 0 0.2rem;
+  }
+
   .ptg-hero-orbits {
     display: none;
   }
