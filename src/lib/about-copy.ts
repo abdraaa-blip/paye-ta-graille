@@ -1,4 +1,5 @@
 import { BRAND_LOGO_SIGNATURE_WEBP_SRC } from "@/lib/brand-logo";
+import { heroHomeMarketAtmosphereSrc } from "@/lib/env-public";
 
 /**
  * Page À propos : ton chaleureux, aligné marque (pas juridique : voir CGU).
@@ -82,7 +83,7 @@ export const ABOUT_LIVRET_LOGO_ALT =
 export const ABOUT_LIVRET_CAMPAIGN_ALT =
   "Visuel campagne Paye ta Graille avec slogan « Partage ta bouffe, régale tes voisins » et illustrations culinaires.";
 export const ABOUT_LIVRET_MARKET_ALT =
-  "Visuel manifeste Paye ta Graille sur plaque artisanale, ambiance marché et plats partagés.";
+  "Marché en plein air au coucher du soleil : tables garnies, enseigne Paye ta graille, foule et guirlandes, ambiance festive et chaleureuse.";
 
 /** Persistance session (page + ouverture), clé versionnée si le format change. */
 export const ABOUT_LIVRET_SESSION_KEY = "ptg.about.livret.v2";
@@ -207,12 +208,12 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
     title: "Le manifeste de quartier",
     epigraph: "La marque, la table, le terrain",
     layout: "poster",
-    imageSrc: "/hero/livret-manifeste-marche.png",
+    imageSrc: heroHomeMarketAtmosphereSrc(),
     imageWidth: 1024,
-    imageHeight: 683,
+    imageHeight: 682,
     imageAlt: ABOUT_LIVRET_MARKET_ALT,
     paragraphs: [
-      "Ce visuel ancre la marque dans un décor vivant : échange local, cuisine réelle, et identité assumée.",
+      "La même illustration que sous la bande ciné sur l’accueil : marché vivant, tables généreuses, identité locale assumée.",
     ],
   },
   {

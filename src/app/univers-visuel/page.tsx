@@ -10,11 +10,15 @@ import {
   BRAND_LOGO_SIGNATURE_WEBP_SRC,
   BRAND_LOGO_SIGNATURE_WIDTH,
 } from "@/lib/brand-logo";
+import { heroHomeMarketAtmosphereSrc } from "@/lib/env-public";
+import { UX_HOME } from "@/lib/ux-copy";
 
 export const metadata: Metadata = {
   title: "Univers visuel",
   description: "Vitrine visuelle Paye ta Graille : affiches et signatures de marque curées.",
 };
+
+const HOME_MARKET_ATMOSPHERE_SRC = heroHomeMarketAtmosphereSrc();
 
 const VISUALS = [
   {
@@ -43,6 +47,15 @@ const VISUALS = [
     width: 1024,
     height: 683,
     alt: "Visuel manifeste Paye ta Graille dans une ambiance de marché.",
+  },
+  {
+    id: "home-market-atmosphere",
+    title: "Scène marché (accueil)",
+    blurb: "Grande illustration sous la bande ciné sur la page d’accueil : prolonge le manifeste avec une scène de marché au coucher du soleil.",
+    src: HOME_MARKET_ATMOSPHERE_SRC,
+    width: 1024,
+    height: 682,
+    alt: UX_HOME.marketAtmosphereAlt,
   },
   {
     id: "logo-signature",

@@ -3,7 +3,8 @@
  * - Obligatoire : `landing-watercolor.png` → `landing-watercolor.webp`
  * - Optionnels si le PNG existe : nuit / mobile / affiche marque `brand-poster` / legacy `brand-marketplace` / logo `brand-logo-signature`
  * - `landing-watercolor-portrait-rail.webp` : bannière **mobile portrait** accueil (rail haut) ; desktop inchangé (`landing-watercolor.webp`).
- * - `landing-home-feast.webp` : bande **sous le hero** accueil (table partagée, statique).
+ * - `landing-home-feast.webp` : optionnel / legacy.
+ * - `landing-home-market-atmosphere.webp` : optionnel — scène marché sous la bande ciné (`landing-home-market-atmosphere.png`).
  * - `brand-stage-logo.webp` (À propos) : depuis `brand-logo-signature.png`, **contain** sur fond papier `#fbf6ef` (pas de fill sur transparence).
  * - Si `brand-poster.png` existe : `public/og/paye-ta-graille-share.webp` (1200×630, cover haut) pour Open Graph
  * Usage : `npm run optimize:hero`
@@ -42,6 +43,7 @@ const VARIANTS = [
   { png: "landing-watercolor-mobile.png", webp: "landing-watercolor-mobile.webp", required: false },
   { png: "landing-watercolor-portrait-rail.png", webp: "landing-watercolor-portrait-rail.webp", required: false },
   { png: "landing-home-feast.png", webp: "landing-home-feast.webp", required: false },
+  { png: "landing-home-market-atmosphere.png", webp: "landing-home-market-atmosphere.webp", required: false },
   { png: "landing-watercolor-night-mobile.png", webp: "landing-watercolor-night-mobile.webp", required: false },
   { png: "brand-poster.png", webp: "brand-poster.webp", required: false },
   { png: "brand-marketplace.png", webp: "brand-marketplace.webp", required: false },

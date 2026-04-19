@@ -52,9 +52,18 @@ export const UX_HOME = {
     a: "Le repas est le prétexte honnête. Autour, c’est juste du vivant.",
     b: "Une table, des humains, pas de scène à jouer.",
   }),
-  /** Illustration sous le hero : repas partagé (pas décoratif vide — scène narrative). */
-  feastBandAlt:
-    "Plusieurs personnes partagent un repas généreux autour d’une longue table sous des arches, ambiance conviviale et chaleureuse.",
+  /** Bande signature sous le hero (animation courte) : bouton d’accès immédiat au contenu figé. */
+  cinematicSkip: uxa({ a: "Passer l’animation", b: "Zapper l’intro" }),
+  /** Intro GSAP + halage + brume + balayage : tout fige dans la bande (même onglet, `sessionStorage`). */
+  cinematicPause: uxa({ a: "Pause les effets", b: "Couper le mouvement" }),
+  cinematicResume: uxa({ a: "Reprendre les effets", b: "Remettre le mouvement" }),
+  cinematicReplay: uxa({ a: "Rejouer l’intro", b: "Revoir l’intro" }),
+  /** `role="toolbar"` sur les contrôles secondaires (pause / rejouer). */
+  cinematicToolbarAria: "Contrôles de la bande signature",
+  /** Image illustrative sous la bande ciné (marché, table généreuse) — `aria-label` court sur la section. */
+  marketAtmosphereAria: "Scène de marché culinaire conviviale",
+  marketAtmosphereAlt:
+    "Marché en plein air au coucher du soleil : tables garnies, enseigne Paye ta graille, foule et guirlandes, ambiance festive et chaleureuse.",
 } as const;
 
 export const UX_ACCUEIL = {

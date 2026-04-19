@@ -4,6 +4,7 @@ export const SMOKE_ROUTES = [
   "/",
   "/a-propos",
   "/hero/landing-watercolor.webp",
+  "/hero/landing-home-market-atmosphere.webp",
   "/hero/brand-logo-signature.webp",
   "/accueil",
   "/commencer",
@@ -37,6 +38,15 @@ export const SMOKE_ROUTES = [
 /** Kicker hero : lien vers À propos + classe pill. */
 export const HOME_EXPECT_KICKER_MARKERS = ['href="/a-propos"', "ptg-kicker-pill--link"];
 
+/** Bande signature sous le hero (composant client, shell SSR). */
+export const HOME_EXPECT_CINEMATIC_MARKER = "ptg-home-cinematic-band";
+
+/** Image illustrative marché sous la bande ciné (SSR). */
+export const HOME_EXPECT_MARKET_MARKER = "ptg-home-market-band";
+
+/** Attribut serveur sur `.ptg-page` : `off` = pas d’illustration raster ni de bande (`NEXT_PUBLIC_PTG_HERO_ILLUSTRATION=0`). */
+export const HOME_DATA_HERO_RASTER_OFF = 'data-ptg-hero-raster="off"';
+
 export const EXPECTED_STATUS = new Map([
   ["/api/health", 200],
   ["/route-inexistante-test-404", 404],
@@ -59,6 +69,19 @@ export function validateHomeHtml(html) {
   const missing = HOME_EXPECT_KICKER_MARKERS.filter((m) => !html.includes(m));
   if (missing.length > 0) {
     return `home HTML missing hero kicker markers: ${missing.join(", ")}`;
+  }
+  const heroRasterOff = html.includes(HOME_DATA_HERO_RASTER_OFF);
+  if (!heroRasterOff && !html.includes(HOME_EXPECT_CINEMATIC_MARKER)) {
+    return `home HTML missing bande signature (${HOME_EXPECT_CINEMATIC_MARKER})`;
+  }
+  if (!heroRasterOff && !html.includes(HOME_EXPECT_MARKET_MARKER)) {
+    return `home HTML missing bande marché (${HOME_EXPECT_MARKET_MARKER})`;
+  }
+  if (heroRasterOff && html.includes(HOME_EXPECT_CINEMATIC_MARKER)) {
+    return "home HTML: data-ptg-hero-raster=off but bande signature present (incoherent build)";
+  }
+  if (heroRasterOff && html.includes(HOME_EXPECT_MARKET_MARKER)) {
+    return "home HTML: data-ptg-hero-raster=off but bande marché present (incoherent build)";
   }
   if (!/property\s*=\s*["']og:image["']/i.test(html)) {
     return "home HTML missing meta property og:image (Open Graph)";
