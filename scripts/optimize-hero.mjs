@@ -1,7 +1,10 @@
 /**
  * Génère des WebP sous `public/hero/` à partir de PNG sources (même recette : largeur max, sans agrandir).
  * - Obligatoire : `landing-watercolor.png` → `landing-watercolor.webp`
- * - Optionnels si le PNG existe : nuit / mobile / affiche marque `brand-poster` / legacy `brand-marketplace`
+ * - Optionnels si le PNG existe : nuit / mobile / affiche marque `brand-poster` / legacy `brand-marketplace` / logo `brand-logo-signature`
+ * - `landing-watercolor-portrait-rail.webp` : bannière **mobile portrait** accueil (rail haut) ; desktop inchangé (`landing-watercolor.webp`).
+ * - `landing-home-feast.webp` : bande **sous le hero** accueil (table partagée, statique).
+ * - `brand-stage-logo.webp` (À propos) : depuis `brand-logo-signature.png`, **contain** sur fond papier `#fbf6ef` (pas de fill sur transparence).
  * - Si `brand-poster.png` existe : `public/og/paye-ta-graille-share.webp` (1200×630, cover haut) pour Open Graph
  * Usage : `npm run optimize:hero`
  */
@@ -26,14 +29,23 @@ const OG_HEIGHT = 630;
 const BRAND_STAGE_WIDTH = 1500;
 const BRAND_STAGE_HEIGHT = 1000;
 
+/** Logo signature nav/footer : qualité max raisonnable (master haute définition). */
+const BRAND_LOGO_SIGNATURE_WEBP_QUALITY = 98;
+
+/** Fond « papier » du slide signature dans le carrousel À propos (aligné `--ptg-bg`). */
+const BRAND_STAGE_LOGO_PAPER_BG = { r: 251, g: 246, b: 239, alpha: 1 };
+
 /** Paires [fichier PNG sans chemin, WebP de sortie]. La première est exigée. */
 const VARIANTS = [
   { png: "landing-watercolor.png", webp: "landing-watercolor.webp", required: true },
   { png: "landing-watercolor-night.png", webp: "landing-watercolor-night.webp", required: false },
   { png: "landing-watercolor-mobile.png", webp: "landing-watercolor-mobile.webp", required: false },
+  { png: "landing-watercolor-portrait-rail.png", webp: "landing-watercolor-portrait-rail.webp", required: false },
+  { png: "landing-home-feast.png", webp: "landing-home-feast.webp", required: false },
   { png: "landing-watercolor-night-mobile.png", webp: "landing-watercolor-night-mobile.webp", required: false },
   { png: "brand-poster.png", webp: "brand-poster.webp", required: false },
   { png: "brand-marketplace.png", webp: "brand-marketplace.webp", required: false },
+  { png: "brand-logo-signature.png", webp: "brand-logo-signature.webp", required: false },
 ];
 
 const ALLOWED_POSITIONS = new Set([
@@ -66,11 +78,15 @@ async function convertVariant(pngName, webpName) {
   const h = meta.height ?? 0;
   const dimNote = w && h ? `${w}×${h}` : "?";
 
+  const isBrandLogoSignature = pngName === "brand-logo-signature.png";
+  const webpQuality = isBrandLogoSignature ? BRAND_LOGO_SIGNATURE_WEBP_QUALITY : WEBP_QUALITY;
+  const webpEffort = isBrandLogoSignature ? 6 : 4;
+
   if (DRY_RUN) {
     console.log(
       "DRY:",
       `${path.relative(root, pngPath)} -> ${path.relative(root, webpPath)}`,
-      `source ${dimNote} → max ${HERO_MAX_WIDTH}px, WebP q=${WEBP_QUALITY}`,
+      `source ${dimNote} → max ${HERO_MAX_WIDTH}px, WebP q=${webpQuality}`,
     );
     return;
   }
@@ -81,7 +97,7 @@ async function convertVariant(pngName, webpName) {
       width: HERO_MAX_WIDTH,
       withoutEnlargement: true,
     })
-    .webp({ quality: WEBP_QUALITY, effort: 4 })
+    .webp({ quality: webpQuality, effort: webpEffort })
     .toFile(webpPath);
 
   const out = statSync(webpPath);
@@ -89,7 +105,7 @@ async function convertVariant(pngName, webpName) {
   console.log(
     "OK:",
     path.relative(root, webpPath),
-    `(${kb} KB) source ${dimNote} → max ${HERO_MAX_WIDTH}px largeur, WebP q=${WEBP_QUALITY}`,
+    `(${kb} KB) source ${dimNote} → max ${HERO_MAX_WIDTH}px largeur, WebP q=${webpQuality}`,
   );
 }
 
@@ -183,18 +199,24 @@ async function buildBrandStageVariant(inputName, outputName, position = "attenti
   const h = meta.height ?? 0;
   const useFocal = w > 0 && h > 0 && focal && typeof focal === "object";
   const dimNote = w && h ? `${w}×${h}` : "?";
-  const pipeline = sharp(inputPath).rotate();
+  /** Slide « logo » du carrousel À propos : PNG à alpha → tapis papier + contain (évite dégradé fill sur transparence). */
+  const isLogoSignatureStage =
+    outputName === "brand-stage-logo.webp" || inputName === "brand-logo-signature.png";
+
+  let pipeline = sharp(inputPath).rotate();
   let rect = null;
 
-  if (useFocal) {
+  if (useFocal && !isLogoSignatureStage) {
     rect = cropRectForFocal(w, h, BRAND_STAGE_WIDTH, BRAND_STAGE_HEIGHT, focal);
-    pipeline.extract(rect);
+    pipeline = pipeline.extract(rect);
   }
 
   if (DRY_RUN) {
     const cropInfo = rect
       ? `crop left=${rect.left}, top=${rect.top}, width=${rect.width}, height=${rect.height}`
-      : `crop auto position=${position}`;
+      : isLogoSignatureStage
+        ? "contain+fond papier"
+        : `crop auto position=${position}`;
     console.log(
       "DRY:",
       `${path.relative(root, inputPath)} -> ${path.relative(root, outputPath)}`,
@@ -203,14 +225,29 @@ async function buildBrandStageVariant(inputName, outputName, position = "attenti
     return;
   }
 
-  await pipeline
-    .resize(BRAND_STAGE_WIDTH, BRAND_STAGE_HEIGHT, {
-      fit: useFocal ? "fill" : "cover",
-      position,
-      withoutEnlargement: false,
-    })
-    .webp({ quality: WEBP_QUALITY, effort: 4 })
-    .toFile(outputPath);
+  if (isLogoSignatureStage) {
+    await pipeline
+      .ensureAlpha()
+      /* Aplatit transparence / franges sur le papier : évite liserés sombres au collage sur le cadre nuit. */
+      .flatten({ background: BRAND_STAGE_LOGO_PAPER_BG })
+      .resize(BRAND_STAGE_WIDTH, BRAND_STAGE_HEIGHT, {
+        fit: "contain",
+        position: "center",
+        background: BRAND_STAGE_LOGO_PAPER_BG,
+        withoutEnlargement: false,
+      })
+      .webp({ quality: BRAND_LOGO_SIGNATURE_WEBP_QUALITY, effort: 6 })
+      .toFile(outputPath);
+  } else {
+    await pipeline
+      .resize(BRAND_STAGE_WIDTH, BRAND_STAGE_HEIGHT, {
+        fit: useFocal ? "fill" : "cover",
+        position,
+        withoutEnlargement: false,
+      })
+      .webp({ quality: WEBP_QUALITY, effort: 4 })
+      .toFile(outputPath);
+  }
 
   const out = statSync(outputPath);
   const kb = (out.size / 1024).toFixed(1);

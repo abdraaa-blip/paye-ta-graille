@@ -7,6 +7,7 @@ import { heroBrandIllustrationSrc } from "@/lib/env-public";
 const BRAND_STAGE_ROTATE_MS_MOBILE = 4_500;
 const BRAND_STAGE_ROTATE_MS_DESKTOP = 6_000;
 const BRAND_STAGE_ROTATE_MS_MOBILE_COMPACT = 5_800;
+/** Ordre du carrousel ; `brand-stage-logo.webp` est regénéré par `optimize:hero` (logo + fond papier dans le cadre 1500×1000). */
 const BRAND_STAGE_ROTATION_PATHS = [
   "/hero/brand-stage-campagne.webp",
   "/hero/brand-stage-manifeste.webp",
@@ -33,8 +34,8 @@ function uniqueVisualPaths(paths: string[]): string[] {
 }
 
 /**
- * Illustration « marque » en bas de page À propos : même cadre et effets que {@link NightStageDecor}
- * (`ptg-night-stage`, voile, survol, faisceaux, vapeur) ; seule la source raster reste `variant="brand"`.
+ * Illustration « marque » en bas de page À propos : même cadre / faisceaux que {@link NightStageDecor}
+ * (`ptg-night-stage`, voile, vapeur) ; fond du cadre : tapis papier (sans couche nuit sombre sous le radial) dans `globals.css`.
  */
 export function AboutBrandStageDecor() {
   const [paused, setPaused] = useState(false);

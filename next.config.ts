@@ -75,9 +75,9 @@ if (cspReportUri) {
 }
 const contentSecurityPolicy = cspParts.join("; ");
 
-/** Next 16 exigera les qualités utilisées par `<Image quality={…} />` (ex. hero 82). */
+/** Qualités autorisées pour `<Image quality={…} />` (hero 82, logo signature jusqu’à 100). */
 const imagesConfig: NonNullable<NextConfig["images"]> = {
-  qualities: [75, 82],
+  qualities: [75, 82, 95, 100],
   ...(heroRemotes.length > 0 ? { remotePatterns: heroRemotes } : {}),
 };
 

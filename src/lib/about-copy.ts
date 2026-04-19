@@ -1,3 +1,5 @@
+import { BRAND_LOGO_SIGNATURE_WEBP_SRC } from "@/lib/brand-logo";
+
 /**
  * Page À propos : ton chaleureux, aligné marque (pas juridique : voir CGU).
  */
@@ -64,6 +66,9 @@ export type AboutLivretPage = {
   imageSrc?: string;
   /** Texte alternatif optionnel pour une page `poster`. */
   imageAlt?: string;
+  /** Dimensions intrinsèques (CLS / ratio) pour `<img>` ; défaut livret affiche 572×1024. */
+  imageWidth?: number;
+  imageHeight?: number;
 };
 
 export const ABOUT_LIVRET_INTRO =
@@ -73,7 +78,7 @@ export const ABOUT_LIVRET_INTRO =
 export const ABOUT_LIVRET_POSTER_ALT =
   "Affiche Paye ta graille : logo, slogan « Partage ta bouffe, régale tes voisins », plats et nuages en style aquarelle.";
 export const ABOUT_LIVRET_LOGO_ALT =
-  "Logo Paye ta Graille sur fond clair, avec le picto de localisation et couverts.";
+  "Logo Paye ta Graille sur fond transparent, picto localisation et couverts.";
 export const ABOUT_LIVRET_CAMPAIGN_ALT =
   "Visuel campagne Paye ta Graille avec slogan « Partage ta bouffe, régale tes voisins » et illustrations culinaires.";
 export const ABOUT_LIVRET_MARKET_ALT =
@@ -108,6 +113,8 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
     title: "L’univers en une image",
     epigraph: "Partage ta bouffe, régale tes voisins",
     layout: "poster",
+    imageWidth: 572,
+    imageHeight: 1024,
     paragraphs: [
       "L’affiche officielle du projet : le même esprit que le site, en une image à garder, à partager ou à imprimer pour ton quartier.",
     ],
@@ -168,6 +175,8 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
     epigraph: "Partage ta bouffe, régale tes voisins",
     layout: "poster",
     imageSrc: "/hero/livret-campagne-slogan.png",
+    imageWidth: 1024,
+    imageHeight: 682,
     imageAlt: ABOUT_LIVRET_CAMPAIGN_ALT,
     paragraphs: [
       "Un visuel direct pour rappeler le cœur du projet : convivialité, générosité, et plaisir concret autour d’une table.",
@@ -199,6 +208,8 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
     epigraph: "La marque, la table, le terrain",
     layout: "poster",
     imageSrc: "/hero/livret-manifeste-marche.png",
+    imageWidth: 1024,
+    imageHeight: 683,
     imageAlt: ABOUT_LIVRET_MARKET_ALT,
     paragraphs: [
       "Ce visuel ancre la marque dans un décor vivant : échange local, cuisine réelle, et identité assumée.",
@@ -209,7 +220,9 @@ export const ABOUT_LIVRET_PAGES: readonly AboutLivretPage[] = [
     title: "Signature",
     epigraph: "Le logo Paye ta Graille",
     layout: "poster",
-    imageSrc: "/hero/brand-logo-signature.png",
+    imageSrc: BRAND_LOGO_SIGNATURE_WEBP_SRC,
+    imageWidth: 1024,
+    imageHeight: 683,
     imageAlt: ABOUT_LIVRET_LOGO_ALT,
     paragraphs: [
       "Notre signature visuelle pour clôturer le livret : simple, claire, et fidèle à l’esprit de la marque.",

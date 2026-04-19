@@ -8,7 +8,7 @@ import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop"
  */
 export function NightStageDecor() {
   return (
-    <section className="ptg-night-stage" aria-hidden>
+    <section className="ptg-night-stage ptg-night-stage--peripheral" aria-hidden>
       <HeroIllustrationBackdrop
         variant="night"
         priority={false}

@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import {
+  BRAND_LOGO_SIGNATURE_HEIGHT,
+  BRAND_LOGO_SIGNATURE_WEBP_SRC,
+  BRAND_LOGO_SIGNATURE_WIDTH,
+} from "@/lib/brand-logo";
 import { useCallback, useEffect, useState } from "react";
 import { extensionsNavVisible } from "@/lib/feature-modules";
 
@@ -41,10 +46,12 @@ export function AppNav({
     <nav className="ptg-nav" aria-label="Navigation principale">
       <Link href="/" className="ptg-nav-brand" aria-label="Retour à la présentation Paye ta Graille">
         <Image
-          src="/hero/brand-logo-signature.png"
+          src={BRAND_LOGO_SIGNATURE_WEBP_SRC}
           alt="Logo Paye ta Graille"
-          width={112}
-          height={75}
+          width={BRAND_LOGO_SIGNATURE_WIDTH}
+          height={BRAND_LOGO_SIGNATURE_HEIGHT}
+          sizes="(max-width: 720px) 34vw, 5.5rem"
+          quality={100}
           className="ptg-nav-brand__img"
         />
       </Link>

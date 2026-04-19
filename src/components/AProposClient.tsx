@@ -31,7 +31,12 @@ import {
   stripOurLivretHash,
   writeLivretSession,
 } from "@/lib/about-livret-session";
-import { aboutLivretPosterLocalFallback, aboutLivretPosterSrc, heroBrandDecorEnabled } from "@/lib/env-public";
+import {
+  aboutLivretPosterLocalFallback,
+  aboutLivretPosterSrc,
+  heroBrandDecorEnabled,
+  heroPublicWebpFallbackPng,
+} from "@/lib/env-public";
 import { UX_HOME } from "@/lib/ux-copy";
 import { AboutBrandStageDecor } from "@/components/AboutBrandStageDecor";
 import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
@@ -53,7 +58,17 @@ const SWIPE_NUDGE_MS = 2200;
 const SWIPE_NUDGE_SESSION_KEY = "ptg.about.livret.swipe-nudge.seen.v1";
 const LIVRET_AUTO_SESSION_KEY = "ptg.about.livret.auto.enabled.v1";
 
-function AboutLivretPosterImg({ src, alt }: { src?: string; alt?: string }) {
+function AboutLivretPosterImg({
+  src,
+  alt,
+  width = 572,
+  height = 1024,
+}: {
+  src?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+}) {
   const primary = src ?? aboutLivretPosterSrc();
   const [resolvedSrc, setResolvedSrc] = useState(primary);
 
@@ -67,13 +82,14 @@ function AboutLivretPosterImg({ src, alt }: { src?: string; alt?: string }) {
     <img
       src={resolvedSrc}
       alt={alt ?? ABOUT_LIVRET_POSTER_ALT}
-      width={572}
-      height={1024}
+      width={width}
+      height={height}
       className="ptg-about-livret__poster-img"
       loading="lazy"
       decoding="async"
       onError={() => {
-        const fb = aboutLivretPosterLocalFallback(resolvedSrc);
+        const fb =
+          heroPublicWebpFallbackPng(resolvedSrc) || aboutLivretPosterLocalFallback(resolvedSrc);
         if (fb && fb !== resolvedSrc) setResolvedSrc(fb);
       }}
     />
@@ -83,15 +99,24 @@ function AboutLivretPosterImg({ src, alt }: { src?: string; alt?: string }) {
 type AboutLivretPosterButtonProps = {
   src?: string;
   alt?: string;
+  width?: number;
+  height?: number;
   onOpen: () => void;
   ariaLabel?: string;
 };
 
-function AboutLivretPosterButton({ src, alt, onOpen, ariaLabel = "Agrandir l’affiche" }: AboutLivretPosterButtonProps) {
+function AboutLivretPosterButton({
+  src,
+  alt,
+  width,
+  height,
+  onOpen,
+  ariaLabel = "Agrandir l’affiche",
+}: AboutLivretPosterButtonProps) {
   return (
     <button type="button" className="ptg-about-poster-open" onClick={onOpen} aria-label={ariaLabel}>
       <span className="ptg-about-poster-open__media" aria-hidden>
-        <AboutLivretPosterImg src={src} alt={alt} />
+        <AboutLivretPosterImg src={src} alt={alt} width={width} height={height} />
       </span>
       <span className="ptg-about-poster-open__cta">Agrandir</span>
     </button>
@@ -647,6 +672,8 @@ export function AProposClient() {
                   <AboutLivretPosterButton
                     src={page.imageSrc}
                     alt={page.imageAlt}
+                    width={page.imageWidth}
+                    height={page.imageHeight}
                     onOpen={openPosterLightbox}
                     ariaLabel={page.id === "signature-logo" ? "Agrandir le logo depuis le livret" : "Agrandir l’affiche depuis le livret"}
                   />
@@ -823,7 +850,12 @@ export function AProposClient() {
             >
               Fermer ×
             </button>
-            <AboutLivretPosterImg src={page.imageSrc} alt={page.imageAlt ?? ABOUT_LIVRET_POSTER_ALT} />
+            <AboutLivretPosterImg
+              src={page.imageSrc}
+              alt={page.imageAlt ?? ABOUT_LIVRET_POSTER_ALT}
+              width={page.imageWidth ?? 572}
+              height={page.imageHeight ?? 1024}
+            />
           </div>
         </div>
       ) : null}

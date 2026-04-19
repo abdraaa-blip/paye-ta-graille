@@ -2,10 +2,12 @@
 import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
 import { HeroOrbitLabels } from "@/components/HeroOrbitLabels";
+import { HomeFeastBand } from "@/components/HomeFeastBand";
 import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgLandingDecor } from "@/components/PtgLandingDecor";
 import { SiteFooter } from "@/components/SiteFooter";
+import { heroIllustrationPortraitRailSrc } from "@/lib/env-public";
 import {
   MARKETING_CORE_PROMISE,
   MARKETING_HOME_PULSE_LINES,
@@ -19,10 +21,12 @@ export default function HomePage() {
   return (
     <div className="ptg-page">
       <section className="ptg-hero-shell ptg-hero-shell--illus-hero" aria-labelledby="hero-title">
-        <HeroIllustrationBackdrop />
-        <HeroAtmosphere />
-        <BrandScribbleBackdrop emphasis />
-        <PtgLandingDecor variant="subtle" />
+        <div className="ptg-hero-shell__media">
+          <HeroIllustrationBackdrop portraitRailSrc={heroIllustrationPortraitRailSrc()} />
+          <HeroAtmosphere />
+          <BrandScribbleBackdrop emphasis />
+          <PtgLandingDecor variant="subtle" />
+        </div>
         <div className="ptg-hero-stage">
           <HeroOrbitLabels />
           <div className="ptg-hero-card">
@@ -82,6 +86,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <HomeFeastBand />
       <SiteFooter />
     </div>
   );

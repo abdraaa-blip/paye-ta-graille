@@ -5,6 +5,11 @@ import { AppNav } from "@/components/AppNav";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { SiteFooter } from "@/components/SiteFooter";
+import {
+  BRAND_LOGO_SIGNATURE_HEIGHT,
+  BRAND_LOGO_SIGNATURE_WEBP_SRC,
+  BRAND_LOGO_SIGNATURE_WIDTH,
+} from "@/lib/brand-logo";
 
 export const metadata: Metadata = {
   title: "Univers visuel",
@@ -17,6 +22,8 @@ const VISUALS = [
     title: "Affiche manifeste",
     blurb: "Le visuel signature qui ouvre le livret et pose la promesse de marque.",
     src: "/hero/brand-poster.png",
+    width: 572,
+    height: 1024,
     alt: "Affiche Paye ta Graille avec slogan et ambiance culinaire.",
   },
   {
@@ -24,6 +31,8 @@ const VISUALS = [
     title: "Campagne slogan",
     blurb: "Version éditoriale orientée convivialité et partage de quartier.",
     src: "/hero/livret-campagne-slogan.png",
+    width: 1024,
+    height: 682,
     alt: "Visuel campagne Paye ta Graille avec slogan et compositions culinaires.",
   },
   {
@@ -31,16 +40,20 @@ const VISUALS = [
     title: "Manifeste marché",
     blurb: "Interprétation terrain : table, monnaie, cuisine réelle, ancrage local.",
     src: "/hero/livret-manifeste-marche.png",
+    width: 1024,
+    height: 683,
     alt: "Visuel manifeste Paye ta Graille dans une ambiance de marché.",
   },
   {
     id: "logo-signature",
     title: "Logo signature",
     blurb: "Identité finale utilisée en clôture de livret et signatures de marque.",
-    src: "/hero/brand-logo-signature.png",
-    alt: "Logo Paye ta Graille sur fond clair.",
+    src: BRAND_LOGO_SIGNATURE_WEBP_SRC,
+    width: BRAND_LOGO_SIGNATURE_WIDTH,
+    height: BRAND_LOGO_SIGNATURE_HEIGHT,
+    alt: "Logo Paye ta Graille sur fond transparent.",
   },
-] as const;
+];
 
 export default function UniversVisuelPage() {
   return (
@@ -65,7 +78,19 @@ export default function UniversVisuelPage() {
             {VISUALS.map((v) => (
               <article key={v.id} className="ptg-surface ptg-surface--static ptg-card">
                 <div className="ptg-visual-frame">
-                  <Image src={v.src} alt={v.alt} width={1024} height={1024} className="ptg-visual-frame__img" />
+                  <Image
+                    src={v.src}
+                    alt={v.alt}
+                    width={v.width}
+                    height={v.height}
+                    sizes="(max-width: 859px) 92vw, 44vw"
+                    quality={v.id === "logo-signature" ? 100 : 82}
+                    className={
+                      v.id === "logo-signature"
+                        ? "ptg-visual-frame__img ptg-visual-frame__img--contain"
+                        : "ptg-visual-frame__img"
+                    }
+                  />
                 </div>
                 <p className="ptg-card-title" style={{ margin: "0 0 0.35rem", fontSize: "var(--ptg-text-md-sm)" }}>
                   {v.title}
