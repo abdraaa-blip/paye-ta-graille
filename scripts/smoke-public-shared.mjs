@@ -4,6 +4,7 @@ export const SMOKE_ROUTES = [
   "/",
   "/a-propos",
   "/hero/landing-watercolor.webp",
+  "/hero/brand-logo-signature.webp",
   "/accueil",
   "/commencer",
   "/auth",

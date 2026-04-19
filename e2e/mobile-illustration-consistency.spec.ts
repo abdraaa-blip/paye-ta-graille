@@ -14,7 +14,7 @@ test.describe("Mobile illustration consistency", () => {
     expect(objectFit).toBe("contain");
   });
 
-  test("Night-stage pages: background illustration uses contain on mobile portrait", async ({ page }) => {
+  test("Night-stage pages: background illustration uses cover on mobile portrait", async ({ page }) => {
     await page.setViewportSize(MOBILE);
     let checkedAtLeastOneStage = false;
     for (const path of ["/partenaires", "/experiences", "/repas-ouverts"] as const) {
@@ -27,7 +27,7 @@ test.describe("Mobile illustration consistency", () => {
       if ((await img.count()) === 0) continue;
       await expect(img).toBeVisible();
       const objectFit = await img.evaluate((el) => window.getComputedStyle(el).objectFit);
-      expect(objectFit, `${path} should keep full image on mobile`).toBe("contain");
+      expect(objectFit, `${path} should fill frame width on mobile (no side gutters)`).toBe("cover");
     }
     expect(checkedAtLeastOneStage, "At least one night-stage page should be available in this build").toBeTruthy();
   });

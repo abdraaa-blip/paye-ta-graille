@@ -11,7 +11,13 @@
 }
 
 html {
-  color-scheme: light;
+  /* `only light` : évite le « auto dark » Chrome/Edge qui casse dégradés texte + color-mix (aplats noirs). */
+  color-scheme: only light;
+  /* Même aplats que le body : évite un filet aux quatre bords si le canvas dépasse d’un sous-pixel. */
+  background-color: var(--ptg-bg);
+  min-height: 100%;
+  /* Débords décoratifs (pseudo, blur, 100vw implicite) : pas de bande sombre sur le bord du viewport. */
+  overflow-x: clip;
   /* Ancrage scroll + encoche : évite que le titre soit sous la barre système. */
   scroll-padding-top: max(var(--ptg-space-4), env(safe-area-inset-top, 0px));
 }
@@ -20,6 +26,7 @@ body {
   position: relative;
   isolation: isolate;
   margin: 0;
+  overflow-x: clip;
   min-height: 100dvh;
   font-family: var(--ptg-font-sans);
   background-color: var(--ptg-bg);
@@ -60,6 +67,11 @@ body::before {
   opacity: 0.22;
 }
 
+/* Lien « Aller au contenu » : pas d’anneau navigateur sur tout le viewport (bords visibles). */
+#contenu-principal:focus {
+  outline: none;
+}
+
 /* Ambiance globale : vapeur culinaire subtile + faisceaux doux sur zones sombres. */
 .ptg-ambient {
   position: fixed;
@@ -67,6 +79,8 @@ body::before {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  /* Limite les artefacts de mix-blend / blur au rectangle du viewport (filets sur les bords). */
+  isolation: isolate;
 }
 
 .ptg-ambient__smoke {
@@ -156,13 +170,14 @@ body::before {
   position: relative;
   margin-top: 0.9rem;
   /*
-   * Ratio fixe 3:2. Illustration en cover = tout le cadre est rempli (évite bandes noires avec contain).
+   * Ratio fixe 3:2. Desktop : contain (dessin entier). ≤720px : cover (pas de bandes grises sur les côtés).
    * Export conseillé : 3:2 ex. 1200×800 (voir .env.example).
    */
   aspect-ratio: 3 / 2;
   width: 100%;
   border-radius: var(--ptg-radius-card);
-  border: 1px solid color-mix(in srgb, var(--ptg-line) 28%, transparent);
+  /* Un peu plus doux qu’avant : sur fond sombre le 28 % lisait encore « trait noir » fin. */
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 22%, transparent);
   /* Fond moins « trou noir » : laisse respirer les mids de l’aquarelle tout en restant nocturne. */
   background: linear-gradient(
     180deg,
@@ -173,7 +188,7 @@ body::before {
   transition: border-color var(--ptg-duration) var(--ptg-ease-out), box-shadow var(--ptg-duration) var(--ptg-ease-out);
 }
 
-/* Mobile portrait safety: évite un cadre qui s'écrase (notamment sur Partenaires/Expériences). */
+/* Mobile : cadre compact par défaut (dont bandeau marque À propos, spécificité wrap). */
 @media (max-width: 640px) {
   .ptg-night-stage {
     min-height: clamp(11rem, 52vw, 16rem);
@@ -181,11 +196,11 @@ body::before {
     max-height: 16rem;
   }
 
-  /* Mobile portrait: évite le recadrage agressif des illustrations de scène. */
-  .ptg-night-stage .ptg-hero-illustration__img,
-  .ptg-about-brand-stage__backdrop .ptg-hero-illustration__img {
-    object-fit: contain;
-    object-position: 50% 50%;
+  /* Partenaires / Expériences / repas ouverts : cadre plus haut pour limiter le rognage cover (sans toucher À propos). */
+  .ptg-night-stage--peripheral {
+    min-height: clamp(11rem, 56vw, 26rem);
+    height: auto;
+    max-height: none;
   }
 
   .ptg-night-stage .ptg-hero-illustration__veil {
@@ -199,11 +214,17 @@ body::before {
     height: clamp(10rem, 54vw, 13.5rem);
     max-height: 13.5rem;
   }
+
+  .ptg-night-stage--peripheral {
+    min-height: clamp(10rem, 58vw, 22rem);
+    height: auto;
+    max-height: none;
+  }
 }
 
 .ptg-night-stage:hover {
-  border-color: color-mix(in srgb, var(--ptg-line) 42%, var(--ptg-accent) 12%);
-  box-shadow: 0 10px 36px color-mix(in srgb, #0a0c10 45%, transparent);
+  border-color: color-mix(in srgb, var(--ptg-line) 36%, var(--ptg-accent) 12%);
+  box-shadow: 0 10px 32px color-mix(in srgb, #0a0c10 34%, transparent);
 }
 
 .ptg-night-stage:hover .ptg-night-stage__beam,
@@ -211,11 +232,11 @@ body::before {
   opacity: 0.55;
 }
 
-/* Illustration plein cadre + voile plus clair au centre (le dessin se lit vraiment, pas un zoom filtré). */
+/* Grand écran : illustration entière (contain). Mobile : règle cover dans @media (max-width: 720px). */
 .ptg-night-stage .ptg-hero-illustration__img {
   opacity: 0.88;
-  object-fit: cover;
-  object-position: 50% 42%;
+  object-fit: contain;
+  object-position: 50% 50%;
   transition: opacity 0.35s var(--ptg-ease-out);
 }
 
@@ -286,6 +307,10 @@ body::before {
   .ptg-night-stage:focus-within .ptg-hero-illustration__veil {
     opacity: 0.38;
   }
+
+  .ptg-about-brand-stage-wrap .ptg-night-stage .ptg-about-brand-stage__backdrop .ptg-hero-illustration__veil {
+    opacity: 0.14;
+  }
 }
 
 .ptg-night-stage__beam {
@@ -296,6 +321,8 @@ body::before {
   height: 130%;
   opacity: 0.32;
   pointer-events: none;
+  /* Calque composé : clip + rotation (évite certains clignotements GPU avec screen sur grand écran). */
+  will-change: transform;
   /* Pivot en haut : le cône balaie la scène sans envoyer le halo hors du cadre. */
   transform-origin: 50% 0;
   background: linear-gradient(
@@ -318,48 +345,47 @@ body::before {
 .ptg-night-stage > .ptg-night-stage__beam {
   top: 0;
   height: 118%;
-  opacity: 0.62;
+  /* Légère remontée vs bureau : rapproche la sensation de « lumière scène » du rendu desktop sans saturer. */
+  opacity: 0.7;
   /* Mobile : screen = projecteur bien perceptible sur l’aquarelle sombre. */
   mix-blend-mode: screen;
 }
 
-/*
- * Grand écran : pas de clip-path / mix-blend (souci GPU bureau) ; effet volontairement **très lisible**
- * (large, lumineux, léger halo en box-shadow ; jamais de filter sur le calque).
- */
+/* Grand écran : projecteur « hélico » (À propos, Partenaires, Expériences — même lecture). */
 @media (min-width: 640px) {
   .ptg-night-stage > .ptg-night-stage__beam {
     z-index: 6;
-    width: 52%;
-    mix-blend-mode: normal;
-    opacity: 0.92;
-    clip-path: none;
-    border-radius: 4px;
+    width: 42%;
+    mix-blend-mode: screen;
+    opacity: 0.72;
+    clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+    border-radius: 0;
     background: linear-gradient(
       180deg,
-      rgba(255, 245, 228, 0.78) 0%,
-      rgba(255, 238, 210, 0.45) 18%,
-      rgba(255, 228, 190, 0.2) 42%,
-      rgba(255, 255, 255, 0) 76%
+      color-mix(in srgb, #fff 88%, var(--ptg-accent) 12%) 0%,
+      color-mix(in srgb, #fff 22%, var(--ptg-accent) 18%) 18%,
+      color-mix(in srgb, var(--ptg-accent) 24%, transparent) 40%,
+      transparent 100%
     );
-    box-shadow: 0 0 70px 36px rgba(255, 220, 185, 0.28);
-    animation-duration: 5.5s;
+    box-shadow: none;
+    animation: ptg-night-beam 9s ease-in-out infinite;
   }
 
   .ptg-night-stage > .ptg-night-stage__beam--1 {
-    left: 3%;
+    left: 6%;
   }
 
   .ptg-night-stage > .ptg-night-stage__beam--2 {
-    right: 3%;
+    right: 6%;
   }
 }
 
 @media (prefers-contrast: more) {
   .ptg-night-stage > .ptg-night-stage__beam {
-    opacity: 0.98;
-    mix-blend-mode: normal;
-    box-shadow: 0 0 60px 28px rgba(255, 230, 200, 0.35);
+    opacity: 0.88;
+    mix-blend-mode: screen;
+    clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+    box-shadow: none;
   }
 }
 
@@ -394,16 +420,66 @@ body::before {
   aspect-ratio: 3 / 2;
   min-height: clamp(11rem, 56vw, 26rem);
   height: auto;
+  /* Fond clair : toute bordure 1px restait visible (souvent un côté plus marqué selon le zoom / le sous-pixel). */
+  border: none;
+  outline: none;
+  box-shadow: none;
+  /*
+   * Tapis papier uniquement : pas de couche « nuit » sombre en dessous — avec `overflow` + coins arrondis,
+   * l’anti-alias mélangeait avec #1c2028 et dessinait un filet sombre sur tout le pourtour.
+   */
+  background:
+    radial-gradient(
+      ellipse 92% 88% at 50% 48%,
+      color-mix(in srgb, var(--ptg-surface) 96%, var(--ptg-butter)) 0%,
+      color-mix(in srgb, var(--ptg-bg-elevated) 88%, var(--ptg-sand)) 52%,
+      var(--ptg-bg) 74%
+    ),
+    var(--ptg-bg);
+}
+
+.ptg-about-brand-stage-wrap .ptg-night-stage:hover,
+.ptg-about-brand-stage-wrap .ptg-night-stage:focus-within {
+  border: none;
+  outline: none;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--ptg-line) 18%, transparent);
 }
 
 .ptg-about-brand-stage__backdrop {
   animation: ptg-brand-stage-fade-in 1.15s var(--ptg-ease-out) both;
+  /* Derrière le `contain` : même papier que le slide, pas le dégradé nuit qui ferait un liseré sombre. */
+  background-color: var(--ptg-bg);
+  /* Même rayon que le cadre + léger débord : évite le fin liseré sombre au clip `overflow` / coins. */
+  border-radius: inherit;
+  inset: -1px;
+  transform: translateZ(0);
 }
 
-/* À propos (cadre marque) : toujours montrer l'image complète, sans recadrage agressif. */
+/* À propos : toujours l’image entière (pas de `cover` mobile — évite bandes noires / rognage). */
 .ptg-about-brand-stage__backdrop .ptg-hero-illustration__img {
-  object-fit: cover;
+  object-fit: contain;
   object-position: 50% 50%;
+  background-color: var(--ptg-bg);
+}
+
+/*
+ * Voile : le voile « nuit » global (dégradés #12151c / #1a1f28) laissait parfois une frange très fine sur un bord
+ * une fois atténuée à faible opacité — on utilise le même principe lumineux que le hero, sans encres sombres.
+ */
+.ptg-about-brand-stage-wrap .ptg-night-stage .ptg-about-brand-stage__backdrop .ptg-hero-illustration__veil {
+  opacity: 0.35;
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--ptg-bg) 72%, transparent) 0%,
+    transparent 38%,
+    transparent 58%,
+    color-mix(in srgb, var(--ptg-sand) 55%, transparent) 100%
+  );
+}
+
+.ptg-about-brand-stage-wrap .ptg-night-stage:hover .ptg-about-brand-stage__backdrop .ptg-hero-illustration__veil,
+.ptg-about-brand-stage-wrap .ptg-night-stage:focus-within .ptg-about-brand-stage__backdrop .ptg-hero-illustration__veil {
+  opacity: 0.22;
 }
 
 @keyframes ptg-brand-stage-fade-in {
@@ -705,20 +781,33 @@ a.ptg-btn-secondary:visited {
   color: var(--ptg-ink-display);
 }
 
-.ptg-type-display--hero {
-  background: linear-gradient(
-    118deg,
-    var(--ptg-ink-display) 0%,
-    color-mix(in srgb, var(--ptg-accent-deep) 82%, var(--ptg-olive)) 38%,
-    var(--ptg-accent-deep) 62%,
-    color-mix(in srgb, var(--ptg-accent) 55%, var(--ptg-olive)) 88%,
-    color-mix(in srgb, var(--ptg-olive) 42%, var(--ptg-ink-display)) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  /* Chrome / Safari : sans ça le dégradé peut tomber en repli (texte plein ou illisible). */
-  -webkit-text-fill-color: transparent;
+/* Hors @supports : couleur pleine héritée de `.ptg-type-display` (évite fond noir si clip texte indispo). */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .ptg-type-display--hero {
+    background: linear-gradient(
+      118deg,
+      var(--ptg-ink-display) 0%,
+      color-mix(in srgb, var(--ptg-accent-deep) 82%, var(--ptg-olive)) 38%,
+      var(--ptg-accent-deep) 62%,
+      color-mix(in srgb, var(--ptg-accent) 55%, var(--ptg-olive)) 88%,
+      color-mix(in srgb, var(--ptg-olive) 42%, var(--ptg-ink-display)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* Chrome / Safari : sans ça le dégradé peut tomber en repli (texte plein ou illisible). */
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+@media (forced-colors: active) {
+  .ptg-type-display--hero {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
 }
 
 .ptg-type-body {
@@ -874,6 +963,11 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   object-fit: cover;
 }
 
+.ptg-visual-frame__img--contain {
+  object-fit: contain;
+  background-color: transparent;
+}
+
 @media (min-width: 860px) {
   .ptg-visual-grid {
     grid-template-columns: 1fr 1fr;
@@ -938,11 +1032,26 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 .ptg-footer-brand {
   display: inline-block;
   margin: 0 auto 0.8rem;
+  background-color: transparent;
+  /* Évite la fine ligne / « pointillés » sous l’image (descender du line-box du lien). */
+  line-height: 0;
+  text-decoration: none;
+}
+
+.ptg-footer-brand:focus-visible {
+  outline-style: solid;
+  border-radius: 10px;
 }
 
 .ptg-footer-brand__img {
+  display: block;
   width: clamp(5.8rem, 16vw, 8.25rem);
   height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  vertical-align: bottom;
+  background-color: transparent;
   opacity: 0.92;
 }
 
@@ -1124,6 +1233,15 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
     var(--ptg-bg) 32%,
     color-mix(in srgb, var(--ptg-sand) 78%, color-mix(in srgb, var(--ptg-hero-wash-sage) 8%, var(--ptg-bg))) 100%
   );
+}
+
+/* Regroupe illustration + atmosphère + scribbles + traits ; portrait mobile = rail visuel (voir media query). */
+.ptg-hero-shell__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 /* Illustration raster hero : sous les lavis, au-dessus du dégradé de fond */
@@ -1343,7 +1461,7 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   mix-blend-mode: multiply;
 }
 
-.ptg-hero-shell > .ptg-landing-decor {
+.ptg-hero-shell > .ptg-hero-shell__media > .ptg-landing-decor {
   z-index: 2;
 }
 
@@ -1380,7 +1498,7 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   z-index: 0;
 }
 
-.ptg-hero-shell > .ptg-brand-scribbles {
+.ptg-hero-shell > .ptg-hero-shell__media > .ptg-brand-scribbles {
   z-index: 1;
 }
 
@@ -1479,6 +1597,37 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   color: color-mix(in srgb, var(--ptg-accent-deep) 72%, var(--ptg-olive));
   letter-spacing: -0.02em;
   animation: ptg-about-line-in 0.45s var(--ptg-ease-out) both;
+}
+
+/* Accueil : table partagée sous le hero (image seule, lazy — pas de carrousel). */
+.ptg-home-feast-band {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: min(72rem, 100%);
+  margin: 0 auto;
+  padding: 0 max(1.25rem, env(safe-area-inset-right, 0px)) 1.75rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.ptg-home-feast-band__frame {
+  position: relative;
+  width: 100%;
+  margin-inline: auto;
+  border-radius: var(--ptg-radius-card);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ptg-line) 32%, transparent);
+  box-shadow: var(--ptg-shadow-soft);
+  background-color: color-mix(in srgb, var(--ptg-muted) 55%, var(--ptg-bg));
+  line-height: 0;
+}
+
+/* Largeur 100 %, hauteur intrinsèque : image entière (plus de `cover` + ratio 21/9 qui rognait). */
+.ptg-home-feast-band__img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
 }
 
 .ptg-accueil-pulse {
@@ -3248,11 +3397,24 @@ a.ptg-kicker-pill--link:focus-visible {
   align-items: center;
   margin-right: 0.3rem;
   border-radius: 10px;
+  background-color: transparent;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.ptg-nav-brand:focus-visible {
+  outline-style: solid;
 }
 
 .ptg-nav-brand__img {
+  display: block;
   width: clamp(4.1rem, 10vw, 5.4rem);
   height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  vertical-align: bottom;
+  background-color: transparent;
   opacity: 0.9;
 }
 
@@ -3695,17 +3857,6 @@ a.ptg-kicker-pill--link:focus-visible {
     min-height: var(--ptg-btn-height-md);
   }
 
-  /* Mobile portrait: priorise l'image entière (évite le recadrage agressif du hero). */
-  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
-    object-fit: contain;
-    object-position: 50% 50%;
-    opacity: 0.5;
-  }
-
-  .ptg-hero-shell--illus-hero .ptg-hero-illustration__veil {
-    opacity: 0.8;
-  }
-
   .ptg-nav-brand {
     width: 100%;
     justify-content: center;
@@ -3728,13 +3879,6 @@ a.ptg-kicker-pill--link:focus-visible {
     max-width: min(30rem, 100%);
   }
 
-  /* Déclaré en fin de feuille mobile pour battre les règles `cover` plus haut. */
-  .ptg-night-stage .ptg-hero-illustration__img,
-  .ptg-about-brand-stage__backdrop .ptg-hero-illustration__img {
-    object-fit: contain;
-    object-position: 50% 50%;
-  }
-
   .ptg-hero-orbits {
     display: none;
   }
@@ -3751,6 +3895,104 @@ a.ptg-kicker-pill--link:focus-visible {
   .ptg-scene::before,
   .ptg-scene::after {
     opacity: 0.3;
+  }
+
+  /*
+   * Cadres 3:2 (partenaires, expériences…) : cover sur petit viewport.
+   * À propos : pas ici — le carrousel marque reste en `contain` (voir `.ptg-about-brand-stage__backdrop`).
+   */
+  .ptg-night-stage .ptg-hero-illustration__img {
+    object-fit: cover;
+    object-position: 50% 48%;
+  }
+
+  .ptg-night-stage .ptg-hero-illustration--brand .ptg-hero-illustration__img {
+    object-position: 50% 50%;
+  }
+}
+
+/* Accueil paysage étroit : image entière (bandes possibles) pour ne pas rogner l’aquarelle. */
+@media (max-width: 720px) and (orientation: landscape) {
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+    object-fit: contain;
+    object-position: 50% 50%;
+    opacity: 0.5;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__veil {
+    opacity: 0.8;
+  }
+}
+
+/*
+ * Accueil portrait : rail visuel en tête (aquarelle lisible) + carte texte en dessous.
+ * Paysage / desktop : inchangé (décor plein écran derrière la carte).
+ */
+@media (max-width: 720px) and (orientation: portrait) {
+  .ptg-hero-shell--illus-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-shell__media {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    flex: 0 0 auto;
+    min-height: clamp(27vh, 16vw + 22vh, 42vh);
+    max-height: 44vh;
+    overflow: hidden;
+    border-radius: 0 0 calc(var(--ptg-radius-card) + 2px) calc(var(--ptg-radius-card) + 2px);
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--ptg-ink-display) 7%, transparent);
+    z-index: 1;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-stage {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.55rem;
+    min-height: 0;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+    object-fit: cover;
+    object-position: 50% 38%;
+    opacity: 0.58;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__veil {
+    opacity: 0.52;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-atmosphere__rim {
+    opacity: 0.42;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-card {
+    max-width: min(27.5rem, 92vw);
+  }
+}
+
+@media (max-width: 720px) and (orientation: portrait) and (prefers-reduced-motion: reduce) {
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+    opacity: 0.44;
+  }
+}
+
+@media (max-width: 720px) and (orientation: portrait) and (prefers-contrast: more) {
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__veil {
+    opacity: 0.82;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-illustration__img {
+    opacity: 0.36;
+  }
+
+  .ptg-hero-shell--illus-hero .ptg-hero-atmosphere__rim {
+    opacity: 0.72;
   }
 }
 

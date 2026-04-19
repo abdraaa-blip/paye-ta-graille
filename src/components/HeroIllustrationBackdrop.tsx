@@ -14,6 +14,7 @@ import {
 } from "@/lib/env-public";
 
 const PICTURE_MOBILE_MQ = "(max-width: 639px)";
+const PICTURE_PORTRAIT_RAIL_MQ = "(max-width: 720px) and (orientation: portrait)";
 
 export type HeroIllustrationBackdropProps = {
   /** Accueil : `hero`. Bandeaux sombres : `night`. Marque À propos : `brand` (`NEXT_PUBLIC_PTG_HERO_ART_BRAND` ou défaut `brand-marketplace.webp`). */
@@ -25,6 +26,11 @@ export type HeroIllustrationBackdropProps = {
   overrideMainSrc?: string;
   /** Source mobile optionnelle ; `null` force une seule image. */
   overrideMobileSrc?: string | null;
+  /**
+   * Accueil uniquement : bannière large pour le rail mobile portrait (`<picture>` avant `NEXT_PUBLIC_PTG_HERO_ART_MOBILE`).
+   * `null` / absent = pas de source dédiée (même image que desktop sur tout viewport).
+   */
+  portraitRailSrc?: string | null;
   /** Classe additionnelle sur la racine (`.ptg-hero-illustration`). */
   className?: string;
   /** Callback d'erreur image (en complément du fallback local). */
@@ -48,7 +54,7 @@ function rasterAllowed(variant: "hero" | "night" | "brand"): boolean {
 
 /**
  * Illustration raster derrière les lavis (accueil). Défaut : WebP généré par `npm run optimize:hero`.
- * Variantes `picture` optionnelles via `NEXT_PUBLIC_PTG_HERO_ART_MOBILE` / `…_NIGHT_MOBILE` / `…_BRAND_MOBILE`.
+ * Variantes `picture` : rail portrait accueil (`portraitRailSrc`), `NEXT_PUBLIC_PTG_HERO_ART_MOBILE` / `…_NIGHT_MOBILE` / `…_BRAND_MOBILE`.
  */
 export function HeroIllustrationBackdrop({
   variant = "hero",
@@ -56,6 +62,7 @@ export function HeroIllustrationBackdrop({
   sizes = "100vw",
   overrideMainSrc,
   overrideMobileSrc,
+  portraitRailSrc,
   className,
   onLoadError,
 }: HeroIllustrationBackdropProps) {
@@ -85,11 +92,19 @@ export function HeroIllustrationBackdrop({
 
   const rootClass = ["ptg-hero-illustration", variant === "brand" ? "ptg-hero-illustration--brand" : "", className].filter(Boolean).join(" ");
 
+  const rail =
+    variant === "hero" && portraitRailSrc !== undefined && portraitRailSrc !== null && portraitRailSrc.trim().length > 0
+      ? portraitRailSrc.trim()
+      : null;
+
+  const usePicture = Boolean(rail || effectiveMobile);
+
   return (
     <div className={rootClass} aria-hidden>
-      {effectiveMobile ? (
+      {usePicture ? (
         <picture className="ptg-hero-illustration__picture">
-          <source media={PICTURE_MOBILE_MQ} srcSet={effectiveMobile} />
+          {rail ? <source media={PICTURE_PORTRAIT_RAIL_MQ} srcSet={rail} /> : null}
+          {effectiveMobile ? <source media={PICTURE_MOBILE_MQ} srcSet={effectiveMobile} /> : null}
           {img}
         </picture>
       ) : (

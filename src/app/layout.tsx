@@ -24,6 +24,10 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  /** Renforce l’opt-out « auto dark » Chrome (meta en plus du viewport + du CSS). */
+  other: {
+    "color-scheme": "only light",
+  },
   metadataBase: getSiteUrl(),
   title: {
     default: "Paye ta graille",
@@ -56,6 +60,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   /** Aligné `--ptg-bg` (`ptg-tokens.css`) pour barre d’état / PWA */
   themeColor: "#fbf6ef",
+  /** Renforce le thème clair côté UA (complément de `color-scheme: only light` dans globals). */
+  colorScheme: "only light",
   width: "device-width",
   initialScale: 1,
 };
@@ -66,8 +72,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${inter.variable} ${fraunces.variable}`}>
-      <body>
+    <html
+      lang="fr"
+      className={`${inter.variable} ${fraunces.variable}`}
+      style={{ colorScheme: "only light" }}
+    >
+      <body style={{ colorScheme: "only light" }}>
         <AmbientAppEffects />
         <SkipLink />
         <BetaBanner />

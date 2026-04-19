@@ -35,6 +35,8 @@ export function heroBrandDecorEnabled(): boolean {
 
 /** WebP hero versionné dans `public/hero/` (généré par `npm run optimize:hero`). */
 export const DEFAULT_HERO_WEBP_PATH = "/hero/landing-watercolor.webp" as const;
+/** Bannière accueil mobile portrait (rail haut ≤720px) ; desktop = `DEFAULT_HERO_WEBP_PATH`. */
+export const DEFAULT_HERO_PORTRAIT_RAIL_WEBP_PATH = "/hero/landing-watercolor-portrait-rail.webp" as const;
 /** Illustration « marque » page À propos : défaut `brand-marketplace.webp` (voir `optimize:hero`). */
 export const DEFAULT_HERO_BRAND_WEBP_PATH = "/hero/brand-marketplace.webp" as const;
 
@@ -96,6 +98,12 @@ export function aboutLivretPosterLocalFallback(src: string): string | null {
   return null;
 }
 
+/** Repli `*.webp` → `*.png` pour les chemins statiques sous `/hero/` (même basename). */
+export function heroPublicWebpFallbackPng(src: string): string | null {
+  if (!src.startsWith("/hero/") || !src.endsWith(".webp")) return null;
+  return `${src.slice(0, -5)}.png`;
+}
+
 /**
  * Variante mobile optionnelle (art direction) pour le hero : élément `picture` sous `(max-width: 639px)`.
  * Absent = une seule image `heroIllustrationSrc()`.
@@ -103,6 +111,25 @@ export function aboutLivretPosterLocalFallback(src: string): string | null {
 export function heroIllustrationMobileSrc(): string | null {
   const m = process.env.NEXT_PUBLIC_PTG_HERO_ART_MOBILE?.trim();
   return m || null;
+}
+
+/**
+ * Image hero **uniquement** en `(max-width: 720px) and (orientation: portrait)` (rail visuel accueil).
+ * Surcharge : `NEXT_PUBLIC_PTG_HERO_ART_PORTRAIT_RAIL`. Défaut : WebP généré depuis `landing-watercolor-portrait-rail.png` (`optimize:hero`).
+ */
+export function heroIllustrationPortraitRailSrc(): string {
+  const custom = process.env.NEXT_PUBLIC_PTG_HERO_ART_PORTRAIT_RAIL?.trim();
+  if (custom) return custom;
+  return DEFAULT_HERO_PORTRAIT_RAIL_WEBP_PATH;
+}
+
+/** Bande « table partagée » sous le hero accueil (WebP depuis `landing-home-feast.png` + `optimize:hero`). */
+export const DEFAULT_HOME_FEAST_WEBP_PATH = "/hero/landing-home-feast.webp" as const;
+
+export function heroHomeFeastBandSrc(): string {
+  const custom = process.env.NEXT_PUBLIC_PTG_HOME_FEAST_ART?.trim();
+  if (custom) return custom;
+  return DEFAULT_HOME_FEAST_WEBP_PATH;
 }
 
 /**

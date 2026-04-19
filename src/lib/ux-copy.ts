@@ -52,6 +52,9 @@ export const UX_HOME = {
     a: "Le repas est le prétexte honnête. Autour, c’est juste du vivant.",
     b: "Une table, des humains, pas de scène à jouer.",
   }),
+  /** Illustration sous le hero : repas partagé (pas décoratif vide — scène narrative). */
+  feastBandAlt:
+    "Plusieurs personnes partagent un repas généreux autour d’une longue table sous des arches, ambiance conviviale et chaleureuse.",
 } as const;
 
 export const UX_ACCUEIL = {
