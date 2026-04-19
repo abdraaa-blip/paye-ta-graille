@@ -2,6 +2,9 @@
  * Variables publiques attendues par l'app (sans secrets).
  * URLs `http(s)://` pour images : `config/public-hero-image-url-env-keys.json` + `public-hero-image-url-env-keys.ts`.
  */
+// Parser rejouage bande ciné : `scripts/lib/cinematic-auto-replay-interval.mjs` + tests `scripts/__tests__/cinematic-auto-replay-interval.test.mjs`
+import { parseCinematicAutoReplayIntervalSec } from "../../scripts/lib/cinematic-auto-replay-interval.mjs";
+
 export { PUBLIC_HERO_IMAGE_URL_ENV_KEYS } from "./public-hero-image-url-env-keys";
 
 const NEGATIVE_FLAGS = new Set(["0", "false", "off", "no"]);
@@ -123,13 +126,23 @@ export function heroIllustrationPortraitRailSrc(): string {
   return DEFAULT_HERO_PORTRAIT_RAIL_WEBP_PATH;
 }
 
-/** Bande « table partagée » sous le hero accueil (WebP depuis `landing-home-feast.png` + `optimize:hero`). */
-export const DEFAULT_HOME_FEAST_WEBP_PATH = "/hero/landing-home-feast.webp" as const;
+/** Scène marché sous la bande ciné accueil (`landing-home-market-atmosphere.png` + `optimize:hero`). */
+export const DEFAULT_HOME_MARKET_ATMOSPHERE_WEBP_PATH = "/hero/landing-home-market-atmosphere.webp" as const;
 
-export function heroHomeFeastBandSrc(): string {
-  const custom = process.env.NEXT_PUBLIC_PTG_HOME_FEAST_ART?.trim();
+export function heroHomeMarketAtmosphereSrc(): string {
+  const custom = process.env.NEXT_PUBLIC_PTG_HOME_MARKET_ATMOSPHERE_ART?.trim();
   if (custom) return custom;
-  return DEFAULT_HOME_FEAST_WEBP_PATH;
+  return DEFAULT_HOME_MARKET_ATMOSPHERE_WEBP_PATH;
+}
+
+/**
+ * Rejeu automatique de la bande ciné accueil (secondes entre deux cycles complets).
+ * Défaut **60** ; minimum **30** pour limiter la fatigue visuelle ; plafond **600**.
+ * Désactiver : `NEXT_PUBLIC_PTG_CINEMATIC_AUTO_REPLAY_SEC=0` (ou `off` / `false`).
+ * Ignoré si pause mouvement, `prefers-reduced-motion`, ou onglet non visible au moment du déclenchement.
+ */
+export function cinematicAutoReplayIntervalSec(): number | null {
+  return parseCinematicAutoReplayIntervalSec(process.env.NEXT_PUBLIC_PTG_CINEMATIC_AUTO_REPLAY_SEC);
 }
 
 /**

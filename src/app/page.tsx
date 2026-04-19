@@ -2,12 +2,13 @@
 import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
 import { HeroOrbitLabels } from "@/components/HeroOrbitLabels";
-import { HomeFeastBand } from "@/components/HomeFeastBand";
+import { HomeCinematicMarqueBand } from "@/components/HomeCinematicMarqueBand";
+import { HomeMarketAtmosphereBand } from "@/components/HomeMarketAtmosphereBand";
 import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgLandingDecor } from "@/components/PtgLandingDecor";
 import { SiteFooter } from "@/components/SiteFooter";
-import { heroIllustrationPortraitRailSrc } from "@/lib/env-public";
+import { heroIllustrationEnabled, heroIllustrationPortraitRailSrc } from "@/lib/env-public";
 import {
   MARKETING_CORE_PROMISE,
   MARKETING_HOME_PULSE_LINES,
@@ -18,8 +19,10 @@ import {
 import { UX_HOME } from "@/lib/ux-copy";
 
 export default function HomePage() {
+  const heroRasterOn = heroIllustrationEnabled();
+
   return (
-    <div className="ptg-page">
+    <div className="ptg-page" data-ptg-hero-raster={heroRasterOn ? "on" : "off"}>
       <section className="ptg-hero-shell ptg-hero-shell--illus-hero" aria-labelledby="hero-title">
         <div className="ptg-hero-shell__media">
           <HeroIllustrationBackdrop portraitRailSrc={heroIllustrationPortraitRailSrc()} />
@@ -86,7 +89,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      <HomeFeastBand />
+      <HomeCinematicMarqueBand />
+      <HomeMarketAtmosphereBand />
       <SiteFooter />
     </div>
   );

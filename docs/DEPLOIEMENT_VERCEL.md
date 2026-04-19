@@ -51,6 +51,8 @@ Si ton dépôt Git a **un niveau au-dessus** (dossier parent + sous-dossier `pay
 | `NEXT_PUBLIC_PTG_ABOUT_LIVRET_POSTER` | Optionnel : affiche page livret « L’univers en une image » ; défaut `/hero/brand-poster.png` ; WebP : `/hero/brand-poster.webp` après `optimize:hero` |
 | `NEXT_PUBLIC_PTG_HERO_ILLUSTRATION` | `0` / `false` pour désactiver l’illustration locale |
 
+**Accueil et smoke** : avec illustration **active**, le HTML de `/` expose `data-ptg-hero-raster="on"` sur `.ptg-page`, la bande signature `.ptg-home-cinematic-band` et l’image statique `.ptg-home-market-band` (défaut `landing-home-market-atmosphere.webp`). Avec illustration **désactivée**, le HTML expose `data-ptg-hero-raster="off"` et ces blocs ne sont pas rendus. `npm run smoke:public` et `validateHomeHtml` (`scripts/smoke-public-shared.mjs`) vérifient cette cohérence — voir aussi `docs/ONBOARDING_DEVELOPPEUR.md`.
+
 **Images en URL distante** : chaque hostname utilisé doit être connu au **build** — la liste exacte des variables est dans **`config/public-hero-image-url-env-keys.json`** (lue par `next.config.ts` et `deploy-preflight`). **Changer de CDN ou d’hôte → nouveau déploiement** pour régénérer `remotePatterns`.
 
 ### Serveur uniquement (sans préfixe public)

@@ -3,7 +3,7 @@
  * Ton : une personne qui parle à une personne. Pas de punchlines agressives.
  */
 
-import type { UxVariant } from "./ux-variant";
+import { type UxVariant, getUxVariant } from "./ux-variant";
 import { COMPANIONS_FUN_KICKER } from "./companions-copy";
 import {
   GROWTH_INVITE_CARD,
@@ -50,6 +50,26 @@ export const MARKETING_SECOND_GRAILLE_HERO_PAIR: Record<UxVariant, string> = {
   b: "Une deuxième table, parfois, ça change la journée.",
 };
 
+/**
+ * Bande ciné : trois accroches (lecture visuelle : au-dessus du logo, puis sous l’accent).
+ * Ordre : [au-dessus de PAYE TA GRAILLE, sous le logo, dernière ligne].
+ */
+export const MARKETING_CINEMATIC_TAGLINE_LINES_TRIPLE = [
+  "La seule « friend zone » où tu as vraiment envie d’être.",
+  "Ne mange plus jamais seul.",
+  "On a tous droit à une seconde graille.",
+] as const satisfies readonly [string, string, string];
+
+export const MARKETING_CINEMATIC_TAGLINE_LINES_PAIR: Record<UxVariant, readonly [string, string, string]> = {
+  a: MARKETING_CINEMATIC_TAGLINE_LINES_TRIPLE,
+  b: MARKETING_CINEMATIC_TAGLINE_LINES_TRIPLE,
+};
+
+/** Lignes courantes pour la bande ciné (selon `NEXT_PUBLIC_PTG_UX_VARIANT`). */
+export function marketingCinematicTaglineLines(): readonly string[] {
+  return MARKETING_CINEMATIC_TAGLINE_LINES_PAIR[getUxVariant()];
+}
+
 export const MARKETING_TAGLINE_GOLDEN = uxa(MARKETING_TAGLINE_GOLDEN_PAIR);
 export const MARKETING_HERO_PRIMARY = uxa(MARKETING_HERO_PRIMARY_PAIR);
 export const MARKETING_CORE_PROMISE = uxa(MARKETING_CORE_PROMISE_PAIR);
@@ -74,6 +94,7 @@ export const MARKETING_HOME_PULSE_LINES: readonly string[] = [
     "Grailleur un jour, grailleur toujours.",
     COMPANIONS_FUN_KICKER,
     ...Object.values(MARKETING_TAGLINE_GOLDEN_PAIR),
+    ...MARKETING_CINEMATIC_TAGLINE_LINES_TRIPLE,
     ...Object.values(MARKETING_STRATEGIC_ONE_LINER_PAIR),
     ...Object.values(MARKETING_CORE_PROMISE_PAIR),
     ...Object.values(MARKETING_HERO_PRIMARY_PAIR),
