@@ -114,7 +114,7 @@ if (resendKey && !serviceRole) {
 }
 if (resendKey && serviceRole && !String(env.CRON_SECRET ?? "").trim()) {
   warnings.push(
-    "CRON_SECRET absent : les rappels repas automatiques (cron Vercel /api/cron/meal-reminders) resteront désactivés.",
+    "CRON_SECRET absent : le cron Vercel `GET /api/cron/meal-reminders` ne pourra pas s’authentifier ; prévoir aussi un déclencheur externe (ex. workflow GitHub `meal-reminders-cron`) si le plan reste Hobby — voir `docs/DEPLOIEMENT_VERCEL.md`.",
   );
 }
 if (String(env.CRON_SECRET ?? "").trim() && serviceRole) {

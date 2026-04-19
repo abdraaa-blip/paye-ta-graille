@@ -78,3 +78,7 @@ my-job:
 - Les artefacts d’échec sont configurés.
 - Le résumé `GITHUB_STEP_SUMMARY` est présent et standardisé.
 - Le `runbook` est mis à jour si comportement opérationnel nouveau.
+
+## 6) Workflows « ops » sans Node (exemple)
+
+Pour un **appel HTTP planifié** (cron prod) sans install dépendances : checkout + `curl` + résumé `write-gate-summary.sh` en `if: always()`, `concurrency` explicite. Référence : **`.github/workflows/meal-reminders-cron.yml`** (`GET /api/cron/meal-reminders`, secrets `CRON_MEAL_REMINDERS_BASE_URL` + `CRON_SECRET`). Permissions : **`contents: read`** + **`actions: write`** si upload d’artefact sur échec (`upload-artifact`). Même exigence gouvernance : toucher **`docs/CI_RUNBOOK.md`**, **`docs/DEPLOIEMENT_VERCEL.md`**, **`README.md`** (et PR template si pertinent) lors d’un changement de workflow.

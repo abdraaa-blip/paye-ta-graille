@@ -1,0 +1,57 @@
+name: Meal reminders cron (hourly)
+
+# Appelle la route Vercel `GET /api/cron/meal-reminders` chaque heure (Bearer CRON_SECRET).
+# Utile lorsque le projet est sur le plan Vercel **Hobby** : `vercel.json` ne peut déclencher qu’au plus 1×/jour.
+on:
+  schedule:
+    # Toutes les heures à :00 UTC
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+# `actions:write` : requis par `actions/upload-artifact` en cas d’échec du curl (diagnostic).
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: meal-reminders-cron
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger GET /api/cron/meal-reminders
+        env:
+          BASE_URL: ${{ secrets.CRON_MEAL_REMINDERS_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BASE_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "::warning::Secrets manquants : définir CRON_MEAL_REMINDERS_BASE_URL (origine prod, ex. https://xxx.vercel.app) et CRON_SECRET (identique à Vercel). Job ignoré."
+            exit 0
+          fi
+          url="${BASE_URL%/}/api/cron/meal-reminders"
+          echo "GET ${url}"
+          curl -sS --fail-with-body --max-time 120 \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Accept: application/json" \
+            "$url" | tee "${{ runner.temp }}/meal-reminders.json"
+          echo "OK"
+      - name: Upload cron response on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meal-reminders-cron-response
+          path: ${{ runner.temp }}/meal-reminders.json
+          if-no-files-found: ignore
+      - name: Meal reminders cron summary
+        if: always()
+        run: >
+          bash scripts/ci/write-gate-summary.sh
+          "Meal reminders cron (GitHub)"
+          "curl GET /api/cron/meal-reminders"
+          "déclenchement horaire hors Vercel Cron (plan Hobby)"
+          "none"

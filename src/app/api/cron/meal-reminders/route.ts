@@ -27,9 +27,13 @@ type MealRow = {
 };
 
 /**
- * Cron horaire (Vercel Cron) : rappels e-mail (J-24 / J-2h) + clôture auto `confirmed` → `completed`
+ * Tâche planifiée (Vercel Cron ou équivalent) : rappels e-mail (J-24 / J-2h) + clôture auto `confirmed` → `completed`
  * après fin de créneau + grâce (`PTG_MEAL_AUTO_COMPLETE_GRACE_HOURS`, défaut 24 h).
  * Sécuriser avec `Authorization: Bearer CRON_SECRET`.
+ *
+ * **Vercel Hobby** : au plus **1 exécution / jour** (`vercel.json`). Les fenêtres J-24 / J-2h sont pensées pour un
+ * déclenchement **plus fréquent** ; en Hobby, prévoir un scheduler externe (ex. GitHub Actions) ou passer en **Pro**
+ * pour un cron horaire (`0 * * * *`).
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET?.trim();

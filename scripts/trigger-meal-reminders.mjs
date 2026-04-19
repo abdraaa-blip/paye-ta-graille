@@ -16,7 +16,10 @@ let res;
 try {
   res = await fetch(url, {
     method: "GET",
-    headers: { Authorization: `Bearer ${secret}` },
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      Accept: "application/json",
+    },
   });
 } catch (err) {
   console.error("Requête cron impossible (réseau / serveur arrêté) :", err?.message ?? err);
