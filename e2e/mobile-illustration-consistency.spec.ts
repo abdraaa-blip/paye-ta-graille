@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const MOBILE = { width: 390, height: 844 };
 
 test.describe("Mobile illustration consistency", () => {
-  test("Accueil: hero illustration uses contain on mobile portrait", async ({ page }) => {
+  test("Accueil: hero illustration uses cover on mobile portrait (rail visuel)", async ({ page }) => {
     await page.setViewportSize(MOBILE);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
@@ -11,7 +11,7 @@ test.describe("Mobile illustration consistency", () => {
     await expect(heroImage).toBeVisible();
 
     const objectFit = await heroImage.evaluate((el) => window.getComputedStyle(el).objectFit);
-    expect(objectFit).toBe("contain");
+    expect(objectFit).toBe("cover");
   });
 
   test("Night-stage pages: background illustration uses cover on mobile portrait", async ({ page }) => {
@@ -27,7 +27,7 @@ test.describe("Mobile illustration consistency", () => {
       if ((await img.count()) === 0) continue;
       await expect(img).toBeVisible();
       const objectFit = await img.evaluate((el) => window.getComputedStyle(el).objectFit);
-      expect(objectFit, `${path} should fill frame width on mobile (no side gutters)`).toBe("cover");
+      expect(objectFit, `${path} should use cover on mobile (cadre 3:2, pas de bandes grises)`).toBe("cover");
     }
     expect(checkedAtLeastOneStage, "At least one night-stage page should be available in this build").toBeTruthy();
   });
