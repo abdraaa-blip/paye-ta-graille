@@ -5,6 +5,7 @@ import { Montserrat } from "next/font/google";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cinematicAutoReplayIntervalSec, heroIllustrationEnabled } from "@/lib/env-public";
 import { marketingCinematicTaglineLines } from "@/lib/marketing-copy";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 import { UX_HOME } from "@/lib/ux-copy";
 
 const montserrat = Montserrat({
@@ -75,7 +76,7 @@ export function HomeCinematicMarqueBand() {
   const [done, setDone] = useState(false);
   const [introKey, setIntroKey] = useState(0);
   const [motionPaused, setMotionPaused] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
 
   const heroBand = heroIllustrationEnabled();
   const autoReplaySec = cinematicAutoReplayIntervalSec();
@@ -91,21 +92,11 @@ export function HomeCinematicMarqueBand() {
     copyRef.current = { above: taglineAbove, b0: lineBelow0, b1: lineBelow1 };
   }, [taglineAbove, lineBelow0, lineBelow1]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const apply = () => setReduceMotion(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  useLayoutEffect(() => {
     try {
       if (sessionStorage.getItem(MOTION_PAUSE_SESSION_KEY) === "1") {
-        setMotionPaused(true);
         motionPausedRef.current = true;
+        setMotionPaused(true);
       }
     } catch {
       /* navigation privée */
@@ -206,8 +197,9 @@ export function HomeCinematicMarqueBand() {
     const root = rootRef.current;
     if (!root) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setDone(true);
+    /* Même source que le hook + garde-fou média : fige le texte et tue la timeline si la préférence change. */
+    if (reduceMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      finish();
       return;
     }
 
@@ -285,7 +277,7 @@ export function HomeCinematicMarqueBand() {
       ctxRef.current?.revert();
       ctxRef.current = null;
     };
-  }, [introKey, heroBand, cinematicCopyKey, taglineAbove, lineBelow0, lineBelow1]);
+  }, [introKey, heroBand, cinematicCopyKey, taglineAbove, lineBelow0, lineBelow1, reduceMotion, finish]);
 
   /** Dernière accroche sous le logo : montée douce, ligne du dessus à peine soulignée (pile lisible). */
   useEffect(() => {
@@ -424,6 +416,7 @@ export function HomeCinematicMarqueBand() {
     montserrat.className,
     done ? "ptg-home-cinematic-band--done" : "",
     motionPaused ? "ptg-home-cinematic-band--motion-paused" : "",
+    reduceMotion ? "ptg-home-cinematic-band--reduce-motion" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -434,28 +427,59 @@ export function HomeCinematicMarqueBand() {
         {UX_HOME.kicker}. {srTaglines}
       </h2>
       <div className="ptg-home-cinematic-band__border-sheen" aria-hidden />
-      <button type="button" className="ptg-home-cinematic-band__skip" onClick={finish} hidden={done}>
-        {UX_HOME.cinematicSkip}
-      </button>
       {!reduceMotion ? (
         <div
           className="ptg-home-cinematic-band__toolbar"
           role="toolbar"
           aria-label={UX_HOME.cinematicToolbarAria}
         >
-          <button
-            type="button"
-            className="ptg-home-cinematic-band__tool-btn"
-            onClick={toggleMotionPause}
-            aria-pressed={motionPaused}
-          >
-            {motionPaused ? UX_HOME.cinematicResume : UX_HOME.cinematicPause}
-          </button>
-          {done ? (
-            <button type="button" className="ptg-home-cinematic-band__tool-btn" onClick={() => replayIntro()}>
-              {UX_HOME.cinematicReplay}
+          <div className="ptg-home-cinematic-band__toolbar-cluster ptg-home-cinematic-band__toolbar-cluster--playback">
+            {!done ? (
+              <button
+                type="button"
+                className="ptg-home-cinematic-band__tool-btn ptg-home-cinematic-band__tool-btn--playback"
+                onClick={finish}
+                aria-label={UX_HOME.cinematicSkip}
+              >
+                <span className="ptg-home-cinematic-band__btn-label ptg-home-cinematic-band__btn-label--full">
+                  {UX_HOME.cinematicSkip}
+                </span>
+                <span className="ptg-home-cinematic-band__btn-label ptg-home-cinematic-band__btn-label--compact">
+                  {UX_HOME.cinematicSkipShort}
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="ptg-home-cinematic-band__tool-btn ptg-home-cinematic-band__tool-btn--playback"
+                onClick={() => replayIntro()}
+                aria-label={UX_HOME.cinematicReplay}
+              >
+                <span className="ptg-home-cinematic-band__btn-label ptg-home-cinematic-band__btn-label--full">
+                  {UX_HOME.cinematicReplay}
+                </span>
+                <span className="ptg-home-cinematic-band__btn-label ptg-home-cinematic-band__btn-label--compact">
+                  {UX_HOME.cinematicReplayShort}
+                </span>
+              </button>
+            )}
+          </div>
+          <div className="ptg-home-cinematic-band__toolbar-cluster ptg-home-cinematic-band__toolbar-cluster--motion">
+            <button
+              type="button"
+              className="ptg-home-cinematic-band__tool-btn ptg-home-cinematic-band__tool-btn--motion"
+              onClick={toggleMotionPause}
+              aria-pressed={motionPaused}
+              aria-label={motionPaused ? UX_HOME.cinematicResume : UX_HOME.cinematicPause}
+            >
+              <span className="ptg-home-cinematic-band__btn-label ptg-home-cinematic-band__btn-label--full">
+                {motionPaused ? UX_HOME.cinematicResume : UX_HOME.cinematicPause}
+              </span>
+              <span className="ptg-home-cinematic-band__btn-label ptg-home-cinematic-band__btn-label--compact">
+                {motionPaused ? UX_HOME.cinematicResumeShort : UX_HOME.cinematicPauseShort}
+              </span>
             </button>
-          ) : null}
+          </div>
         </div>
       ) : null}
       <div className="ptg-home-cinematic-band__backdrop" aria-hidden />

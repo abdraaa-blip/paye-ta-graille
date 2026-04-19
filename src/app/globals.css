@@ -1617,6 +1617,9 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   border: 1px solid color-mix(in srgb, var(--ptg-line) 28%, transparent);
   box-shadow: var(--ptg-shadow-soft);
   isolation: isolate;
+  /* Libellés compacts : largeur du **cadre** (pas seulement du viewport). */
+  container-type: inline-size;
+  container-name: ptg-cinematic;
 }
 
 /* Halage très doux sur le cadre (pas de stroboscope ; mis en pause avec `--motion-paused`). */
@@ -1644,32 +1647,103 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   animation-play-state: paused;
 }
 
+/* Lecture (gauche) vs effets (droite) : évite d’empiler tout sur l’accroche centrale. */
 .ptg-home-cinematic-band__toolbar {
   position: absolute;
+  inset-inline: max(0.65rem, env(safe-area-inset-left, 0px)) max(0.65rem, env(safe-area-inset-right, 0px));
   top: max(0.65rem, env(safe-area-inset-top, 0px));
-  left: max(0.65rem, env(safe-area-inset-left, 0px));
   z-index: 4;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.ptg-home-cinematic-band__toolbar-cluster {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.35rem;
-  max-width: min(11rem, 46vw);
+  max-width: min(12.5rem, 42%);
+  pointer-events: auto;
+  transition:
+    opacity 0.35s var(--ptg-ease-out),
+    transform 0.35s var(--ptg-ease-out);
+}
+
+.ptg-home-cinematic-band__toolbar-cluster--motion {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Souris : contrôles un peu plus discrets jusqu’au survol du bloc (pas de hover fantôme tactile). */
+@media (hover: hover) and (pointer: fine) {
+  .ptg-home-cinematic-band:not(:hover):not(:focus-within) .ptg-home-cinematic-band__toolbar-cluster--playback {
+    opacity: 0.88;
+    transform: scale(0.97);
+    transform-origin: top left;
+  }
+
+  .ptg-home-cinematic-band:not(:hover):not(:focus-within) .ptg-home-cinematic-band__toolbar-cluster--motion {
+    opacity: 0.88;
+    transform: scale(0.97);
+    transform-origin: top right;
+  }
 }
 
 .ptg-home-cinematic-band__tool-btn {
   margin: 0;
-  padding: 0.3rem 0.55rem;
+  min-height: 2.75rem;
+  padding: 0.35rem 0.65rem;
   font: inherit;
   font-size: var(--ptg-text-ui-sm);
   font-weight: 600;
   letter-spacing: 0.02em;
-  text-align: left;
+  text-align: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: color-mix(in srgb, var(--ptg-cinematic-ink) 92%, var(--ptg-accent));
   background: color-mix(in srgb, var(--ptg-cinematic-bg) 55%, transparent);
   border: 1px solid color-mix(in srgb, var(--ptg-cinematic-ink) 35%, transparent);
   border-radius: var(--ptg-radius-pill);
   cursor: pointer;
   backdrop-filter: blur(6px);
+}
+
+.ptg-home-cinematic-band__tool-btn--playback {
+  text-align: left;
+}
+
+.ptg-home-cinematic-band__tool-btn--motion {
+  text-align: right;
+}
+
+.ptg-home-cinematic-band__btn-label--compact {
+  display: none;
+}
+
+/* Cadre étroit : libellés courts (viewport si pas de @container ; sinon largeur du bandeau). */
+@media (max-width: 36rem) {
+  .ptg-home-cinematic-band__btn-label--full {
+    display: none;
+  }
+
+  .ptg-home-cinematic-band__btn-label--compact {
+    display: inline;
+  }
+}
+
+@container ptg-cinematic (max-width: 33rem) {
+  .ptg-home-cinematic-band__btn-label--full {
+    display: none;
+  }
+
+  .ptg-home-cinematic-band__btn-label--compact {
+    display: inline;
+  }
 }
 
 .ptg-home-cinematic-band__tool-btn:hover {
@@ -1678,35 +1752,6 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
 }
 
 .ptg-home-cinematic-band__tool-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--ptg-shadow-focus);
-}
-
-.ptg-home-cinematic-band__skip {
-  position: absolute;
-  top: max(0.65rem, env(safe-area-inset-top, 0px));
-  right: max(0.65rem, env(safe-area-inset-right, 0px));
-  z-index: 4;
-  margin: 0;
-  padding: 0.35rem 0.65rem;
-  font: inherit;
-  font-size: var(--ptg-text-ui-sm);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: color-mix(in srgb, var(--ptg-cinematic-ink) 92%, var(--ptg-accent));
-  background: color-mix(in srgb, var(--ptg-cinematic-bg) 55%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ptg-cinematic-ink) 35%, transparent);
-  border-radius: var(--ptg-radius-pill);
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-}
-
-.ptg-home-cinematic-band__skip:hover {
-  color: var(--ptg-cinematic-ink);
-  border-color: color-mix(in srgb, var(--ptg-cinematic-ink) 55%, transparent);
-}
-
-.ptg-home-cinematic-band__skip:focus-visible {
   outline: none;
   box-shadow: var(--ptg-shadow-focus);
 }
@@ -1762,8 +1807,14 @@ article.ptg-type-body > .ptg-type-prose-h2:first-of-type {
   align-items: center;
   justify-content: center;
   min-height: inherit;
-  padding: clamp(1.75rem, 5vw, 2.75rem) var(--ptg-space-4);
+  /* Plus d’air en tête : la barre d’outils ne recouvre pas l’accroche. */
+  padding: clamp(2.45rem, 6.5vw, 3.25rem) var(--ptg-space-4) clamp(1.75rem, 5vw, 2.75rem);
   box-shadow: inset 0 0 4rem color-mix(in srgb, #1a1512 18%, transparent);
+}
+
+/* Pas de barre d’outils ciné : on récupère l’air vertical inutile. */
+.ptg-home-cinematic-band--reduce-motion .ptg-home-cinematic-band__inner {
+  padding-top: clamp(1.75rem, 5vw, 2.75rem);
 }
 
 .ptg-home-cinematic-band__stage {

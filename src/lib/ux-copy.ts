@@ -54,12 +54,17 @@ export const UX_HOME = {
   }),
   /** Bande signature sous le hero (animation courte) : bouton d’accès immédiat au contenu figé. */
   cinematicSkip: uxa({ a: "Passer l’animation", b: "Zapper l’intro" }),
+  /** Libellés courts (mobile / cadre étroit) — `aria-label` reste sur la variante longue. */
+  cinematicSkipShort: uxa({ a: "Passer", b: "Zapper" }),
   /** Intro GSAP + halage + brume + balayage : tout fige dans la bande (même onglet, `sessionStorage`). */
   cinematicPause: uxa({ a: "Pause les effets", b: "Couper le mouvement" }),
+  cinematicPauseShort: uxa({ a: "Pause", b: "Couper" }),
   cinematicResume: uxa({ a: "Reprendre les effets", b: "Remettre le mouvement" }),
+  cinematicResumeShort: uxa({ a: "Reprendre", b: "Relancer" }),
   cinematicReplay: uxa({ a: "Rejouer l’intro", b: "Revoir l’intro" }),
-  /** `role="toolbar"` sur les contrôles secondaires (pause / rejouer). */
-  cinematicToolbarAria: "Contrôles de la bande signature",
+  cinematicReplayShort: uxa({ a: "Rejouer", b: "Revoir" }),
+  /** `role="toolbar"` : lecture (gauche) + effets (droite). */
+  cinematicToolbarAria: "Contrôles de la bande signature : lecture et effets",
   /** Image illustrative sous la bande ciné (marché, table généreuse) — `aria-label` court sur la section. */
   marketAtmosphereAria: "Scène de marché culinaire conviviale",
   marketAtmosphereAlt:

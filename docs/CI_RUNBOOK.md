@@ -6,12 +6,13 @@ Pour ajouter/modifier un job CI en respectant les conventions, voir aussi `docs/
 
 ## Jobs obligatoires
 
-- `workflow-lint`: validation syntaxe/bonnes pratiques des workflows GitHub Actions.
+- `workflow-lint`: validation syntaxe/bonnes pratiques des workflows GitHub Actions (`rhysd/actionlint`). **Hors CI**, repro locale possible avec Docker depuis la racine du dépôt : `docker run --rm -v "$(pwd):/repo" -w /repo rhysd/actionlint:1.7.12` (shell POSIX ; non inclus dans `npm run verify`).
 - `ci-governance`: bloque les PRs qui modifient des workflows CI sans alignement docs/garde-fous.
 - `verify`: `npm run verify` (lint, types, `test:scripts`, `assert:tracked-safe`) + preflight + build + Playwright desktop.
 - `mobile-consistency`: Playwright mobile (cadrage, continuité fond, stress viewport/orientation).
 - `beta-seo`: build en mode bêta publique + tests SEO bêta.
 - `nightly-release-gate` (non bloquant PR): exécution planifiée de `npm run verify:release` via `.github/workflows/nightly-release-gate.yml`.
+- `meal-reminders-cron` (hors chemin PR CI classique) : déclenchement **horaire** de `GET /api/cron/meal-reminders` sur la prod — secrets **`CRON_MEAL_REMINDERS_BASE_URL`** + **`CRON_SECRET`** ; voir `docs/DEPLOIEMENT_VERCEL.md`. En **échec**, artefact **`meal-reminders-cron-response`** (corps de réponse enregistré pendant le `curl`).
 - Chaque job publie aussi un résumé `GITHUB_STEP_SUMMARY` (commande, portée, artefact d’échec).
 - Les résumés sont standardisés via `scripts/ci/write-gate-summary.sh` (source unique).
 
