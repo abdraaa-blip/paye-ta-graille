@@ -47,7 +47,7 @@
     "test:e2e:full": "npm run build:clean && node scripts/run-e2e-local.mjs",
     "test:e2e:mobile": "node scripts/run-e2e-local.mjs --config=playwright.mobile.config.ts",
     "test:e2e:install": "playwright install chromium",
-    "test:scripts": "node --test scripts/__tests__/*.test.mjs"
+    "test:scripts": "node --test scripts/__tests__/*.test.mjs && node --import tsx --test scripts/__tests__/invite-link-token.test.ts && node --import tsx --test scripts/__tests__/surprise-match.test.ts"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",
@@ -68,6 +68,7 @@
     "@types/react-dom": "^19.0.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.1.0",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.2"
   }
 }

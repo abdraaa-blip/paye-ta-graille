@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api/errors";
 import { rateLimitForUser } from "@/lib/api/rate-limit";
 import { requireSession } from "@/lib/api/session";
-import { pickSurpriseProfile } from "@/lib/surprise-match";
+import { pickSurpriseProfiles, sanitizeSurpriseExcludeIds } from "@/lib/surprise-match";
 
 type DiscoverRow = {
   id: string;
@@ -14,12 +14,18 @@ type DiscoverRow = {
   radius_km: number;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await requireSession();
   if (!session.ok) return session.response;
 
   const limited = await rateLimitForUser(session.user.id, "discover_surprise_get", 20, 60_000);
   if (limited) return limited;
+
+  const url = new URL(request.url);
+  const excludeParam = url.searchParams.get("exclude");
+  const excludeIds = sanitizeSurpriseExcludeIds(
+    excludeParam ? excludeParam.split(",").map((s) => s.trim()) : undefined,
+  );
 
   const { data: me, error: meErr } = await session.supabase
     .from("profiles")
@@ -46,15 +52,18 @@ export async function GET() {
     return jsonError("discover_failed", "Impossible de tirer au sort pour l’instant.", 500);
   }
 
-  const list = (rows ?? []) as DiscoverRow[];
-  const picked = pickSurpriseProfile(list, me?.meal_intent ?? null);
+  const uid = session.user.id;
+  const list = ((rows ?? []) as DiscoverRow[]).filter((r) => r.id !== uid);
+  const rolled = pickSurpriseProfiles(list, me?.meal_intent ?? null, { excludeIds, maxCount: 3 });
 
-  if (!picked) {
-    return NextResponse.json({ profile: null, compatible_strict: false });
+  if (!rolled || rolled.profiles.length === 0) {
+    return NextResponse.json({ profiles: [], profile: null, compatible_strict: false });
   }
 
+  const [primary] = rolled.profiles;
   return NextResponse.json({
-    profile: picked.profile,
-    compatible_strict: picked.compatibleStrict,
+    profiles: rolled.profiles,
+    profile: primary,
+    compatible_strict: rolled.compatibleStrict,
   });
 }

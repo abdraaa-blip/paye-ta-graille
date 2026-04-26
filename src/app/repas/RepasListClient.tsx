@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { AppNav } from "@/components/AppNav";
 import { InviteFriendCard } from "@/components/InviteFriendCard";
 import { NextActionCard } from "@/components/NextActionCard";
@@ -116,9 +117,7 @@ export function RepasListClient() {
         )}
         {errorStatus === 401 && (
           <p className="ptg-type-body" style={{ marginTop: "0.5rem", fontSize: "var(--ptg-text-ui-sm)" }}>
-            <Link href="/auth" style={{ fontWeight: 600 }}>
-              {UX_REPAS.connect}
-            </Link>
+            <AuthPromptLink>{UX_REPAS.connect}</AuthPromptLink>
           </p>
         )}
 

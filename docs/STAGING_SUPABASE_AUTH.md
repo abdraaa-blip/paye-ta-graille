@@ -55,6 +55,8 @@ Vérifie dans le dashboard que la sauvegarde est acceptée ; sinon ajoute les mo
 
 **Important** : le **projet Supabase staging** doit avoir cette liste pour **staging** ; ne réutilise pas la prod sans avoir dupliqué les URLs, sinon les redirections échouent.
 
+**Invitations (magic link)** : l’app peut ajouter `invite_ref` / `inv` en query sur `/auth/callback` via `emailRedirectTo`. En général l’allow list sur la **base path** `…/auth/callback` suffit ; si Supabase refuse l’URL « étendue », vérifier la doc / le dashboard pour les motifs autorisés (wildcard ou paramètres).
+
 ---
 
 ## 4. Côté application (`NEXT_PUBLIC_SITE_URL`)

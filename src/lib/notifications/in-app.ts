@@ -10,7 +10,9 @@ export type InAppNotificationInput = {
     | "report_received"
     | "growth_feedback_alert"
     | "growth_daily_digest"
-    | "growth_weekly_digest";
+    | "growth_weekly_digest"
+    | "invite_link_welcome"
+    | "invite_referral_joined";
   title: string;
   body: string;
   ctaHref?: string | null;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { AppNav } from "@/components/AppNav";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
@@ -16,6 +17,7 @@ import {
   tagDisplayLabel,
 } from "@/lib/tag-options";
 import type { MealWithPreference } from "@/lib/profile-draft";
+import { emitInviteAttributionOnce } from "@/lib/growth-invite-attribution";
 import { UX_ONBOARDING } from "@/lib/ux-copy";
 import { UX_PROFIL } from "@/lib/ux-copy";
 
@@ -96,6 +98,11 @@ export function ProfilClient({ showPostAuthSetup = false }: { showPostAuthSetup?
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (status !== "ready") return;
+    void emitInviteAttributionOnce("profil_session");
+  }, [status]);
 
   const selectableSet = new Set(PROFILE_TAG_OPTIONS);
 
@@ -178,9 +185,9 @@ export function ProfilClient({ showPostAuthSetup = false }: { showPostAuthSetup?
               </div>
             </PtgMenuCard>
             <p>
-              <Link href="/auth" className="ptg-btn-primary" style={{ display: "inline-flex" }}>
+              <AuthPromptLink className="ptg-btn-primary" style={{ display: "inline-flex" }}>
                 {UX_PROFIL.connect}
-              </Link>
+              </AuthPromptLink>
             </p>
             <p style={{ marginTop: "1rem" }}>
               <Link href="/onboarding" className="ptg-link-back" style={{ marginBottom: 0 }}>

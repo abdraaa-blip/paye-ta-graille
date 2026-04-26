@@ -1,6 +1,8 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { PTG_AUTH_PATH, PTG_AUTH_REAUTH_QUERY } from "@/lib/auth/auth-path";
+import { getPostLoginPath } from "@/lib/auth/post-login-path";
 import { isSupabaseConfigured } from "@/lib/env-public";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
@@ -25,7 +27,17 @@ export async function middleware(request: NextRequest) {
         },
       },
     );
-    await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const path = request.nextUrl.pathname;
+    const sp = request.nextUrl.searchParams;
+    const wantsReauth = sp.get(PTG_AUTH_REAUTH_QUERY) === "1";
+    if (path === PTG_AUTH_PATH && user && !sp.get("error") && !wantsReauth) {
+      const nextPath = await getPostLoginPath(supabase);
+      return NextResponse.redirect(new URL(nextPath, request.url));
+    }
   }
 
   /* En-têtes défense (X-Frame-Options, etc.) : uniquement dans `next.config.ts` pour une seule source de vérité. */

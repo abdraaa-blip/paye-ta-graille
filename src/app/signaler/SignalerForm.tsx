@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { UX_BACK, UX_LOADING, UX_SIGNALER } from "@/lib/ux-copy";
@@ -79,7 +80,13 @@ function SignalerFormInner() {
           )}
           {status === "err" && (
             <p className="ptg-banner ptg-banner-warn" role="alert">
-              {message} {message.toLowerCase().includes("connect") && <Link href="/auth"> Connexion</Link>}
+              {message}{" "}
+              {message.toLowerCase().includes("connect") && (
+                <>
+                  {" "}
+                  <AuthPromptLink>{UX_SIGNALER.linkLogin}</AuthPromptLink>
+                </>
+              )}
             </p>
           )}
 

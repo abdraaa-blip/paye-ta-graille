@@ -277,6 +277,9 @@ export default async function InterneCroissancePage({ searchParams }: Props) {
                   <th scope="col" style={{ padding: "0.5rem 0.75rem" }} title="Chargements liste Découvrir">
                     Découv.
                   </th>
+                  <th scope="col" style={{ padding: "0.5rem 0.75rem" }} title="Tirages « Lancer la graille » (surprise_graille_rolled)">
+                    Hasard
+                  </th>
                   <th scope="col" style={{ padding: "0.5rem 0.75rem" }} title="Propositions de repas créées">
                     Repas
                   </th>
@@ -291,6 +294,12 @@ export default async function InterneCroissancePage({ searchParams }: Props) {
                   </th>
                   <th scope="col" style={{ padding: "0.5rem 0.75rem" }} title="Vues accueil app">
                     Acc.
+                  </th>
+                  <th scope="col" style={{ padding: "0.5rem 0.75rem" }} title="Invitations enregistrées (événement invite_attribution)">
+                    Inv.
+                  </th>
+                  <th scope="col" style={{ padding: "0.5rem 0.75rem" }} title="Feedback envoyé depuis Moi (événement feedback_submitted)">
+                    Fb. evt
                   </th>
                   <th scope="col" style={{ padding: "0.5rem 0.75rem" }}>
                     Partn. vues
@@ -323,11 +332,14 @@ export default async function InterneCroissancePage({ searchParams }: Props) {
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.events_total)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_auth_success)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_discover_views)}</td>
+                    <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_surprise_graille_rolled)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_meals_proposed)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_meal_venues)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_meal_status_updates)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_onboarding_done)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_accueil_views)}</td>
+                    <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_invite_attributions)}</td>
+                    <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.funnel_feedback_submitted)}</td>
                     <td style={{ padding: "0.45rem 0.75rem" }}>{formatInt(r.partners_page_views)}</td>
                     <td
                       style={{ padding: "0.45rem 0.75rem" }}
@@ -364,8 +376,9 @@ export default async function InterneCroissancePage({ searchParams }: Props) {
           <div className="ptg-accent-rule" style={{ margin: "0 0 1rem" }} />
           <p className="ptg-type-body" style={{ margin: "0 0 1rem", opacity: 0.9 }}>
             Agrégats journaliers (derniers {days} jours). Colonnes funnel : auth (OTP + lien magique), chargements Découvrir,
-            repas proposés, lieux, changements de statut repas, onboarding terminé, vues accueil. CTR partenaires = (CTA) / vues
-            page Partenaires. Feedback = réponses in-app et note moyenne (1 à 5).
+            repas proposés, lieux, changements de statut repas, onboarding terminé, vues accueil, attributions invitation, événements
+            feedback soumis. CTR partenaires = (CTA) / vues page Partenaires. Colonnes Feedback (fin de tableau) = réponses
+            enregistrées en base et note moyenne (1 à 5).
           </p>
           <p className="ptg-type-body" style={{ margin: "0 0 1rem", fontSize: "0.85rem", opacity: 0.85 }}>
             Période : ajoute <code className="ptg-type-mono">?jours=14</code> à l’URL (max 366). API JSON :{" "}

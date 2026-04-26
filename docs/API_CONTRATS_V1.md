@@ -20,7 +20,7 @@
 
 - **Auth** : session Supabase + UUID dans `PTG_GROWTH_ADMIN_USER_IDS`, **ou** en-tête `x-ptg-growth-kpi-secret` égal à `PTG_GROWTH_KPI_SECRET` (les deux variables doivent être configurées côté serveur pour activer la route).  
 - **Query** : `days` (1–366, défaut 30).  
-- **Réponse** : `{ days, rows }` — une ligne par jour (`growth_kpi_daily` : totaux, funnel auth/découverte/repas/onboarding/accueil, partenaires + champs dérivés `partners_cta_total`, `partners_ctr_percent`).  
+- **Réponse** : `{ days, rows, thresholds }` — une ligne par jour depuis la vue `growth_kpi_daily` (totaux, funnel auth/découverte/repas/lieux/statuts/onboarding/accueil, **`funnel_invite_attributions`**, **`funnel_feedback_submitted`** si migration `20260502100000` appliquée ; sinon le serveur retombe sur une requête sans ces colonnes), partenaires, actifs ; chaque ligne inclut aussi agrégats **feedback** (`feedback_answers`, `feedback_avg_score`) issus de `user_feedback`. Champs dérivés par ligne : `partners_cta_total`, `partners_ctr_percent`. **`thresholds`** : profil d’alertes digest (voir `getGrowthKpiThresholds`).  
 - **429** : rate limit par admin ou par hash de secret.
 
 ### `GET /api/profile`
@@ -47,7 +47,8 @@
 ### `GET /api/discover/surprise`
 
 - **Auth** : oui.  
-- **Réponse** : un profil « surprise » dérivé de `discover_profiles` + logique métier (`pickSurpriseProfile`) ; **503** si RPC absente.  
+- **Query** : `exclude` optionnel — liste d’UUID séparés par des virgules (profils déjà montrés récemment côté client, pour faire tourner les propositions tant qu’il existe d’autres candidats).  
+- **Réponse** : `{ profiles: [...], profile, compatible_strict }` — jusqu’à **3** profils distincts par tirage (mélange aléatoire dans le pool « strict » intentions repas, sinon pool élargi) ; `profile` duplique le premier pour compat. Le compte courant est toujours exclu côté serveur (filet de sécurité). **503** si RPC absente.  
 - **429** : `discover_surprise_get`.
 
 ### `GET /api/meals`
@@ -119,8 +120,15 @@
 ### `POST /api/growth/event`
 
 - **Auth** : oui (session Supabase).  
-- **Body** : JSON `{ "event": string, "context"?: string, "metadata"?: object }` — `event` dans une **allowlist** serveur (funnel, `invite_*`, `invite_attribution`, modules Lieux, partenaires, etc.).  
+- **Body** : JSON `{ "event": string, "context"?: string, "metadata"?: object }` — `event` dans une **allowlist** serveur (liste unique `src/lib/growth-event-names.ts` : funnel, `surprise_graille_rolled`, `invite_*`, `invite_attribution`, `feedback_submitted`, `growth_alert_acknowledged`, modules Lieux, partenaires, etc.). Pour `invite_attribution`, `metadata.inv_token` est accepté (taille plafonnée) puis **retiré** de la ligne stockée ; seul un résumé `invite_signing` est persisté.  
 - **Réponses** : **202** `{ "ok": true }` ; **400** validation ; **401** non connecté ; **429** `rate_limited` (fenêtre par utilisateur) ; **500** si insert `growth_events` échoue.
+
+### `GET /api/invite/link-token`
+
+- **Auth** : oui (session Supabase).  
+- **Query** : `source` obligatoire, une des valeurs `accueil` | `decouvrir` | `repas` | `repas_matched` | `repas_confirmed` | `repas_completed`.  
+- **Réponse** : `{ "token": string | null }` — jeton signé pour lien `/commencer?…&inv=…` si `PTG_INVITE_LINK_SECRET` (≥ 16 car.) est défini ; sinon `token: null` (liens anonymes uniquement).  
+- **429** : rate limit par utilisateur.
 
 ### `GET /api/cron/meal-reminders`
 

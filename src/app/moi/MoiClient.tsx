@@ -8,8 +8,10 @@ import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { trackGrowthEvent } from "@/lib/growth-events";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
+import { clearOptionalLocalCachesOnSignOut } from "@/lib/auth/local-browser-cleanup";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { UX_BACK, UX_LOADING, UX_MOI } from "@/lib/ux-copy";
+import { UX_BACK, UX_LOADING, UX_MOI, UX_SESSION } from "@/lib/ux-copy";
 
 type Session = "unknown" | "out" | "in";
 type NudgeLevel = "calme" | "normal" | "off";
@@ -148,6 +150,7 @@ export function MoiClient() {
     if (!supabase) return;
     setSigningOut(true);
     await supabase.auth.signOut();
+    clearOptionalLocalCachesOnSignOut();
     setSigningOut(false);
     router.push("/accueil");
     router.refresh();
@@ -527,7 +530,7 @@ export function MoiClient() {
                 Notifications in-app {unreadCount > 0 ? `(${unreadCount} non lues)` : ""}
               </p>
               <p className="ptg-type-body" style={{ margin: "0.35rem 0 0.55rem", fontSize: "var(--ptg-text-sm)" }}>
-                Rappels repas et confirmations importantes apparaissent ici.
+                {UX_MOI.inAppNotificationsIntro}
               </p>
               <div className="ptg-chip-row" style={{ marginBottom: "0.55rem" }}>
                 <button
@@ -597,14 +600,14 @@ export function MoiClient() {
         {session === "in" && (
           <p style={{ marginTop: "1.5rem" }}>
             <button type="button" className="ptg-btn-ghost" disabled={signingOut} onClick={() => void signOut()}>
-              {signingOut ? UX_MOI.signOutBusy : UX_MOI.signOut}
+              {signingOut ? UX_SESSION.signOutBusy : UX_SESSION.signOut}
             </button>
           </p>
         )}
 
         {session === "out" && (
           <p className="ptg-banner" style={{ marginTop: "1.25rem" }}>
-            {UX_MOI.notConnected} <Link href="/auth">{UX_MOI.connect}</Link>
+            {UX_MOI.notConnected} <AuthPromptLink>{UX_MOI.connect}</AuthPromptLink>
           </p>
         )}
 

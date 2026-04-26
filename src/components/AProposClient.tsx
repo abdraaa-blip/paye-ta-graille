@@ -38,6 +38,8 @@ import {
   heroPublicWebpFallbackPng,
 } from "@/lib/env-public";
 import { UX_HOME } from "@/lib/ux-copy";
+import { AboutAuthServiceLink } from "@/components/AboutAuthServiceLink";
+import { PTG_AUTH_PATH } from "@/lib/auth/auth-path";
 import { AboutBrandStageDecor } from "@/components/AboutBrandStageDecor";
 import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
@@ -803,25 +805,31 @@ export function AProposClient() {
                 </span>
               </button>
               <ul className="ptg-about-services-grid ptg-list-plain">
-                {ABOUT_SERVICE_LINKS.map((item, itemIdx) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={[
-                        "ptg-about-service-link",
-                        !reduceMotion && servicesGuideIdx === itemIdx + 1
-                          ? "ptg-guide-press"
-                          : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      prefetch={false}
-                    >
-                      <span className="ptg-about-service-link__label">{item.label}</span>
-                      <span className="ptg-about-service-link__blurb">{item.blurb}</span>
-                    </Link>
-                  </li>
-                ))}
+                {ABOUT_SERVICE_LINKS.map((item, itemIdx) => {
+                  const linkClass = [
+                    "ptg-about-service-link",
+                    !reduceMotion && servicesGuideIdx === itemIdx + 1 ? "ptg-guide-press" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ");
+                  return (
+                    <li key={item.href}>
+                      {item.href === PTG_AUTH_PATH ? (
+                        <AboutAuthServiceLink
+                          guestLabel={item.label}
+                          guestBlurb={item.blurb}
+                          className={linkClass}
+                          prefetch={false}
+                        />
+                      ) : (
+                        <Link href={item.href} className={linkClass} prefetch={false}>
+                          <span className="ptg-about-service-link__label">{item.label}</span>
+                          <span className="ptg-about-service-link__blurb">{item.blurb}</span>
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>

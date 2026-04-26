@@ -13,6 +13,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { trackGrowthEvent } from "@/lib/growth-events";
 import { SurpriseGrailleCard } from "@/components/SurpriseGrailleCard";
 import { readApiError } from "@/lib/api/read-api-error";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { displayInitials } from "@/lib/display-initials";
 import { mealIntentLabel, socialIntentLabel } from "@/lib/intent-labels";
 import { surpriseGrailleEnabled } from "@/lib/feature-modules";
@@ -62,9 +63,7 @@ export function DiscoverClient() {
         setHint(
           <>
             {UX_DISCOVER.hintLogin}{" "}
-            <Link href="/auth" style={{ fontWeight: 600 }}>
-              Me connecter
-            </Link>
+            <AuthPromptLink>{UX_DISCOVER.linkLogin}</AuthPromptLink>
           </>,
         );
       }
