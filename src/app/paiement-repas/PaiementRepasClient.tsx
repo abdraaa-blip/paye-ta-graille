@@ -7,8 +7,9 @@ import { readApiError } from "@/lib/api/read-api-error";
 import { trackGrowthEvent } from "@/lib/growth-events";
 import { GROWTH_MICRO_WIN, GROWTH_MODULE_PAY } from "@/lib/growth-copy";
 import { mealStatusLabel } from "@/lib/meal-status-labels";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { type PaymentMood, paymentMoodFromSearchParam } from "@/lib/payment-mood";
-import { UX_BACK } from "@/lib/ux-copy";
+import { UX_BACK, UX_REPAS } from "@/lib/ux-copy";
 
 type Meal = {
   id: string;
@@ -38,9 +39,12 @@ export function PaiementRepasClient() {
   const [mood, setMood] = useState<PaymentMood>("split");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [sessionHint, setSessionHint] = useState(false);
 
   const load = useCallback(async () => {
     const [mRes, lRes] = await Promise.all([fetch("/api/meals"), fetch("/api/payments/ledger")]);
+    const needAuth = mRes.status === 401 || lRes.status === 401;
+    setSessionHint(needAuth);
     if (mRes.ok) {
       const j = (await mRes.json()) as { meals?: Meal[] };
       const list = j.meals ?? [];
@@ -82,6 +86,7 @@ export function PaiementRepasClient() {
     });
     setBusy(false);
     if (!res.ok) {
+      if (res.status === 401) setSessionHint(true);
       const { message } = await readApiError(res);
       setErr(message);
       return;
@@ -116,6 +121,11 @@ export function PaiementRepasClient() {
 
   return (
     <>
+      {sessionHint && (
+        <p className="ptg-banner" style={{ marginBottom: "0.75rem" }} role="status">
+          {UX_REPAS.errAuth} <AuthPromptLink />
+        </p>
+      )}
       <p className="ptg-type-body" style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-sm)", fontWeight: 600 }}>
         C’est quoi l’addition pour toi ?
       </p>
@@ -167,7 +177,7 @@ export function PaiementRepasClient() {
 
       <div className="ptg-surface ptg-surface--static ptg-card" style={{ marginBottom: "1rem" }}>
         <p style={{ margin: "0 0 0.5rem", fontWeight: 700 }}>Payer une contribution</p>
-        {meals && meals.length === 0 && (
+        {meals && meals.length === 0 && !sessionHint && (
           <p className="ptg-type-body" style={{ fontSize: "var(--ptg-text-ui-sm)" }}>
             Aucun repas pour l’instant.{" "}
             <Link href="/decouvrir" style={{ fontWeight: 600 }}>

@@ -2,21 +2,28 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   BRAND_LOGO_SIGNATURE_HEIGHT,
   BRAND_LOGO_SIGNATURE_WEBP_SRC,
   BRAND_LOGO_SIGNATURE_WIDTH,
 } from "@/lib/brand-logo";
 import { useCallback, useEffect, useState } from "react";
+import { useSupabaseSession } from "@/lib/auth/use-supabase-session";
 import { extensionsNavVisible } from "@/lib/feature-modules";
+import { clearOptionalLocalCachesOnSignOut } from "@/lib/auth/local-browser-cleanup";
+import { UX_SESSION } from "@/lib/ux-copy";
 
 export function AppNav({
   current,
 }: {
   current?: "accueil" | "decouvrir" | "moi" | "reseau" | "graille-plus";
 }) {
+  const router = useRouter();
+  const { supabase, sessionActive, ready } = useSupabaseSession();
   const showPlus = extensionsNavVisible();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [signingOut, setSigningOut] = useState(false);
 
   const refreshNotifications = useCallback(async () => {
     try {
@@ -41,6 +48,18 @@ export function AppNav({
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [refreshNotifications]);
+
+  async function signOut() {
+    if (!supabase) return;
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    clearOptionalLocalCachesOnSignOut();
+    setSigningOut(false);
+    router.push("/accueil");
+    router.refresh();
+  }
+
+  const showSignOut = Boolean(supabase && ready && sessionActive);
 
   return (
     <nav className="ptg-nav" aria-label="Navigation principale">
@@ -97,6 +116,16 @@ export function AppNav({
           </span>
         ) : null}
       </Link>
+      {showSignOut ? (
+        <button
+          type="button"
+          className="ptg-nav-link"
+          disabled={signingOut}
+          onClick={() => void signOut()}
+        >
+          {signingOut ? UX_SESSION.signOutBusy : UX_SESSION.signOut}
+        </button>
+      ) : null}
     </nav>
   );
 }

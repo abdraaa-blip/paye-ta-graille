@@ -16,8 +16,10 @@ import {
   GROWTH_INVITE_CARD_CONFIRMED,
   GROWTH_INVITE_CARD_MATCHED,
 } from "@/lib/growth-copy";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { mealStatusLabel } from "@/lib/meal-status-labels";
 import { trackGrowthEvent } from "@/lib/growth-events";
+import { UX_REPAS } from "@/lib/ux-copy";
 
 type Venue = {
   id: string;
@@ -68,12 +70,16 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
   const [placesNote, setPlacesNote] = useState<string | null>(null);
   const [chatBody, setChatBody] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mealLoadNeedsAuth, setMealLoadNeedsAuth] = useState(false);
 
   const loadMeal = useCallback(async () => {
     setError(null);
+    setMealLoadNeedsAuth(false);
     const res = await fetch(`/api/meals/${mealId}`);
     if (!res.ok) {
-      setError((await readApiError(res)).message);
+      const parsed = await readApiError(res);
+      setError(parsed.message);
+      setMealLoadNeedsAuth(res.status === 401 || parsed.code === "unauthorized");
       setMeal(null);
       return;
     }
@@ -330,7 +336,10 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
         <PtgAppFlow>
           <div className="ptg-page-inner">
             <AppNav />
-            <p className="ptg-banner ptg-banner-warn">{error}</p>
+            <p className="ptg-banner ptg-banner-warn">
+              {error}{" "}
+              {mealLoadNeedsAuth ? <AuthPromptLink /> : null}
+            </p>
             <Link href="/repas" className="ptg-link-back" style={{ marginBottom: 0 }}>
               ← Mes repas
             </Link>
@@ -702,6 +711,31 @@ export function MealDetailClient({ mealId, userId }: { mealId: string; userId: s
             </ul>
             {canSendMessages && (
               <form onSubmit={sendChat} className="ptg-stack ptg-stack--compact">
+                {messages.length === 0 && (
+                  <div style={{ marginBottom: "0.35rem" }}>
+                    <p
+                      className="ptg-type-body"
+                      style={{ margin: "0 0 0.5rem", fontSize: "var(--ptg-text-ui-sm)", color: "var(--ptg-text-muted)" }}
+                    >
+                      {UX_REPAS.chatStartersIntro}
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.45rem" }}>
+                      {UX_REPAS.chatStarters.map((phrase) => (
+                        <button
+                          key={phrase}
+                          type="button"
+                          className="ptg-btn-ghost"
+                          disabled={busy}
+                          style={{ fontSize: "var(--ptg-text-ui-sm)", padding: "0.35rem 0.65rem", lineHeight: 1.35 }}
+                          onClick={() => setChatBody(phrase)}
+                          aria-label={`Insérer dans le message : ${phrase}`}
+                        >
+                          {phrase}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <textarea
                   className="ptg-input"
                   rows={3}

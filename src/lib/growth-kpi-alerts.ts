@@ -184,6 +184,9 @@ export async function maybeCreateGrowthDailyDigest(rows: GrowthKpiDailyRow[], th
   const baseline28 = avg(scoreSeries.slice(-28));
   const feedbackCount7 = recent.reduce((sum, r) => sum + r.feedback_answers, 0);
   const activeUsers7 = recent.reduce((sum, r) => sum + r.active_users, 0);
+  const inviteAttr7 = recent.reduce((sum, r) => sum + r.funnel_invite_attributions, 0);
+  const feedbackEvt7 = recent.reduce((sum, r) => sum + r.funnel_feedback_submitted, 0);
+  const surpriseRolls7 = recent.reduce((sum, r) => sum + r.funnel_surprise_graille_rolled, 0);
   const scoreDelta = current7 !== null && prev7 !== null ? current7 - prev7 : null;
   const baselineGap = current7 !== null && baseline28 !== null ? current7 - baseline28 : null;
 
@@ -197,6 +200,9 @@ export async function maybeCreateGrowthDailyDigest(rows: GrowthKpiDailyRow[], th
     `vs baseline28j: ${baselineGap === null ? "-" : baselineGap.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     `feedback: ${feedbackCount7}`,
     `actifs: ${activeUsers7}`,
+    `inv.attr.7j: ${inviteAttr7}`,
+    `fb.evts.7j: ${feedbackEvt7}`,
+    `surprise.7j: ${surpriseRolls7}`,
   ].join(" · ");
 
   await createInAppNotifications(
@@ -215,6 +221,9 @@ export async function maybeCreateGrowthDailyDigest(rows: GrowthKpiDailyRow[], th
         baseline_gap_28: baselineGap,
         feedback_count_7: feedbackCount7,
         active_users_7: activeUsers7,
+        invite_attributions_7: inviteAttr7,
+        feedback_events_7: feedbackEvt7,
+        surprise_graille_rolled_7: surpriseRolls7,
         thresholds,
       },
     })),
@@ -258,6 +267,9 @@ export async function maybeCreateGrowthWeeklyDigest(rows: GrowthKpiDailyRow[], t
   const prevWeekFeedback = previousWeek.reduce((sum, r) => sum + r.feedback_answers, 0);
   const currentWeekActifs = currentWeek.reduce((sum, r) => sum + r.active_users, 0);
   const prevWeekActifs = previousWeek.reduce((sum, r) => sum + r.active_users, 0);
+  const inviteAttrWeek = currentWeek.reduce((sum, r) => sum + r.funnel_invite_attributions, 0);
+  const feedbackEvtWeek = currentWeek.reduce((sum, r) => sum + r.funnel_feedback_submitted, 0);
+  const surpriseRollsWeek = currentWeek.reduce((sum, r) => sum + r.funnel_surprise_graille_rolled, 0);
   const scoreDelta = currentWeekScore !== null && prevWeekScore !== null ? currentWeekScore - prevWeekScore : null;
   const feedbackDelta = currentWeekFeedback - prevWeekFeedback;
   const activeDelta = currentWeekActifs - prevWeekActifs;
@@ -276,6 +288,9 @@ export async function maybeCreateGrowthWeeklyDigest(rows: GrowthKpiDailyRow[], t
     `Δnote: ${scoreDelta === null ? "-" : scoreDelta.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     `Δfeedback: ${feedbackDelta.toLocaleString("fr-FR")}`,
     `Δactifs: ${activeDelta.toLocaleString("fr-FR")}`,
+    `inv.attr.S0: ${inviteAttrWeek}`,
+    `fb.evts.S0: ${feedbackEvtWeek}`,
+    `surprise.S0: ${surpriseRollsWeek}`,
   ].join(" · ");
 
   const recipients =
@@ -302,6 +317,9 @@ export async function maybeCreateGrowthWeeklyDigest(rows: GrowthKpiDailyRow[], t
         current_week_active_users: currentWeekActifs,
         previous_week_active_users: prevWeekActifs,
         active_users_delta: activeDelta,
+        invite_attributions_week: inviteAttrWeek,
+        feedback_events_week: feedbackEvtWeek,
+        surprise_graille_rolled_week: surpriseRollsWeek,
         risk_level: riskLevel,
         recipients_count: recipients.length,
         thresholds,

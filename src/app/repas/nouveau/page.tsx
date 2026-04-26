@@ -4,6 +4,7 @@ import { AppNav } from "@/components/AppNav";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { SiteFooter } from "@/components/SiteFooter";
+import { PTG_AUTH_PATH } from "@/lib/auth/auth-path";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { NouveauRepasForm } from "./NouveauRepasForm";
 import { UX_NOUVEAU_REPAS } from "@/lib/ux-copy";
@@ -13,13 +14,13 @@ type Props = { searchParams: Promise<{ guest?: string }> };
 export default async function NouveauRepasPage({ searchParams }: Props) {
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
-    redirect("/auth");
+    redirect(PTG_AUTH_PATH);
   }
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/auth");
+    redirect(PTG_AUTH_PATH);
   }
 
   const sp = await searchParams;

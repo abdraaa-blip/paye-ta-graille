@@ -1,17 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { trackGrowthEvent } from "@/lib/growth-events";
-import { GROWTH_INVITE_CARD, GROWTH_INVITE_SHARE_TEXT } from "@/lib/growth-copy";
+import { GROWTH_INVITE_CARD, GROWTH_INVITE_CARD_FOLLOWUP, GROWTH_INVITE_SHARE_TEXT } from "@/lib/growth-copy";
+import type { InviteFriendSource } from "@/lib/invite-friend-sources";
 
-/** `source` = segment analytics (`ref=friend_<source>` + events invite_*). */
-export type InviteFriendSource =
-  | "accueil"
-  | "decouvrir"
-  | "repas"
-  | "repas_matched"
-  | "repas_confirmed"
-  | "repas_completed";
+export type { InviteFriendSource };
 
 type Props = {
   source: InviteFriendSource;
@@ -19,20 +13,51 @@ type Props = {
   body?: string;
 };
 
+function originBase(): string {
+  if (typeof window === "undefined") return "https://paye-ta-graille.app";
+  return window.location.origin;
+}
+
 export function InviteFriendCard({
   source,
   title = GROWTH_INVITE_CARD.title,
   body = GROWTH_INVITE_CARD.body,
 }: Props) {
   const [status, setStatus] = useState<string | null>(null);
-  const shareUrl = useMemo(() => {
-    if (typeof window === "undefined") return "https://paye-ta-graille.app/commencer";
-    return `${window.location.origin}/commencer?ref=friend_${source}`;
-  }, [source]);
+  const tokenOnce = useRef<Promise<string | null> | null>(null);
   const shareText = GROWTH_INVITE_SHARE_TEXT;
+
+  const resolveSignedToken = useCallback((): Promise<string | null> => {
+    if (!tokenOnce.current) {
+      tokenOnce.current = (async () => {
+        try {
+          const res = await fetch(`/api/invite/link-token?source=${encodeURIComponent(source)}`, {
+            cache: "no-store",
+          });
+          if (!res.ok) return null;
+          const j = (await res.json()) as { token?: string | null };
+          return typeof j.token === "string" && j.token.length >= 24 ? j.token : null;
+        } catch {
+          return null;
+        }
+      })();
+    }
+    return tokenOnce.current;
+  }, [source]);
+
+  const buildShareUrl = useCallback(
+    async (signed: string | null) => {
+      const base = `${originBase()}/commencer?ref=friend_${source}`;
+      if (signed) return `${base}&inv=${encodeURIComponent(signed)}`;
+      return base;
+    },
+    [source],
+  );
 
   async function copyLink() {
     try {
+      const signed = await resolveSignedToken();
+      const shareUrl = await buildShareUrl(signed);
       await navigator.clipboard.writeText(shareUrl);
       setStatus("Lien copié.");
       await trackGrowthEvent({ event: "invite_link_copied", context: source });
@@ -43,6 +68,8 @@ export function InviteFriendCard({
 
   async function nativeShare() {
     await trackGrowthEvent({ event: "invite_share_opened", context: source });
+    const signed = await resolveSignedToken();
+    const shareUrl = await buildShareUrl(signed);
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
         await navigator.share({ title: "Paye ta graille", text: shareText, url: shareUrl });
@@ -75,6 +102,9 @@ export function InviteFriendCard({
           {status}
         </p>
       )}
+      <p className="ptg-type-body" style={{ margin: "0.65rem 0 0", fontSize: "var(--ptg-text-xs)", color: "var(--ptg-text-muted)" }}>
+        {GROWTH_INVITE_CARD_FOLLOWUP}
+      </p>
     </aside>
   );
 }

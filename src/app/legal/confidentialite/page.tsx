@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { PTG_LOCAL_AUTH_EMAIL_KEY, PTG_LOCAL_AUTH_REMEMBER_EMAIL_KEY } from "@/lib/auth/device-email-hint";
 import { UX_BACK } from "@/lib/ux-copy";
 
@@ -71,14 +72,15 @@ export default function ConfidentialitePage() {
           <h2 className="ptg-type-prose-h2">Stockage local sur ton appareil</h2>
           <p>
             Sur la page{" "}
-            <Link href="/auth">Connexion</Link>, tu peux demander à mémoriser ton adresse e-mail pour
+            <AuthPromptLink inlineStrong={false}>Connexion</AuthPromptLink>, tu peux demander à mémoriser ton adresse
+            e-mail pour
             aller plus vite aux prochaines visites. Ces informations sont enregistrées uniquement dans
             ton navigateur (<strong>localStorage</strong>), pas pour du suivi publicitaire. Tu peux
             décocher la case, utiliser « Oublier l&apos;adresse mémorisée » sur la même page, ou effacer
             les données du site dans les réglages du navigateur. Clés utilisées :{" "}
             <code>{PTG_LOCAL_AUTH_EMAIL_KEY}</code>, <code>{PTG_LOCAL_AUTH_REMEMBER_EMAIL_KEY}</code>.
             Te déconnecter depuis l&apos;application ne supprime pas automatiquement cette mémoire
-            locale : pense à le faire sur <Link href="/auth">Connexion</Link> si tu partages
+            locale : pense à le faire sur <AuthPromptLink inlineStrong={false}>Connexion</AuthPromptLink> si tu partages
             l&apos;appareil.
           </p>
 
@@ -89,6 +91,19 @@ export default function ConfidentialitePage() {
             un code à chaque visite, dans la limite des durées configurées côté service. Pour mettre fin
             à la session sur cet appareil, utilise <strong>Me déconnecter</strong> dans l&apos;app ; sur un
             appareil partagé, privilégie cette déconnexion ou la navigation privée.
+          </p>
+          <p>
+            Si tu arrives via un <strong>lien d&apos;invitation</strong>, le site peut déposer des cookies
+            courts (en général 14 jours, clés <code>ptg_invite_ref</code> et éventuellement{" "}
+            <code>ptg_invite_inv</code>) pour retrouver le parcours entre deux onglets ou après une
+            redirection, sans publicité. Ils sont effacés lorsque l&apos;invitation est enregistrée sur ton
+            compte.
+          </p>
+          <p>
+            Sur <strong>Rencontres</strong>, la fonction « surprise graille » peut mémoriser dans ton
+            navigateur (<strong>sessionStorage</strong>) une courte liste d’identifiants de profils
+            déjà proposés pour faire tourner les tirages (clé <code>ptg_surprise_recent_ids</code>) —
+            sans publicité, effacée à la déconnexion depuis l’app ou si tu vides les données du site.
           </p>
 
           <h2 className="ptg-type-prose-h2">Tes droits</h2>

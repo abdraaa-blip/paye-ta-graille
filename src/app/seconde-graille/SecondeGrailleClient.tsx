@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
 import { displayInitials } from "@/lib/display-initials";
 import { trackGrowthEvent } from "@/lib/growth-events";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { GROWTH_MICRO_WIN, GROWTH_MODULE_RESCUE } from "@/lib/growth-copy";
 import { UX_BACK } from "@/lib/ux-copy";
 
@@ -39,14 +40,18 @@ export function SecondeGrailleClient() {
   const [claimBusy, setClaimBusy] = useState<string | null>(null);
   const [windowStartLocal, setWindowStartLocal] = useState("");
   const [windowEndLocal, setWindowEndLocal] = useState("");
+  const [listNeedsAuth, setListNeedsAuth] = useState(false);
 
   const load = useCallback(async () => {
     setBusy(true);
     setErr(null);
+    setListNeedsAuth(false);
     const res = await fetch("/api/food-rescue");
     if (!res.ok) {
       setListings(null);
-      setErr((await readApiError(res)).message);
+      const parsed = await readApiError(res);
+      setErr(parsed.message);
+      setListNeedsAuth(res.status === 401 || parsed.code === "unauthorized");
       setBusy(false);
       return;
     }
@@ -183,7 +188,8 @@ export function SecondeGrailleClient() {
       {busy && <p className="ptg-type-body">Chargement…</p>}
       {err && (
         <p className="ptg-banner ptg-banner-warn" role="alert">
-          {err}
+          {err}{" "}
+          {listNeedsAuth ? <AuthPromptLink /> : null}
         </p>
       )}
 

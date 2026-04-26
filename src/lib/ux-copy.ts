@@ -35,6 +35,13 @@ export const UX_HOME = {
   kickerLinkAria: "À propos du projet Paye ta graille",
   ctaPrimary: uxa({ a: "Commencer", b: "Entrer" }),
   ctaHasAccount: uxa({ a: "J’ai déjà un compte", b: "Me connecter" }),
+  /** Hero : session Supabase déjà active (évite de renvoyer vers `/auth`). */
+  ctaSignedInApp: uxa({ a: "Ouvrir l’application", b: "Accéder à l’app" }),
+  /** Carte « À propos » / index : lien auth remplacé quand session déjà ouverte. */
+  aboutAuthSignedInBlurb: uxa({
+    a: "Tu es déjà connecté·e : retrouve le hub de l’app ici.",
+    b: "Session active — l’accueil de l’app t’attend.",
+  }),
   blurbAfterSecondary: uxa({
     a: "Pas de swipe. Une table, des intentions claires : j’invite, on partage, ou je me fais inviter.",
     b: "Tu ne fais pas défiler des visages. Tu dis comment tu vois l’addition, et tu proposes un vrai repas.",
@@ -114,7 +121,8 @@ export const UX_ACCUEIL = {
   profileOnline: "Profil en ligne",
   cityMissing: "Ville pas encore indiquée",
   editProfile: "Modifier le profil",
-  connect: "Connexion",
+  /** Lien court dans le bandeau (« … + pour voir les profils ») : évite une phrase trop longue sur mobile. */
+  connectInline: uxa({ a: "Connexion", b: "Me connecter" }),
   connectAfterLink: uxa({
     a: "pour voir les profils près de chez toi et suivre tes repas.",
     b: "ouvre l’accès aux profils autour de toi et à tes repas.",
@@ -151,6 +159,17 @@ export const UX_ACCUEIL = {
   nextActionOut: uxa({
     a: "Connecte-toi pour voir les profils autour de toi et lancer ta premiere proposition.",
     b: "Connexion rapide, puis Découvrir pour commencer.",
+  }),
+} as const;
+
+export const UX_LIEUX = {
+  needAuthSearch: uxa({
+    a: "Connecte-toi pour utiliser la recherche de lieux.",
+    b: "La recherche de lieux nécessite un compte.",
+  }),
+  needAuthNearby: uxa({
+    a: "Connecte-toi pour voir les restos autour de toi.",
+    b: "Les restos à proximité : connecte-toi pour y accéder.",
   }),
 } as const;
 
@@ -195,6 +214,8 @@ export const UX_DISCOVER = {
     a: "Tu as rafraîchi souvent : attends une minute et réessaie.",
     b: "Limite de rafraîchissement : un petit break, puis actualise.",
   }),
+  /** Lien sous le message « connecte-toi » (même libellé que le hero invité). */
+  linkLogin: UX_HOME.ctaHasAccount,
   filtersHint: uxa({
     a: "Filtres sur cette liste. Ta zone (ville ou position + rayon) est déjà prise en compte côté serveur.",
     b: "Affine ici. La zone vient de ton profil : ville ou GPS + rayon.",
@@ -225,6 +246,12 @@ export const UX_DISCOVER = {
   }),
 } as const;
 
+/** Déconnexion : une seule source de vérité pour toute l’interface. */
+export const UX_SESSION = {
+  signOut: uxa({ a: "Me déconnecter", b: "Déconnexion" }),
+  signOutBusy: "Déconnexion…",
+} as const;
+
 export const UX_AUTH = {
   /** Lien explicite vers la landing marketing (`/`), distinct du retour navigateur. */
   backToPresentation: "Page d’accueil du site",
@@ -232,6 +259,11 @@ export const UX_AUTH = {
   alreadyInSession: uxa({
     a: "Tu es déjà connecté·e. Tu peux aller directement dans l’app.",
     b: "Session active : passe à l’app quand tu veux.",
+  }),
+  /** Affiché si `?reauth=1` : pourquoi le formulaire peut être masqué tant que la session est ouverte. */
+  reauthHint: uxa({
+    a: "Pour te connecter avec un autre e-mail, déconnecte-toi d’abord (ou utilise une fenêtre privée).",
+    b: "Autre compte ? Passe par la déconnexion, ou une navigation privée.",
   }),
   goToAppAccueil: "Ouvrir l’accueil app",
   goToDiscover: "Voir les profils",
@@ -313,14 +345,17 @@ export const UX_MOI = {
     a: "Calme, normal ou coupé : c’est dans ton profil en ligne. Les mails repas suivent ton compte.",
     b: "Tu règles la fréquence dans le profil. Les mails dépendent du compte.",
   }),
+  /** Sous le bloc « Notifications in-app » sur /moi. */
+  inAppNotificationsIntro: uxa({
+    a: "Invitations confirmées, repas, rappels : tout se lit ici. Les e-mails ne partent que pour l’essentiel (ex. une proposition de repas), selon ton compte.",
+    b: "Fil clair : invitation enregistrée, repas, rappels. E-mail seulement quand c’est utile au compte.",
+  }),
   helpTitle: "Aide",
-  signOut: uxa({ a: "Me déconnecter", b: "Déconnexion" }),
-  signOutBusy: "Déconnexion…",
   notConnected: uxa({
     a: "Tu n’es pas connecté.",
     b: "Pas de session ouverte.",
   }),
-  connect: "Connexion",
+  connect: UX_HOME.ctaHasAccount,
   profileCheckErr: uxa({
     a: "On n’a pas pu vérifier ta session. Réessaie ou passe par la connexion.",
     b: "Vérification du compte impossible pour l’instant. Nouvel essai ?",
@@ -416,7 +451,7 @@ export const UX_PROFIL = {
     a: "Connecte-toi pour modifier ta fiche en ligne.",
     b: "Fiche en ligne : il faut être connecté.",
   }),
-  connect: "Me connecter",
+  connect: UX_HOME.ctaHasAccount,
   onboardingLocal: uxa({ a: "Parcours sans compte (brouillon ici)", b: "Questionnaire local" }),
   retry: "Réessayer",
   title: uxa({ a: "Ta fiche", b: "Ton style à table" }),
@@ -482,7 +517,7 @@ export const UX_REPAS = {
     b: "Chargement raté. Nouvel essai ?",
   }),
   errAuth: uxa({ a: "Il faut être connecté.", b: "Connexion requise." }),
-  connect: "Me connecter",
+  connect: UX_HOME.ctaHasAccount,
   empty: uxa({ a: "Aucun repas pour l’instant.", b: "Pas encore de repas." }),
   emptyCta: uxa({ a: "Voir des profils", b: "Explorer" }),
   groupBadge: "Groupe",
@@ -490,6 +525,17 @@ export const UX_REPAS = {
   emotionWinTitle: "Moment validé 🍽️",
   emotionWinBody: "Tu as des tables en cours. Prends 30 secondes pour voir où ça en est.",
   eveningHint: "Ce soir peut encore se jouer : un message, une proposition, et c'est parti.",
+  /** Chat repas : affiché tant qu’aucun message n’a été échangé ; l’utilisateur peut éditer avant envoi. */
+  chatStartersIntro:
+    "Une idée pour te lancer — tu peux modifier le texte ou écrire autre chose :",
+  chatStarters: [
+    "Toujours partant·e pour une petite graille ?",
+    "Salut ! Content·e qu’on se retrouve autour d’un repas.",
+    "On se dit une heure de rendez-vous vers le lieu ?",
+    "Si tu arrives un peu en avance, je peux faire pareil.",
+    "Merci d’avoir dit oui — hâte d’échanger !",
+    "Tu préfères qu’on se cale sur le créneau du repas ou un peu avant ?",
+  ],
   nextActionTitle: "Prochaine étape",
   nextActionBody: uxa({
     a: "Si rien n’est confirmé, retourne sur Découvrir pour relancer une proposition.",
@@ -511,6 +557,7 @@ export const UX_SIGNALER = {
   ok: uxa({ a: "Reçu. On s’en occupe dès qu’on peut.", b: "Merci, c’est enregistré." }),
   errAuth: uxa({ a: "Connecte-toi pour qu’on enregistre le signalement.", b: "Signalement lié au compte : connecte-toi." }),
   errNet: uxa({ a: "Réseau coupé. Réessaie plus tard.", b: "Pas de connexion. Plus tard ?" }),
+  linkLogin: UX_HOME.ctaHasAccount,
 } as const;
 
 export const UX_NOUVEAU_REPAS = {

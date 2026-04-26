@@ -77,5 +77,5 @@ Document de référence pour **Partage de graille**, **Seconde graille** et **Pa
 ## 9. Couche « growth » douce (sans dark patterns)
 
 - **Copie** : `src/lib/growth-copy.ts` — micro-textes, CTA courts, libellés modules.
-- **Surprise graille** : `GET /api/discover/surprise` — tirage serveur parmi `discover_profiles`, priorité aux paires d’intentions **invite ↔ etre_invite** et **partage ↔ partage** ; sinon tirage large même ville avec mention « soft ». UI : `SurpriseGrailleCard` sur Rencontres. Flag : `NEXT_PUBLIC_PTG_SURPRISE_GRAILLE` (désactiver avec `0` / `false` ; absent = activé).
+- **Surprise graille** : `GET /api/discover/surprise` — tirage serveur parmi `discover_profiles`, priorité aux paires d’intentions **invite ↔ etre_invite** et **partage ↔ partage** ; sinon tirage large même ville avec mention « soft ». Jusqu’à **3** profils mélangés par lancer ; query `exclude` + `sessionStorage` côté carte pour limiter les répétitions tant qu’il existe d’autres profils. UI : `SurpriseGrailleCard` sur Rencontres. Flag : `NEXT_PUBLIC_PTG_SURPRISE_GRAILLE` (désactiver avec `0` / `false` ; absent = activé).
 - **Accueil** : phrase du jour (rotation déterministe) + lien « Invite quelqu’un à manger » pour connectés uniquement.

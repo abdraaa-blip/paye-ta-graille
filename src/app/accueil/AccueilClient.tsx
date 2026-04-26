@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
+import { PTG_AUTH_PATH } from "@/lib/auth/auth-path";
 import { AppNav } from "@/components/AppNav";
 import { HealthyRitualCard } from "@/components/HealthyRitualCard";
 import { InviteFriendCard } from "@/components/InviteFriendCard";
@@ -19,10 +21,11 @@ import {
   MARKETING_KEY_CHOICE_OR_SURPRISE,
   MARKETING_TAGLINE_GOLDEN,
 } from "@/lib/marketing-copy";
-import { UX_ACCUEIL, UX_FOOTER, UX_LOADING } from "@/lib/ux-copy";
+import { UX_ACCUEIL, UX_FOOTER, UX_HOME, UX_LOADING } from "@/lib/ux-copy";
 import { clearProfileDraft, loadProfileDraft, type ProfileDraft } from "@/lib/profile-draft";
 import { extensionsNavVisible } from "@/lib/feature-modules";
 import { GROWTH_ACCUEIL_HOOKS, GROWTH_CTA_INVITE_EAT } from "@/lib/growth-copy";
+import { emitInviteAttributionOnce } from "@/lib/growth-invite-attribution";
 import { trackGrowthEvent } from "@/lib/growth-events";
 import { getUxVariant } from "@/lib/ux-variant";
 
@@ -70,6 +73,11 @@ export function AccueilClient() {
     void refreshServer();
     void trackGrowthEvent({ event: "accueil_viewed", context: "accueil", metadata: { variant: uxVariant } });
   }, [refreshServer, uxVariant]);
+
+  useEffect(() => {
+    if (session !== "in") return;
+    void emitInviteAttributionOnce("accueil_session");
+  }, [session]);
 
   async function syncDraftToServer() {
     const d = loadProfileDraft();
@@ -167,13 +175,18 @@ export function AccueilClient() {
         <NextActionCard
           title={UX_ACCUEIL.nextActionTitle}
           body={session === "in" ? UX_ACCUEIL.nextActionIn : UX_ACCUEIL.nextActionOut}
-          ctaHref={session === "in" ? "/decouvrir" : "/auth"}
-          ctaLabel={session === "in" ? "Voir qui mange ce soir" : "Me connecter"}
+          ctaHref={session === "in" ? "/decouvrir" : PTG_AUTH_PATH}
+          ctaLabel={session === "in" ? "Voir qui mange ce soir" : UX_HOME.ctaHasAccount}
           ctaClassName="ptg-btn-primary"
           eventContext="accueil_next_action"
           eventMetadata={{ variant: uxVariant, session }}
         />
-        <HealthyRitualCard title={UX_ACCUEIL.ritualTitle} body={UX_ACCUEIL.ritualBody} ctaHref="/decouvrir" ctaLabel="Voir qui mange ce soir" />
+        <HealthyRitualCard
+          title={UX_ACCUEIL.ritualTitle}
+          body={UX_ACCUEIL.ritualBody}
+          ctaHref={session === "in" ? "/decouvrir" : PTG_AUTH_PATH}
+          ctaLabel={session === "in" ? "Voir qui mange ce soir" : UX_HOME.ctaHasAccount}
+        />
         {session === "in" && <InviteFriendCard source="accueil" />}
 
         {session === "in" && (
@@ -305,7 +318,8 @@ export function AccueilClient() {
 
         {session === "out" && (
           <p className="ptg-banner" style={{ marginBottom: "1rem" }}>
-            <Link href="/auth">{UX_ACCUEIL.connect}</Link> {UX_ACCUEIL.connectAfterLink}
+            <AuthPromptLink inlineStrong={false}>{UX_ACCUEIL.connectInline}</AuthPromptLink>{" "}
+            {UX_ACCUEIL.connectAfterLink}
           </p>
         )}
 

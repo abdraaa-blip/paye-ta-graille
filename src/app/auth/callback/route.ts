@@ -1,8 +1,10 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { PTG_AUTH_PATH } from "@/lib/auth/auth-path";
 import { getPostLoginPath } from "@/lib/auth/post-login-path";
 import { isSupabaseConfigured } from "@/lib/env-public";
 import { safeAuthRedirectPath } from "@/lib/http/safe-redirect-path";
+import { applyInviteAttributionCookiesFromCallbackUrl } from "@/lib/invite-attribution-callback";
 import { createServiceRoleClient } from "@/lib/supabase/admin";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
@@ -14,11 +16,11 @@ export async function GET(request: NextRequest) {
   const next = safeAuthRedirectPath(url.searchParams.get("next"), "/accueil");
 
   if (!isSupabaseConfigured()) {
-    return NextResponse.redirect(`${origin}/auth?error=config`);
+    return NextResponse.redirect(`${origin}${PTG_AUTH_PATH}?error=config`);
   }
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/auth?error=auth`);
+    return NextResponse.redirect(`${origin}${PTG_AUTH_PATH}?error=auth`);
   }
 
   const pendingCookies: CookieToSet[] = [];
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest) {
 
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    return NextResponse.redirect(`${origin}/auth?error=auth`);
+    return NextResponse.redirect(`${origin}${PTG_AUTH_PATH}?error=auth`);
   }
 
   const {
@@ -70,5 +72,6 @@ export async function GET(request: NextRequest) {
   pendingCookies.forEach(({ name, value, options }) => {
     response.cookies.set(name, value, options);
   });
+  applyInviteAttributionCookiesFromCallbackUrl(response, url, url.protocol === "https:");
   return response;
 }

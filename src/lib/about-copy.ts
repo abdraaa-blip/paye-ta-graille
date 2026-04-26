@@ -1,3 +1,4 @@
+import { PTG_AUTH_PATH } from "@/lib/auth/auth-path";
 import { BRAND_LOGO_SIGNATURE_WEBP_SRC } from "@/lib/brand-logo";
 import { heroHomeMarketAtmosphereSrc } from "@/lib/env-public";
 
@@ -249,7 +250,7 @@ export type AboutServiceLink = {
 
 export const ABOUT_SERVICE_LINKS: readonly AboutServiceLink[] = [
   { href: "/commencer", label: "Commencer", blurb: "Entrer dans le parcours : invitation, intentions, premier pas." },
-  { href: "/auth", label: "Connexion / inscription", blurb: "Ouvrir une session ou créer un compte." },
+  { href: PTG_AUTH_PATH, label: "Connexion / inscription", blurb: "Ouvrir une session ou créer un compte." },
   { href: "/accueil", label: "Accueil", blurb: "Le hub de l’app une fois connecté·e." },
   { href: "/decouvrir", label: "Rencontres", blurb: "Voir qui mange autour de toi et proposer un repas." },
   { href: "/repas/nouveau", label: "Proposer un repas", blurb: "Créer une nouvelle invitation ou demande de table." },

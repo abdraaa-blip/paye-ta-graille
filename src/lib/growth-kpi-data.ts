@@ -11,11 +11,14 @@ export type GrowthKpiDailyRow = {
   partners_cta_graille_plus: number;
   funnel_auth_success: number;
   funnel_discover_views: number;
+  funnel_surprise_graille_rolled: number;
   funnel_meals_proposed: number;
   funnel_meal_venues: number;
   funnel_meal_status_updates: number;
   funnel_onboarding_done: number;
   funnel_accueil_views: number;
+  funnel_invite_attributions: number;
+  funnel_feedback_submitted: number;
   active_users: number;
   feedback_answers: number;
   feedback_avg_score: number | null;
@@ -23,6 +26,47 @@ export type GrowthKpiDailyRow = {
 
 const DEFAULT_DAYS = 30;
 const MAX_DAYS = 366;
+
+const GROWTH_KPI_DAILY_COLUMNS = [
+  "day",
+  "events_total",
+  "next_action_clicks",
+  "propose_clicks",
+  "invite_actions",
+  "partners_page_views",
+  "partners_cta_mailto",
+  "partners_cta_graille_plus",
+  "funnel_auth_success",
+  "funnel_discover_views",
+  "funnel_surprise_graille_rolled",
+  "funnel_meals_proposed",
+  "funnel_meal_venues",
+  "funnel_meal_status_updates",
+  "funnel_onboarding_done",
+  "funnel_accueil_views",
+  "funnel_invite_attributions",
+  "funnel_feedback_submitted",
+  "active_users",
+] as const;
+
+type PostgrestLikeError = { message?: string; code?: string; details?: string; hint?: string };
+
+/** Requête vue KPI avec colonnes récentes : si la migration n’est pas appliquée, PostgREST/Postgres renvoie souvent 42703 ou le nom de colonne dans message/details. */
+function shouldRetryGrowthKpiLegacySelect(err: PostgrestLikeError): boolean {
+  const msg = (err.message ?? "").toLowerCase();
+  const details = (err.details ?? "").toLowerCase();
+  const hint = (err.hint ?? "").toLowerCase();
+  const blob = `${msg} ${details} ${hint}`;
+  if (
+    blob.includes("funnel_invite_attributions") ||
+    blob.includes("funnel_feedback_submitted") ||
+    blob.includes("funnel_surprise_graille_rolled")
+  )
+    return true;
+  if (String(err.code ?? "") === "42703") return true;
+  if (msg.includes("does not exist") && msg.includes("column")) return true;
+  return false;
+}
 
 export function clampKpiDays(raw: string | null | undefined): number {
   const n = Number(raw);
@@ -46,30 +90,28 @@ export async function loadGrowthKpiDaily(days: number): Promise<
   since.setUTCDate(since.getUTCDate() - days);
   const sinceDay = since.toISOString().slice(0, 10);
 
-  const { data, error } = await admin
+  const selectFull = GROWTH_KPI_DAILY_COLUMNS.join(", ");
+  let { data, error } = await admin
     .from("growth_kpi_daily")
-       .select(
-      [
-        "day",
-        "events_total",
-        "next_action_clicks",
-        "propose_clicks",
-        "invite_actions",
-        "partners_page_views",
-        "partners_cta_mailto",
-        "partners_cta_graille_plus",
-        "funnel_auth_success",
-        "funnel_discover_views",
-        "funnel_meals_proposed",
-        "funnel_meal_venues",
-        "funnel_meal_status_updates",
-        "funnel_onboarding_done",
-        "funnel_accueil_views",
-        "active_users",
-      ].join(", "),
-    )
+    .select(selectFull)
     .gte("day", sinceDay)
     .order("day", { ascending: false });
+
+  if (error && shouldRetryGrowthKpiLegacySelect(error)) {
+    const legacyCols = GROWTH_KPI_DAILY_COLUMNS.filter(
+      (c) =>
+        c !== "funnel_invite_attributions" &&
+        c !== "funnel_feedback_submitted" &&
+        c !== "funnel_surprise_graille_rolled",
+    ).join(", ");
+    const retry = await admin
+      .from("growth_kpi_daily")
+      .select(legacyCols)
+      .gte("day", sinceDay)
+      .order("day", { ascending: false });
+    data = retry.data;
+    error = retry.error;
+  }
 
   if (error) {
     return { ok: false, reason: "query_failed", detail: error.message };
@@ -112,11 +154,14 @@ export async function loadGrowthKpiDaily(days: number): Promise<
       partners_cta_graille_plus: Number(row.partners_cta_graille_plus ?? 0),
       funnel_auth_success: Number(row.funnel_auth_success ?? 0),
       funnel_discover_views: Number(row.funnel_discover_views ?? 0),
+      funnel_surprise_graille_rolled: Number(row.funnel_surprise_graille_rolled ?? 0),
       funnel_meals_proposed: Number(row.funnel_meals_proposed ?? 0),
       funnel_meal_venues: Number(row.funnel_meal_venues ?? 0),
       funnel_meal_status_updates: Number(row.funnel_meal_status_updates ?? 0),
       funnel_onboarding_done: Number(row.funnel_onboarding_done ?? 0),
       funnel_accueil_views: Number(row.funnel_accueil_views ?? 0),
+      funnel_invite_attributions: Number(row.funnel_invite_attributions ?? 0),
+      funnel_feedback_submitted: Number(row.funnel_feedback_submitted ?? 0),
       active_users: Number(row.active_users ?? 0),
       feedback_answers: feedback?.count ?? 0,
       feedback_avg_score: feedback && feedback.count > 0 ? Math.round((feedback.sum / feedback.count) * 100) / 100 : null,

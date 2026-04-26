@@ -1,71 +1,61 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import {
   clearAuthEmailDeviceStorage,
   persistAuthEmailHint,
   PTG_LOCAL_AUTH_EMAIL_KEY,
   PTG_LOCAL_AUTH_REMEMBER_EMAIL_KEY,
 } from "@/lib/auth/device-email-hint";
+import { PTG_AUTH_CALLBACK_PATH } from "@/lib/auth/auth-path";
 import { getPostLoginPath } from "@/lib/auth/post-login-path";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { useSupabaseSession } from "@/lib/auth/use-supabase-session";
 import { InviteRefBanner } from "@/components/InviteRefBanner";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgMenuCard } from "@/components/PtgMenuCard";
 import { PtgAppFlow } from "@/components/PtgAppFlow";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MARKETING_ENTRY_PULSE_LINES } from "@/lib/marketing-copy";
+import { clearOptionalLocalCachesOnSignOut } from "@/lib/auth/local-browser-cleanup";
 import { emitInviteAttributionOnce } from "@/lib/growth-invite-attribution";
+import { withInviteParamsOnAuthCallbackUrl } from "@/lib/invite-attribution";
 import { trackGrowthEvent } from "@/lib/growth-events";
-import { UX_AUTH } from "@/lib/ux-copy";
+import { UX_AUTH, UX_SESSION } from "@/lib/ux-copy";
 
 function getEmailRedirectTo(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (explicit) {
     try {
-      return new URL("/auth/callback", explicit).toString();
+      return new URL(PTG_AUTH_CALLBACK_PATH, explicit).toString();
     } catch {
       // Fallback sur l'origine courante si NEXT_PUBLIC_SITE_URL est mal formée.
     }
   }
-  return `${window.location.origin}/auth/callback`;
+  return `${window.location.origin}${PTG_AUTH_CALLBACK_PATH}`;
 }
 
 function AuthForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const err = searchParams.get("error");
+  const reauth = searchParams.get("reauth") === "1";
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [authErrorDetail, setAuthErrorDetail] = useState<string | null>(null);
   const [otpSubmitting, setOtpSubmitting] = useState(false);
   const [otpError, setOtpError] = useState(false);
-  const [sessionActive, setSessionActive] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [emailHintFromDevice, setEmailHintFromDevice] = useState(false);
   const [rememberEmail, setRememberEmail] = useState(true);
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const { supabase, sessionActive } = useSupabaseSession();
   const otpDigits = otp.replace(/\D/g, "");
 
   useEffect(() => {
     void trackGrowthEvent({ event: "auth_page_viewed", context: "auth" });
   }, []);
-
-  useEffect(() => {
-    if (!supabase) return;
-    let cancelled = false;
-    void supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!cancelled) setSessionActive(Boolean(session));
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSessionActive(Boolean(session));
-    });
-    return () => {
-      cancelled = true;
-      sub.subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   useEffect(() => {
     try {
@@ -109,7 +99,7 @@ function AuthForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: getEmailRedirectTo(),
+        emailRedirectTo: withInviteParamsOnAuthCallbackUrl(getEmailRedirectTo()),
       },
     });
     if (error) {
@@ -154,6 +144,15 @@ function AuthForm() {
     window.location.assign(path);
   }
 
+  async function signOut() {
+    if (!supabase) return;
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    clearOptionalLocalCachesOnSignOut();
+    setSigningOut(false);
+    router.refresh();
+  }
+
   return (
     <div className="ptg-page">
       <PtgAppFlow>
@@ -175,7 +174,7 @@ function AuthForm() {
               </div>
             </PtgMenuCard>
 
-            <InviteRefBanner />
+            {!(supabase && sessionActive) && <InviteRefBanner />}
 
             {err === "auth" && (
               <p className="ptg-banner ptg-banner-warn" role="alert">
@@ -189,12 +188,36 @@ function AuthForm() {
             )}
 
             {supabase && sessionActive && (
-              <p className="ptg-banner" role="status" style={{ marginBottom: "1rem" }}>
-                {UX_AUTH.alreadyInSession}{" "}
-                <Link href="/accueil">{UX_AUTH.goToAppAccueil}</Link>
-                {" · "}
-                <Link href="/decouvrir">{UX_AUTH.goToDiscover}</Link>
-              </p>
+              <div className="ptg-banner" role="status" style={{ marginBottom: "1rem" }}>
+                <p className="ptg-type-body" style={{ margin: "0 0 0.75rem" }}>
+                  {UX_AUTH.alreadyInSession}
+                </p>
+                {reauth && (
+                  <p
+                    className="ptg-type-body"
+                    style={{
+                      margin: "0 0 0.75rem",
+                      fontSize: "var(--ptg-text-sm)",
+                      color: "var(--ptg-text-muted)",
+                    }}
+                  >
+                    {UX_AUTH.reauthHint}
+                  </p>
+                )}
+                <div className="ptg-stack ptg-stack--dense" style={{ gap: "0.65rem" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem 0.75rem", alignItems: "center" }}>
+                    <Link href="/accueil" className="ptg-btn-primary" style={{ textAlign: "center", textDecoration: "none" }}>
+                      {UX_AUTH.goToAppAccueil}
+                    </Link>
+                    <Link href="/decouvrir" className="ptg-btn-secondary" style={{ textAlign: "center", textDecoration: "none" }}>
+                      {UX_AUTH.goToDiscover}
+                    </Link>
+                  </div>
+                  <button type="button" className="ptg-btn-ghost" disabled={signingOut} onClick={() => void signOut()}>
+                    {signingOut ? UX_SESSION.signOutBusy : UX_SESSION.signOut}
+                  </button>
+                </div>
+              </div>
             )}
 
             {!supabase && (
@@ -208,7 +231,7 @@ function AuthForm() {
               </div>
             )}
 
-            {supabase && (
+            {supabase && !sessionActive && (
               <>
                 <form onSubmit={submit}>
               <div className="ptg-field">
@@ -387,7 +410,7 @@ function AuthForm() {
           <Link href="/legal/confidentialite">politique de confidentialité</Link>.
         </p>
 
-        {supabase && (
+        {supabase && !sessionActive && (
           <p style={{ marginTop: "1rem" }}>
             <Link href="/onboarding" className="ptg-link-back" style={{ marginBottom: 0 }}>
               {UX_AUTH.skipLink}

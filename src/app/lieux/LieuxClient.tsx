@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { RestaurantsNearbyMap, type MapPlaceRow } from "@/components/RestaurantsNearbyMap";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
+import { trackGrowthEvent as postGrowthEvent } from "@/lib/growth-events";
+import { UX_LIEUX } from "@/lib/ux-copy";
 
 type PlacesResponse = {
   results?: MapPlaceRow[];
@@ -27,7 +30,7 @@ type PlaceSignal = {
 type RadiusOption = 800 | 1200 | 2000;
 const NEARBY_CACHE_KEY = "ptg_lieux_nearby_cache_v1";
 
-function trackGrowthEvent(
+function trackLieux(
   event:
     | "lieux_search"
     | "lieux_nearby_click"
@@ -38,13 +41,7 @@ function trackGrowthEvent(
     | "lieux_memory_optin_public",
   metadata?: Record<string, unknown>,
 ) {
-  void fetch("/api/growth/event", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ event, context: "lieux_page", metadata: metadata ?? {} }),
-  }).catch(() => {
-    // Analytics must not block UX.
-  });
+  void postGrowthEvent({ event, context: "lieux_page", metadata });
 }
 
 function mapsHref(place: MapPlaceRow): string {
@@ -69,6 +66,7 @@ export function LieuxClient() {
   const [loading, setLoading] = useState(false);
   const [nearbyBusy, setNearbyBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [authLoginCta, setAuthLoginCta] = useState(false);
   const [results, setResults] = useState<MapPlaceRow[]>([]);
   const [picked, setPicked] = useState<MapPlaceRow | null>(null);
   const [copied, setCopied] = useState(false);
@@ -129,6 +127,7 @@ export function LieuxClient() {
       if (parsed.radius === 800 || parsed.radius === 1200 || parsed.radius === 2000) {
         setRadius(parsed.radius);
       }
+      setAuthLoginCta(false);
       setNote("Derniers lieux proches chargés depuis ta session récente.");
     } catch {
       // Ignore cache parsing issues.
@@ -141,27 +140,32 @@ export function LieuxClient() {
       setResults([]);
       setLoading(false);
       setNote(null);
+      setAuthLoginCta(false);
       return;
     }
     const timer = setTimeout(() => {
       void (async () => {
         setLoading(true);
         setNote(null);
-        trackGrowthEvent("lieux_search", { q_len: q.length });
+        setAuthLoginCta(false);
+        trackLieux("lieux_search", { q_len: q.length });
         const res = await fetch(`/api/places/search?q=${encodeURIComponent(q)}`);
         const json = (await res.json()) as PlacesResponse;
         setLoading(false);
         if (!res.ok) {
           setResults([]);
           if (res.status === 401) {
-            setNote("Connecte-toi pour utiliser la recherche de lieux.");
+            setAuthLoginCta(true);
+            setNote(UX_LIEUX.needAuthSearch);
             return;
           }
+          setAuthLoginCta(false);
           setNote(json.error?.message ?? "Recherche indisponible pour l’instant.");
           return;
         }
         const list = json.results ?? [];
         setResults(list);
+        setAuthLoginCta(false);
         if (list.length === 0) {
           setNote("Aucun résultat. Essaie un autre mot-clé ou utilise « Restos autour de moi ».");
         }
@@ -177,7 +181,7 @@ export function LieuxClient() {
     setCopied(false);
     setMemorySaved(false);
     setPickedSignal(null);
-    trackGrowthEvent("lieux_place_picked", { has_address: Boolean(place.address) });
+    trackLieux("lieux_place_picked", { has_address: Boolean(place.address) });
     void (async () => {
       const u = new URL("/api/places/memory", window.location.origin);
       if (place.place_id) u.searchParams.set("place_id", place.place_id);
@@ -205,7 +209,7 @@ export function LieuxClient() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      trackGrowthEvent("lieux_copy_place", { has_address: Boolean(picked.address) });
+      trackLieux("lieux_copy_place", { has_address: Boolean(picked.address) });
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
       setNote("Impossible de copier automatiquement. Tu peux copier le nom à la main.");
@@ -237,13 +241,13 @@ export function LieuxClient() {
       setNote("Impossible d’enregistrer ta note perso pour l’instant.");
       return;
     }
-    trackGrowthEvent("lieux_memory_save", {
+    trackLieux("lieux_memory_save", {
       has_score: Boolean(personalScore),
       would_return: wouldReturn,
       recommend_public: recommendPublic,
     });
     if (recommendPublic) {
-      trackGrowthEvent("lieux_memory_optin_public", {});
+      trackLieux("lieux_memory_optin_public", {});
     }
     setMemorySaved(true);
     const refreshed = await fetch("/api/places/memory?limit=6");
@@ -259,7 +263,8 @@ export function LieuxClient() {
     }
     setNearbyBusy(true);
     setNote(null);
-    trackGrowthEvent("lieux_nearby_click", { radius });
+    setAuthLoginCta(false);
+    trackLieux("lieux_nearby_click", { radius });
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const res = await fetch(
@@ -272,14 +277,17 @@ export function LieuxClient() {
         if (!res.ok) {
           setResults([]);
           if (res.status === 401) {
-            setNote("Connecte-toi pour voir les restos autour de toi.");
+            setAuthLoginCta(true);
+            setNote(UX_LIEUX.needAuthNearby);
             return;
           }
+          setAuthLoginCta(false);
           setNote(json.error?.message ?? "Lieux à proximité indisponibles pour l’instant.");
           return;
         }
         const list = json.results ?? [];
         setResults(list);
+        setAuthLoginCta(false);
         try {
           window.localStorage.setItem(
             NEARBY_CACHE_KEY,
@@ -352,7 +360,8 @@ export function LieuxClient() {
       )}
       {note && (
         <p className="ptg-type-body" style={{ margin: "0 0 0.75rem", fontSize: "var(--ptg-text-sm)" }}>
-          {note}
+          {note}{" "}
+          {authLoginCta ? <AuthPromptLink /> : null}
         </p>
       )}
       {memories.length > 0 && (
@@ -443,7 +452,7 @@ export function LieuxClient() {
               target="_blank"
               rel="noopener noreferrer"
               style={{ fontSize: "var(--ptg-text-ui-sm)", fontWeight: 600 }}
-              onClick={() => trackGrowthEvent("lieux_maps_open", { has_coords: Boolean(picked.lat && picked.lng) })}
+              onClick={() => trackLieux("lieux_maps_open", { has_coords: Boolean(picked.lat && picked.lng) })}
             >
               Ouvrir sur Maps
             </a>

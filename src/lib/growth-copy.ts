@@ -11,7 +11,10 @@ export const GROWTH_SURPRISE = {
   ctaRoll: "\u{1F3B2} Lancer la graille",
   rolling: "On mélange les cartes…",
   foundTitle: "On t’a trouvé quelqu’un",
+  foundTitleMulti: "Quelques pistes dans ce tirage",
   foundHint: "Bonne vibe détectée \u{1F440}",
+  multiNote:
+    "Plusieurs profils mélangés d’un coup : garde celui qui te parle, ou relance pour d’autres cartes.",
   compatibleNote: "Même ville. Intentions repas compatibles.",
   softNote: "Même ville. À toi de voir si l’addition colle.",
   refuse: "Pas pour moi",
@@ -62,7 +65,34 @@ export const GROWTH_INVITE_SHARE_TEXT =
 
 /** Arrivée depuis `/commencer?ref=friend_*` (propagé en `invite_ref` sur auth / onboarding). */
 export const GROWTH_INVITE_LANDING_BANNER =
-  "Quelqu’un t’a invité à découvrir Paye ta graille. Tu peux créer ton compte ou suivre le parcours : zéro obligation.";
+  "Quelqu’un t’a invité à découvrir Paye ta graille. Zéro obligation : tu avances quand tu veux.";
+
+/** Parcours visible sur auth / onboarding (carte premium). */
+export const GROWTH_INVITE_JOURNEY = {
+  headline: "Tu arrives par une invitation",
+  steps: [
+    "Confirmer ton compte (téléphone ou e-mail).",
+    "Compléter ton profil et ton intention repas.",
+    "Découvrir qui mange près de toi — tu décides ensuite.",
+  ],
+  foot: "Les étapes importantes (repas, rappels) se retrouvent dans Moi, avec un compteur dans la navigation.",
+} as const;
+
+/** Notif in-app créée côté serveur quand `invite_attribution` est enregistré. */
+export const GROWTH_INVITE_IN_APP = {
+  title: "Invitation enregistrée",
+  body: "Ton lien d’invitation est enregistré. Poursuis avec les rencontres ou ton profil. Les alertes utiles s’affichent ici ; un e-mail part seulement pour l’essentiel (ex. proposition de repas), selon ton compte.",
+} as const;
+
+/** Sous la carte « inviter un ami » : où suivre la suite. */
+export const GROWTH_INVITE_CARD_FOLLOWUP =
+  "Les alertes utiles sont dans Moi (badge dans la nav). Avec un lien personnel (app configurée), tu peux aussi recevoir une notif — et parfois un e-mail — quand quelqu’un finalise son arrivée.";
+
+/** Notif in-app pour l’inviteur (jeton signé vérifié côté serveur). */
+export const GROWTH_INVITER_REFERRAL_IN_APP = {
+  title: "Ton invitation a porté ses fruits",
+  body: "Quelqu’un vient de finaliser son arrivée avec ton lien. Tu retrouves le détail ici ; les prochaines étapes repas suivront dans ce même fil.",
+} as const;
 
 export const GROWTH_GRAILLE_PLUS_LEAD =
   "Trois bonus. Un clic chacun. Rien d’obligatoire.";

@@ -3,12 +3,14 @@ import { BrandScribbleBackdrop } from "@/components/BrandScribbleBackdrop";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
 import { HeroOrbitLabels } from "@/components/HeroOrbitLabels";
 import { HomeCinematicMarqueBand } from "@/components/HomeCinematicMarqueBand";
+import { HomeHeroAuthActions } from "@/components/HomeHeroAuthActions";
 import { HomeMarketAtmosphereBand } from "@/components/HomeMarketAtmosphereBand";
 import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop";
 import { MarketingPulseLine } from "@/components/MarketingPulseLine";
 import { PtgLandingDecor } from "@/components/PtgLandingDecor";
 import { SiteFooter } from "@/components/SiteFooter";
 import { heroIllustrationEnabled, heroIllustrationPortraitRailSrc } from "@/lib/env-public";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   MARKETING_CORE_PROMISE,
   MARKETING_HOME_PULSE_LINES,
@@ -18,8 +20,16 @@ import {
 } from "@/lib/marketing-copy";
 import { UX_HOME } from "@/lib/ux-copy";
 
-export default function HomePage() {
+export default async function HomePage() {
   const heroRasterOn = heroIllustrationEnabled();
+  const supabase = await createServerSupabaseClient();
+  let initialSignedIn = false;
+  if (supabase) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    initialSignedIn = Boolean(user);
+  }
 
   return (
     <div className="ptg-page" data-ptg-hero-raster={heroRasterOn ? "on" : "off"}>
@@ -73,14 +83,7 @@ export default function HomePage() {
             >
               {UX_HOME.whisper}
             </p>
-            <div className="ptg-stack ptg-stack--roomy ptg-guide-press-cycle ptg-motion-profile-subtle">
-              <Link href="/commencer" className="ptg-btn-primary ptg-guide-press" style={{ textAlign: "center" }}>
-                {UX_HOME.ctaPrimary}
-              </Link>
-              <Link href="/auth" className="ptg-btn-secondary ptg-guide-press">
-                {UX_HOME.ctaHasAccount}
-              </Link>
-            </div>
+            <HomeHeroAuthActions initialSignedIn={initialSignedIn} />
             <div className="ptg-hero-proof" aria-hidden>
               <span>repas réels</span>
               <span>quartier proche</span>

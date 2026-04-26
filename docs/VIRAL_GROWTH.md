@@ -9,7 +9,7 @@
 
 - **`InviteFriendCard`** : lien `/commencer?ref=friend_<source>` + tracking `invite_share_opened` / `invite_link_copied` / `invite_native_shared` (`src/components/InviteFriendCard.tsx`).
 - **Moments d’invitation** : accueil, découvrir, liste repas ; **repas détail** — après **match**, **repas confirmé** (avant « Repas fait »), **repas terminé** (`src/app/repas/[id]/MealDetailClient.tsx`). Copy dédiées dans `src/lib/growth-copy.ts` (`GROWTH_INVITE_CARD_*`).
-- **Arrivée invité·e** : `/commencer?ref=friend_*` → redirection vers `/auth` ou `/onboarding` avec **`invite_ref`** ; bandeau **`InviteRefBanner`** sur auth et onboarding ; persistance **`sessionStorage`** + événement **`invite_attribution`** une fois après OTP ou fin onboarding (si session API OK).
+- **Arrivée invité·e** : `/commencer?ref=friend_*` → redirection vers `/auth` ou `/onboarding` avec **`invite_ref`** ; bandeau **`InviteRefBanner`** sur auth et onboarding ; persistance **`sessionStorage`** + cookies + événement **`invite_attribution`** une fois après OTP, **magic link** (cookies posés dans `/auth/callback` à partir des query `invite_ref` / `inv` transmises via `emailRedirectTo`) ou fin onboarding (si session API OK). Émission aussi depuis **`/accueil`** et **`/profil`** une fois la session chargée pour couvrir le login par lien sans repasser par la page auth.
 
 ---
 
@@ -142,6 +142,7 @@ Cadre éthique : **EAST** (easy, attractive, social, timely) sans cacher l’int
 - `invite_link_copied`
 - `invite_native_shared`
 - `discover_propose_click`
+- `surprise_graille_rolled` (carte « Lancer la graille », métadonnées `count`, `compatible_strict`)
 - `repas_refresh_click`
 - `nudge_level_updated`
 - `partners_page_view` / `partners_cta_click` (page Partenaires, métadonnée `cta`: `mailto` | `graille_plus`)
@@ -149,11 +150,13 @@ Cadre éthique : **EAST** (easy, attractive, social, timely) sans cacher l’int
 
 Source technique :
 - table `public.growth_events`
-- vue `public.growth_kpi_daily` (totaux, **funnel** auth/découverte/repas/onboarding/accueil, **Partenaires** : vues, CTA mailto / Graille+, actifs — migration `20260427100000_growth_kpi_funnel.sql`)
+- vue `public.growth_kpi_daily` (totaux, **funnel** auth/découverte/**surprise graille** /repas/onboarding/accueil, **attributions invitation** + **événements feedback** `feedback_submitted`, **Partenaires** : vues, CTA mailto / Graille+, actifs — migrations `20260427100000_growth_kpi_funnel.sql`, `20260502100000_growth_kpi_funnel_invite_feedback.sql`, `20260526120000_growth_kpi_surprise_graille.sql`)
 - endpoint `POST /api/growth/event`
 - endpoint `GET /api/growth/kpi?days=30` (session admin ou en-tête `x-ptg-growth-kpi-secret`) — voir `PTG_GROWTH_ADMIN_USER_IDS` / `PTG_GROWTH_KPI_SECRET`
 - page interne noindex `/interne/croissance` (tableau agrégé)
 - helper front `src/lib/growth-events.ts`
+
+**Cross-appareil (magic link)** : au moment d’envoyer le mail, `signInWithOtp` utilise un `emailRedirectTo` qui reprend `invite_ref` / `inv` depuis le stockage local (`withInviteParamsOnAuthCallbackUrl` dans `src/lib/invite-attribution.ts`). Après échange du code, `applyInviteAttributionCookiesFromCallbackUrl` (`src/lib/invite-attribution-callback.ts`) recrée les cookies pour la suite du parcours. Vérifier que **Authentication → URL Configuration** Supabase autorise bien l’URL de callback (y compris avec paramètres de requête si ton projet l’exige).
 
 Exemples SQL pilotage :
 

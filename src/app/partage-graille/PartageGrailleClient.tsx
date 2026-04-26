@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { readApiError } from "@/lib/api/read-api-error";
 import { displayInitials } from "@/lib/display-initials";
 import { trackGrowthEvent } from "@/lib/growth-events";
+import { AuthPromptLink } from "@/components/AuthPromptLink";
 import { GROWTH_MICRO_WIN, GROWTH_MODULE_SHARE } from "@/lib/growth-copy";
 import { UX_BACK } from "@/lib/ux-copy";
 
@@ -36,15 +37,18 @@ export function PartageGrailleClient() {
   const [submitBusy, setSubmitBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [reserveBusy, setReserveBusy] = useState<string | null>(null);
+  const [listNeedsAuth, setListNeedsAuth] = useState(false);
 
   const load = useCallback(async () => {
     setBusy(true);
     setErr(null);
+    setListNeedsAuth(false);
     const res = await fetch("/api/share-offers");
     if (!res.ok) {
-      const { message } = await readApiError(res);
+      const parsed = await readApiError(res);
       setOffers(null);
-      setErr(message);
+      setErr(parsed.message);
+      setListNeedsAuth(res.status === 401 || parsed.code === "unauthorized");
       setBusy(false);
       return;
     }
@@ -208,7 +212,8 @@ export function PartageGrailleClient() {
       {busy && <p className="ptg-type-body">Chargement des offres…</p>}
       {err && (
         <p className="ptg-banner ptg-banner-warn" role="alert">
-          {err}
+          {err}{" "}
+          {listNeedsAuth ? <AuthPromptLink /> : null}
         </p>
       )}
 
