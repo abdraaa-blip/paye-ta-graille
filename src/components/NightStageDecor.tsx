@@ -1,6 +1,7 @@
 "use client";
 
 import { HeroIllustrationBackdrop } from "@/components/HeroIllustrationBackdrop";
+import { DEFAULT_HERO_WEBP_PATH } from "@/lib/env-public";
 
 /**
  * Bandeau décoratif bas de page : même illustration que l’accueil, traitement « nuit » + faisceaux.
@@ -13,6 +14,8 @@ export function NightStageDecor() {
         variant="night"
         priority={false}
         sizes="(max-width: 540px) 100vw, min(42rem, 92vw)"
+        overrideMainSrc={DEFAULT_HERO_WEBP_PATH}
+        overrideMobileSrc={null}
       />
       <div className="ptg-night-stage__beam ptg-night-stage__beam--1" />
       <div className="ptg-night-stage__beam ptg-night-stage__beam--2" />
