@@ -66,7 +66,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-verify-report
           path: |
@@ -124,7 +124,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-beta-seo-report
           path: |
@@ -173,7 +173,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: anon-key-placeholder-for-ci-build-only
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-mobile-report
           path: |
